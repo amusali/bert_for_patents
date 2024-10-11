@@ -1,0 +1,9 @@
+{
+    "local": {
+      "base_path": "C:/Users/amusali/Desktop/uc3m PhD"
+    },
+    "colab": {
+      "base_path": "/content/bert_for_patents"
+    }
+  }
+  

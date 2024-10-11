@@ -6,6 +6,11 @@ from api.bertfns import BertPredictor
 import tensorflow as tf
 import time
 from absl import flags
+import re
+import os
+from path_utils import get_base_path
+
+base_path = get_base_path()
 
 flags.FLAGS([""])
 
@@ -46,8 +51,8 @@ def get_bert_token_input(texts, tokenizer, MAX_SEQ_LENGTH):
 
 MAX_SEQ_LENGTH = 512
 MAX_PREDS_PER_SEQUENCE = 45
-MODEL_DIR = r"C:\Users\amusali\Desktop\uc3m PhD\bert_large_trained_on_patents\temp_dir\rawout"
-VOCAB = r"C:\Users\amusali\Desktop\uc3m PhD\bert_for_patents_vocab_39k.txt"
+MODEL_DIR = os.path.join(base_path, "bert_large_trained_on_patents/temp_dir/rawout")
+VOCAB = os.path.join(base_path, "bert_for_patents_vocab_39k.txt")
 return_cls_embedding = True
 
 pooling = tf.keras.layers.GlobalAveragePooling1D()
