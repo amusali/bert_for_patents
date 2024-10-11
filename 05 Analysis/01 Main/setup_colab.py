@@ -25,7 +25,7 @@ packages_to_skip = ['tensorflow-intel', 'pywin32']
 requirements_path = '/content/bert_for_patents/requirements.txt'
 
 with open(requirements_path, 'r') as file:
-  requirements = [line.strip() for line in file.splitlines() if line.strip()]
+    requirements = [line.strip() for line in file.read().split('\n') if line.strip()]
 
 for package in requirements:
   package_name = package.split(';')[0].split('==')[0].split('>=')[0].split('~')[0].strip()
