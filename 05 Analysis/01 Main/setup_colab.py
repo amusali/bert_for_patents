@@ -1,7 +1,10 @@
 ### set path and working directory
 import sys
+import os 
+
 sys.path.append('/content/bert_for_patents/05 Analysis/01 Main')
-%cd /content/bert_for_patents/05 Analysis/01 Main
+# Change directory to the location of the setup_colab.py file
+os.chdir("/content/bert_for_patents/05 Analysis/01 Main")
 
 ### PACKAGES
 import subprocess
@@ -36,3 +39,8 @@ for package in requirements:
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     else:
         print(f"{package} is already installed.")
+
+
+### MOUNT DRIVE
+from google.colab import drive
+drive.mount('/content/drive')
