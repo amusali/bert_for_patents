@@ -1,0 +1,33 @@
+# Ignore BERT model folder
+bert_large_trained_on_patents/
+
+# Ignore original BERT repo
+bert_repo/
+
+# Ignore any virtual environment folders
+venv/
+.env/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore logs
+*.log
+
+# Api keys - obviously lol
+05 Analysis/01 Main/api/api_key.txt
+05 Analysis/01 Main/api/google_api_key.txt
+05 Analysis/01 Main/api/search_engine_id.txt
+
+
+# Legacy codes from TFM
+05 Analysis/00 Master Thesis legacy codes/
+
+# .vscode
+.vscode/
