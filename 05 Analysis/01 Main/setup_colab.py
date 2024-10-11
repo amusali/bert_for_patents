@@ -22,7 +22,7 @@ def package_is_installed(package_name):
 # List of packages to skip in Colab
 packages_to_skip = ['tensorflow-intel', 'pywin32']
 
-requirements_path = 'requirements.txt'
+requirements_path = 'content/bert_for_patents/requirements.txt'
 
 with open(requirements_path, 'r') as file:
   requirements = [line.strip() for line in file.splitlines() if line.strip()]
