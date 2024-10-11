@@ -51,7 +51,10 @@ def get_bert_token_input(texts, tokenizer, MAX_SEQ_LENGTH):
 
 MAX_SEQ_LENGTH = 512
 MAX_PREDS_PER_SEQUENCE = 45
-MODEL_DIR = os.path.join(base_path, "bert_large_trained_on_patents/temp_dir/rawout")
+if 'COLAB_GPU' in os.environ:
+  MODEL_DIR = "/content/drive/MyDrive/bert_large_trained_on_patents/temp_dir/rawout"
+else:
+  MODEL_DIR = os.path.join(base_path, "bert_large_trained_on_patents/temp_dir/rawout")
 VOCAB = os.path.join(base_path, "bert_for_patents_vocab_39k.txt")
 return_cls_embedding = True
 

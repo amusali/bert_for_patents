@@ -23,12 +23,17 @@ from path_utils import get_base_path
 ## Get base path depending on the environment
 base_path = get_base_path()
 
-# Construct file paths
-api_key_path = os.path.join(base_path, '05 Analysis/01 Main/api/api_key.txt')
 
-# Read the API key from the file
-with open(api_key_path, 'r') as file:
-    api_key = file.read().strip()
+if 'COLAB_GPU' in os.environ:
+    api_key = os.getenv('patentsview_api_key')
+else:
+    # Construct file paths
+    api_key_path = os.path.join(base_path, '05 Analysis/01 Main/api/api_key.txt')
+
+    # Read the API key from the file
+    with open(api_key_path, 'r') as file:
+        api_key = file.read().strip()
+
 
 # Build URLs
 headers = {
