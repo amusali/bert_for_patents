@@ -14,7 +14,7 @@ packages_to_skip = ['tensorflow-intel', 'pywin32', 'pywin', 'win32api']
 # Read the requirements.txt file in binary mode
 with open('/content/bert_for_patents/requirements.txt', 'rb') as f:
     content = f.read()
-
+print(content)
 # Remove BOM if present
 content = content.decode('utf-8-sig')  # 'utf-8-sig' handles BOM
 
