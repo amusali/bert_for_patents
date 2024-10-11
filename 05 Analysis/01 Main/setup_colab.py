@@ -38,7 +38,4 @@ for package in requirements:
     else:
         print(f"{package} is already installed.")
 
-# Mount Google Drive
-from google.colab import drive
-drive.mount('/content/drive')
 
