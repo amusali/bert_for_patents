@@ -16,6 +16,7 @@ base_path = get_base_path()
 
 def get_embeddings_from_field(patent,
                             filter_tfidf,
+                            group_only,
                             assignee_file = os.path.join(base_path, "05 Analysis/01 Main/api/treated_assignees.xlsx" ),
                             ):
     """
@@ -36,7 +37,7 @@ def get_embeddings_from_field(patent,
     ## Get embedding of all the patents in the same CPC sub-group
 
     ### Find the abstracts in the same CPC sub-group
-    resp = get_patents_from_fields(target_field, year)
+    resp = get_patents_from_fields(target_field, year, group_only)
     patents_to_compare = resp[0][target_field][str(year)]['patents']
     total_count = resp[1]
     print('There are in total', total_count-1, 'patents to be compared against.')
@@ -74,7 +75,7 @@ def get_embeddings_from_field(patent,
 
 
 
-def get_embedding_of_target_and_field(patent, filter_tfidf = True):
+def get_embedding_of_target_and_field(patent, group_only, filter_tfidf = True):
     """
     Input: A patent which is dictionary with following keys:
         - patent_id - str
@@ -89,15 +90,15 @@ def get_embedding_of_target_and_field(patent, filter_tfidf = True):
     """
      
     ## Get abstract embeddings to compare against
-    embd_of_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, filter_tfidf)
+    embd_of_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, filter_tfidf, group_only)
 
     ## Get own abstract embedding
     embd_of_patent_being_compared = be.get_embd_of_whole_abstract(patent['abstract'], has_context_token=True)
 
     return  embd_of_patent_being_compared, embd_of_to_compare_against, patents_to_compare_against
 
-def find_the_closest_abstract_excerpt(patent, filter_tfidf):
-    own, against, patents = get_embedding_of_target_and_field(patent, filter_tfidf)
+def find_the_closest_abstract_excerpt(patent, group_only, filter_tfidf):
+    own, against, patents = get_embedding_of_target_and_field(patent, group_only, filter_tfidf)
     dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
     
     if index_cs != index_eu:

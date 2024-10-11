@@ -145,7 +145,7 @@ def get_patents(company_name, date, source = 'legacy'):
         patent_base_url = 'https://api.patentsview.org/patents/query?o={"page":1,"per_page":10000}&q='
         assignee_field = 'assignee_organization'
         date_field = 'app_date'
-        fields = '["cpc_subgroup_id","app_date","patent_id", "patent_date","cpc_category","assignee_country", "patent_num_cited_by_us_patents", "patent_abstract", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
+        fields = '["cpc_subgroup_id", "cpc_group_id" ,"app_date","patent_id", "patent_date","cpc_category","assignee_country", "patent_num_cited_by_us_patents", "patent_abstract", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
 
         # Build the query URL with company name and fields
         patent_url = f'{patent_base_url}{{"{assignee_field}": "{closest_match}"}}&f={fields}'
@@ -184,11 +184,13 @@ def get_patents(company_name, date, source = 'legacy'):
                             
                             # Extract relevant fields: citations, tech field, year, and abstract
                             citations = patent['patent_num_cited_by_us_patents']
-                            tech_field = patent['cpcs'][0]['cpc_subgroup_id']
+                            tech_field_subgroup = patent['cpcs'][0]['cpc_subgroup_id']
+                            tech_field_group = patent['cpcs'][0]['cpc_group_id']
+
                             abstract = patent['patent_abstract']
                             citedby_patents = patent['citedby_patents']
                             patent_year = patent_date.year
-                            to_add = {'patent_id':patent['patent_id'], 'citations': citations, 'tech_field': tech_field, 'year': patent_date, 'abstract': abstract, 'citedby_patents' : citedby_patents}  
+                            to_add = {'patent_id':patent['patent_id'], 'citations': citations, 'tech_field_subgroup': tech_field_subgroup, 'tech_field_group': tech_field_group, 'year': patent_date, 'abstract': abstract, 'citedby_patents' : citedby_patents}  
                            
                             # Categorize patents based on the comparison to the provided date
                             if patent_date < date:
@@ -217,8 +219,7 @@ def get_patents(company_name, date, source = 'legacy'):
         return patents_before, patents_after
 
     
-
-def get_patents_from_fields(field, year):
+def get_patents_from_fields(field, year, group_only = False):
     year = str(year)
     
     analyzed_fields = {}
@@ -226,27 +227,33 @@ def get_patents_from_fields(field, year):
     if field not in analyzed_fields:
         analyzed_fields[field] = {}
 
-    if str(year) not in analyzed_fields[field]:
+    if year not in analyzed_fields[field]:
         analyzed_fields[field][year] = {}
-   
+
+        # Construct the query URL
         base_url = 'https://api.patentsview.org/patents/query?o={"page":1,"per_page":10000}&q='
-        query = f'{{"_and":[{{"_and":[{{"cpc_subgroup_id":"{field}"}},{{"cpc_sequence":0}}]}},{{"_gte":{{"app_date":"{year}-01-01"}}}},{{"_lte":{{"app_date":"{year}-12-31"}}}}]}}'
-        fields = '["patent_num_cited_by_us_patents", "patent_id", "patent_abstract", "assignee_organization"]'
+        
+        ## Change URL based on the field requested
+        if group_only:
+
+            query = f'{{"_and":[{{"_and":[{{"cpc_group_id":"{field}"}},{{"cpc_sequence":0}}]}},{{"_gte":{{"app_date":"{year}-01-01"}}}},{{"_lte":{{"app_date":"{year}-12-31"}}}}]}}'
+
+        else:
+            query = f'{{"_and":[{{"_and":[{{"cpc_subgroup_id":"{field}"}},{{"cpc_sequence":0}}]}},{{"_gte":{{"app_date":"{year}-01-01"}}}},{{"_lte":{{"app_date":"{year}-12-31"}}}}]}}'
+
+        fields = '["patent_num_cited_by_us_patents", "patent_id", "patent_abstract", "assignee_organization", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
         full_url = f'{base_url}{query}&f={fields}'
 
         last_page = 1
-
         analyzed_fields[field][year]["patents"] = []
 
         while True:
-            
-            headers = {'User-Agent': ua.random}
-
-            tt = random.random()
+            headers = {'User-Agent': ua.random}  # Randomize user-agent to avoid blocking
+            tt = random.random()  # Random sleep time between requests
             print('Sleeping for: ', tt, 'seconds')
             time.sleep(tt)
             
-            response = requests.get(full_url, headers = headers)
+            response = requests.get(full_url, headers=headers)
             if response.status_code == 200:
                 last_page += 1
                 data = response.json()
@@ -256,18 +263,26 @@ def get_patents_from_fields(field, year):
                     analyzed_fields[field][year] = None
                     return None
                 for patent in patents:
-                       analyzed_fields[field][year]["patents"].append(
-                                                              {"patent_id": patent['patent_id'],
-                                                               "abstract" : patent['patent_abstract'],
-                                                               "assignee_organization" : patent['assignees'][0]['assignee_organization']}
-                                                               )
+                    # Skip patents without abstracts
+                    if patent['patent_abstract'] is None:
+                        continue
+                    # Append relevant patent information
+                    analyzed_fields[field][year]["patents"].append(
+                        {"patent_id": patent['patent_id'],
+                         "abstract": patent['patent_abstract'],
+                         "assignee_organization": patent['assignees'][0]['assignee_organization'],
+                         "citedby_patents" : patent['citedby_patents']}
+                    )
+                # Update the URL for the next page
                 half_url = f'https://api.patentsview.org/patents/query?o={{"page":{last_page},"per_page":10000}}&q='
                 full_url = f'{half_url}{query}&f={fields}'
                 
-                if data['count'] < 10000:
+                if data['count'] < 10000:  # Break the loop if fewer than 10,000 patents are returned
                     break
             else:
                 print('Error code is: ', response.status_code)
                 analyzed_fields[field][year] = None
-                return None        
-        return analyzed_fields, data['total_patent_count']
+                return None
+
+        count = len(analyzed_fields[field][year]['patents'])  # Total number of patents
+        return analyzed_fields, count
