@@ -12,11 +12,8 @@ import pkg_resources
 packages_to_skip = ['tensorflow-intel', 'pywin32', 'pywin', 'win32api']
 
 # Read the requirements.txt file in binary mode
-with open('/content/bert_for_patents/requirements.txt', 'rb') as f:
+with open('/content/bert_for_patents/requirements.txt', 'r', encoding= 'utf-16-le') as f:
     content = f.read()
-print(content)
-# Remove BOM if present
-content = content.decode('utf-8-sig')  # 'utf-8-sig' handles BOM
 
 # Split lines and store in requirements
 requirements = content.splitlines()
@@ -36,6 +33,8 @@ for package in requirements:
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     else:
         print(f"{package} is already installed.")
+        
 # Mount Google Drive
 from google.colab import drive
 drive.mount('/content/drive')
+
