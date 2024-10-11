@@ -6,48 +6,36 @@ import importlib.metadata
 # Set path and working directory
 sys.path.append('/content/bert_for_patents/05 Analysis/01 Main')
 os.chdir("/content/bert_for_patents/05 Analysis/01 Main")
+import subprocess
+import pkg_resources
 
-# List of packages to skip in Colab
 packages_to_skip = ['tensorflow-intel', 'pywin32', 'pywin', 'win32api']
 
-# Read the requirements.txt file
-try:
-    with open('/content/bert_for_patents/requirements.txt', 'r') as f:
-        requirements = f.readlines()
+# Read the requirements.txt file in binary mode
+with open('/content/bert_for_patents/requirements.txt', 'rb') as f:
+    content = f.read()
 
-    # Get the list of installed packages using importlib.metadata
-    installed_packages = {pkg.metadata['Name'].lower() for pkg in importlib.metadata.distributions()}
+# Remove BOM if present
+content = content.decode('utf-8-sig')  # 'utf-8-sig' handles BOM
 
-    # Process and install only valid packages
-    for package in requirements:
-        package = package.strip()
+# Split lines and store in requirements
+requirements = content.splitlines()
 
-        # Skip blank lines or comments
-        if not package or package.startswith("#"):
-            continue
+# Get the list of installed packages
+installed_packages = {pkg.key for pkg in pkg_resources.working_set}
 
-        # Check if it's in the expected format "package==version"
-        if "==" not in package:
-            print(f"Skipping invalid package line: {package}")
-            continue
+# Install only the missing packages
+for package in requirements:
+    pkg_name = package.split('==')[0]  # Get the package name
 
-        pkg_name = package.split('==')[0].lower()
-
-        # Skip local-only packages
-        if pkg_name in packages_to_skip:
-            print(f"Skipping {pkg_name} (not needed in Colab).")
-            continue
-
-        # Install missing packages
-        if pkg_name not in installed_packages:
-            print(f"Installing {package}...")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-        else:
-            print(f"{package} is already installed.")
-
-except Exception as e:
-    print(f"Error while reading or processing the requirements file: {e}")
-
+    if pkg_name.lower() in packages_to_skip:
+        print(f"Skipping {pkg_name} (not needed in Colab).")
+        continue
+    if pkg_name not in installed_packages:
+        print(f"Installing {package}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    else:
+        print(f"{package} is already installed.")
 # Mount Google Drive
 from google.colab import drive
 drive.mount('/content/drive')
