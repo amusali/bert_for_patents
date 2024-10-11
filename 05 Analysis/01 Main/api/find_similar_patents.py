@@ -30,7 +30,10 @@ def get_embeddings_from_field(patent,
     """
 
     ## Get patent data
-    target_field = patent['tech_field']
+    if group_only:    
+        target_field = patent['tech_field_group']
+    else:
+        target_field = patent['tech_field_subgroup']
     year = patent['year'].year
     target_patent_id = patent['patent_id']
 
@@ -106,7 +109,7 @@ def find_the_closest_abstract_excerpt(patent, group_only, filter_tfidf):
         return None
     else:
         print(f"Cosine similarity is {dist_cs[index_cs]}")
-        return [patent['abstract'], patents[index_cs]]
+        return patent['abstract'], patents[index_cs]
     
 
 def find_distances(embd_of_patent_being_compared, embd_of_to_compare_against):
@@ -124,6 +127,9 @@ def find_distances(embd_of_patent_being_compared, embd_of_to_compare_against):
     ### Initialize a distance matrix to store distances
     distances_euclidean = np.zeros(n)
     
+    ### Progress
+    print("Size of own", np.shape(embd_of_patent_being_compared))
+    print("Size of against", np.shape(embd_of_to_compare_against))
     ### Euclidean distance
         # Compute the Euclidean distance between each pair of arrays
     for i in range(n):

@@ -251,7 +251,7 @@ def get_patents_from_fields(field, year, group_only = False):
             headers = {'User-Agent': ua.random}  # Randomize user-agent to avoid blocking
             tt = random.random()  # Random sleep time between requests
             print('Sleeping for: ', tt, 'seconds')
-            time.sleep(tt)
+            time.sleep(tt + 2)
             
             response = requests.get(full_url, headers=headers)
             if response.status_code == 200:

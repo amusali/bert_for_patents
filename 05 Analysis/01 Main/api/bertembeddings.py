@@ -96,7 +96,7 @@ def get_embd_of_whole_abstract(abstracts, return_cls_embedding=True, has_context
         abstracts, context_tokens=context_tokens * len(abstracts))
 
     # Collect the CLS embeddings for each abstract in the batch
-    cls_token_embeddings = response[0]['cls_token'].numpy()  # Shape will be (batch_size, 1024)
+    cls_token_embeddings = response[0]['cls_token'].numpy().reshape(-1)  # Shape will be (batch_size, 1024)
 
     end_time = time.time()
     average_time = (end_time - start_time)/len(abstracts)
