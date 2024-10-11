@@ -105,10 +105,12 @@ def find_the_closest_abstract_excerpt(patent, group_only, filter_tfidf):
     dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
     
     if index_cs != index_eu:
+
         print("The closest abstract is different across metrics")
-        return None
+        print(f"Cosine similarity is: {dist_cs[index_cs]}")
+        return patent['abstract'], patents[index_cs]
     else:
-        print(f"Cosine similarity is {dist_cs[index_cs]}")
+        print(f"Cosine similarity is: {dist_cs[index_cs]}")
         return patent['abstract'], patents[index_cs]
     
 
