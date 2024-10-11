@@ -1,42 +1,43 @@
-### set path and working directory
 import sys
-import os 
-
-sys.path.append('/content/bert_for_patents/05 Analysis/01 Main')
-# Change directory to the location of the setup_colab.py file
-os.chdir("/content/bert_for_patents/05 Analysis/01 Main")
-
-### PACKAGES
+import os
 import subprocess
-import pkg_resources
+import importlib.metadata
+
+# Set path and working directory
+sys.path.append('/content/bert_for_patents/05 Analysis/01 Main')
+os.chdir("/content/bert_for_patents/05 Analysis/01 Main")
 
 # List of packages to skip in Colab
 packages_to_skip = ['tensorflow-intel', 'pywin32', 'pywin', 'win32api']
 
-# Read the requirements.txt file
-with open('/content/bert_for_patents/requirements.txt', 'r') as f:
-    requirements = f.readlines()
+# Read the requirements.txt file and handle encoding issues
+with open('/content/bert_for_patents/requirements.txt', 'rb') as f:
+    content = f.read()
 
-# Get the list of installed packages
-installed_packages = {pkg.key for pkg in pkg_resources.working_set}
+# Decode the file content and handle BOM
+content = content.decode('utf-8-sig')  # This handles BOM if present
+requirements = content.splitlines()
 
-# Install only the missing packages
+# Get the list of installed packages using importlib.metadata (instead of pkg_resources)
+installed_packages = {pkg.metadata['Name'].lower() for pkg in importlib.metadata.distributions()}
+
+# Install only the missing packages, skip local-only ones
 for package in requirements:
     package = package.strip()
-    pkg_name = package.split('==')[0]  # Get the package name
+    pkg_name = package.split('==')[0].lower()  # Get the package name and make it lowercase for comparison
 
     # Skip local-only packages
-    if pkg_name.lower() in packages_to_skip:
+    if pkg_name in packages_to_skip:
         print(f"Skipping {pkg_name} (not needed in Colab).")
         continue
-    
+
+    # Install missing packages
     if pkg_name not in installed_packages:
         print(f"Installing {package}...")
         subprocess.check_call([sys.executable, "-m", "pip", "install", package])
     else:
         print(f"{package} is already installed.")
 
-
-### MOUNT DRIVE
+# Mount Google Drive
 from google.colab import drive
 drive.mount('/content/drive')
