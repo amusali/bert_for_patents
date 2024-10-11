@@ -6,36 +6,39 @@ sys.path.append('/content/bert_for_patents/05 Analysis/01 Main')
 # Change directory to the location of the setup_colab.py file
 os.chdir("/content/bert_for_patents/05 Analysis/01 Main")
 
-
 ### PACKAGES
 import subprocess
-import importlib.util
-
-# Function to check if a package is installed
-def package_is_installed(package_name):
-  """
-  Check if a package is installed and importable.
-  """
-  spec = importlib.util.find_spec(package_name)
-  return spec is not None
+import pkg_resources
 
 # List of packages to skip in Colab
-packages_to_skip = ['tensorflow-intel', 'pywin32']
+packages_to_skip = ['tensorflow-intel', 'pywin32', 'pywin', 'win32api']
 
-requirements_path = '/content/bert_for_patents/requirements.txt'
+# Read the requirements.txt file in binary mode
+with open('/content/bert_for_patents/requirements.txt', 'rb') as f:
+    content = f.read()
 
-with open(requirements_path, 'r') as file:
-    requirements = [line.strip() for line in file.read().split('\n') if line.strip()]
+# Remove BOM if present
+content = content.decode('utf-8-sig')  # 'utf-8-sig' handles BOM
 
+# Split lines and store in requirements
+requirements = content.splitlines()
+
+# Get the list of installed packages
+installed_packages = {pkg.key for pkg in pkg_resources.working_set}
+
+# Install only the missing packages, skip those meant for local (non-Colab)
 for package in requirements:
-  package_name = package.split(';')[0].split('==')[0].split('>=')[0].split('~')[0].strip()
-  if package_name not in packages_to_skip and not package_is_installed(package_name):
-    try:
-      # This will install any version of the package
-      subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-    except subprocess.CalledProcessError:
-      print(f"Error installing {package}")
-      raise
+    pkg_name = package.split('==')[0]  # Get the package name
+    # Skip local-only packages
+    if pkg_name.lower() in packages_to_skip:
+        print(f"Skipping {pkg_name} (not needed in Colab).")
+        continue
+    # Check if package is installed
+    if pkg_name.lower() not in installed_packages:
+        print(f"Installing {package}...")
+        subprocess.check_call([sys.executable, "-m", "pip", "install", package])
+    else:
+        print(f"{package} is already installed.")
 
 
 ### MOUNT DRIVE
