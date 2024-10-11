@@ -102,7 +102,7 @@ def get_embd_of_whole_abstract(abstracts, return_cls_embedding=True, has_context
     average_time = (end_time - start_time)/len(abstracts)
     print(f'There are {len(abstracts)} patents being fed into BERT')
 
-    print(f"It took {average_time:.2f} seconds to get the embeddings of the input.")
+    print(f"It took {average_time:.5f} seconds to get the embeddings of the input.")
     
     if return_cls_embedding:
         # Return CLS embeddings for all abstracts in the batch
