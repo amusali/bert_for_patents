@@ -269,6 +269,7 @@ def get_patents_from_fields(field, year, group_only = False):
                     # Append relevant patent information
                     analyzed_fields[field][year]["patents"].append(
                         {"patent_id": patent['patent_id'],
+                         "citations": patent['patent_num_cited_by_us_patents'],
                          "abstract": patent['patent_abstract'],
                          "assignee_organization": patent['assignees'][0]['assignee_organization'],
                          "citedby_patents" : patent['citedby_patents']}

@@ -13,11 +13,13 @@ tf.config.optimizer.set_jit(True)
 
 ## Get base path depending on the environment
 base_path = get_base_path()
+print(base_path)
 
 def get_embeddings_from_field(patent,
-                            filter_tfidf,
                             group_only,
-                            assignee_file = os.path.join(base_path, "05 Analysis/01 Main/api/treated_assignees.xlsx" ),
+                            filter_tfidf,
+                            batch_size = 2,
+                            assignee_file = os.path.join(base_path, "05 Analysis/01 Main/api/treated_assignees.xlsx"),
                             ):
     """
     Input: A patent which is dictionary with following keys:
@@ -42,21 +44,22 @@ def get_embeddings_from_field(patent,
     ### Find the abstracts in the same CPC sub-group
     resp = get_patents_from_fields(target_field, year, group_only)
     patents_to_compare = resp[0][target_field][str(year)]['patents']
-    total_count = resp[1]
-    print('There are in total', total_count-1, 'patents to be compared against.')
+    #total_count = resp[1]
+    print('There are in total', len(patents_to_compare), 'patents to be compared against.')
 
     ### Eliminate treated patents
     try: ## Read the file
+        print(assignee_file)
         df = pd.read_excel(assignee_file)
     except FileNotFoundError:
         print(f"The file {assignee_file} was not found in the project folder.")
         return False
     
-    #### Check whether the assignees are treated or not 
-    filtered_patents = [d for d in patents_to_compare if d.get('assignee_organization') not in df['Assignees'].values] 
+    #### Check whether the assignees are treated or not & Remove target patent
+    filtered_patents = [d for d in patents_to_compare if d.get('assignee_organization') not in df['Assignees'].values and d.get('patent_id') != target_patent_id] 
 
     ### Remove target patent and get abstracts
-    abstracts_to_compare = [d['abstract'] for d in filtered_patents if d.get('patent_id') != target_patent_id]
+    abstracts_to_compare = [d['abstract'] for d in filtered_patents]
 
     ### Eliminate unlikely similar patents using TF-IDF
     if filter_tfidf:
@@ -65,20 +68,25 @@ def get_embeddings_from_field(patent,
         filtered_abstracts = filter_patents_by_similarity(abstracts_to_compare, tfidf_distances, indx)
 
         ### Report on the progress
-        print(f"There were {total_count - 1 } files in total. After TF-IDF filtering, there are {len(filtered_abstracts)} patents left now.")
+        print(f"There were {len(patents_to_compare)} files in total. After TF-IDF filtering, there are {len(filtered_abstracts)} patents left now.")
     else:
         filtered_abstracts = abstracts_to_compare
 
+    ## Batching
+    # Create batches of abstracts
+    batched_abstracts = [filtered_abstracts[i:i + batch_size] for i in range(0, len(filtered_abstracts), batch_size)]
+
+
     ### Get embeddings of abstracts in the same CPC sub-group
     docs_embeddings = []
-    for abs in filtered_abstracts:
-        docs_embeddings.append(be.get_embd_of_whole_abstract(abs, has_context_token=True))
+    for batch in batched_abstracts:
+        docs_embeddings.append(be.get_embd_of_whole_abstract(batch, has_context_token=True))
+    docs_embeddings = np.vstack(docs_embeddings) ## vertically stack embeddings ~ (num of patents x 1024)
+    return docs_embeddings, filtered_abstracts, filtered_patents
 
-    return docs_embeddings, filtered_abstracts
 
 
-
-def get_embedding_of_target_and_field(patent, group_only, filter_tfidf = True):
+def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf = True):
     """
     Input: A patent which is dictionary with following keys:
         - patent_id - str
@@ -93,27 +101,42 @@ def get_embedding_of_target_and_field(patent, group_only, filter_tfidf = True):
     """
      
     ## Get abstract embeddings to compare against
-    embd_of_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, filter_tfidf, group_only)
+    embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
 
     ## Get own abstract embedding
     embd_of_patent_being_compared = be.get_embd_of_whole_abstract(patent['abstract'], has_context_token=True)
 
-    return  embd_of_patent_being_compared, embd_of_to_compare_against, patents_to_compare_against
+    return  embd_of_patent_being_compared, embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against
 
-def find_the_closest_abstract_excerpt(patent, group_only, filter_tfidf):
-    own, against, patents = get_embedding_of_target_and_field(patent, group_only, filter_tfidf)
+def find_the_closest_abstract_excerpt(patent, group_only, batch_size,  filter_tfidf):
+    own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
     dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
     
     if index_cs != index_eu:
 
         print("The closest abstract is different across metrics")
         print(f"Cosine similarity is: {dist_cs[index_cs]}")
-        return patent['abstract'], patents[index_cs]
+        return patent['abstract'], abstracts[index_cs]
     else:
         print(f"Cosine similarity is: {dist_cs[index_cs]}")
-        return patent['abstract'], patents[index_cs]
+        return patent['abstract'], abstracts[index_cs]
     
+def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 'cosinesim'):
+    ## Get own and against embeddings
+    own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
+    dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
 
+    ## Create dict to return
+    if metric == "cosinesim":
+        indx = index_cs
+    else:
+        indx = index_eu
+
+    similar_pair = {'Target patent' : patent, 
+                    'Closest patent' : patents[indx]}
+    
+    return similar_pair
+    
 def find_distances(embd_of_patent_being_compared, embd_of_to_compare_against):
     """
     Input: Two inputs
@@ -140,7 +163,7 @@ def find_distances(embd_of_patent_being_compared, embd_of_to_compare_against):
 
     ### Cosine similarity
     ### Compute cosine similarity between each pair of arrays
-    distances_cs = cosine_similarity([embd_of_patent_being_compared], embd_of_to_compare_against).flatten()
+    distances_cs = cosine_similarity(embd_of_patent_being_compared, embd_of_to_compare_against).flatten()
     closest_patent_cs_index = np.argmax(distances_cs)
     
     return distances_euclidean, closest_patent_euclidean_index, distances_cs, closest_patent_cs_index
