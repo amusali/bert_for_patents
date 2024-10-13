@@ -14,41 +14,7 @@ base_path = get_base_path()
 
 flags.FLAGS([""])
 
-## Define a input tokenizer function
-def get_bert_token_input(texts, tokenizer, MAX_SEQ_LENGTH):
-  input_ids = []
-  input_mask = []
-  segment_ids = []
-
-  ## Tokenizer
-
-  for text in texts:
-    tokens = tokenizer.tokenize(text)
-    if len(tokens) > MAX_SEQ_LENGTH - 2:
-      tokens = tokens[0:(MAX_SEQ_LENGTH - 2)]
-    tokens = ['[CLS]'] + tokens + ['[SEP]']
-    #tokens = add_input_context(tokens, ['claim'])
-    print(tokens)
-
-    ids = tokenizer.convert_tokens_to_ids(tokens)
-    token_pad = MAX_SEQ_LENGTH - len(ids)
-    input_mask.append([1] * len(ids) + [0] * token_pad)
-    input_ids.append(ids + [0] * token_pad)
-    segment_ids.append([0] * MAX_SEQ_LENGTH)
-
-  #print(input_ids, " with length:", len(input_ids))
-
-
-  return {
-      'segment_ids': tf.convert_to_tensor(segment_ids, dtype=tf.int64),
-      'input_mask': tf.convert_to_tensor(input_mask, dtype=tf.int64),
-      'input_ids': tf.convert_to_tensor(input_ids, dtype=tf.int64),
-      'mlm_positions': tf.convert_to_tensor([], dtype=tf.int64)
-  }
-
 ## Initialzie BERT
-
-
 MAX_SEQ_LENGTH = 512
 MAX_PREDS_PER_SEQUENCE = 45
 if 'COLAB_GPU' in os.environ:
