@@ -33,4 +33,4 @@ __pycache__/
 .vscode/
 
 # Stata raw data
-05 Analysis/01 Main/01 Stata/raw/
+#05 Analysis/01 Main/01 Stata/raw/
