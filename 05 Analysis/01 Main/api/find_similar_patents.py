@@ -86,9 +86,9 @@ def get_embeddings_from_field(patent,
     for filtered_patent in filtered_patents:
         if apipat.is_patent_checked(filtered_patent.patent_id, checked_patents):
             # Retrieve the embeddings of already checked patents
-            if checked_patents[filtered_patent.patent_id].patent_embedding is not None:
+            if checked_patents[filtered_patent.patent_id] is not None:
                 #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
-                filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id].patent_embedding)
+                filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
                 docs_embeddings.append(filtered_patent.patent_embedding)
         else:
             # Add to a list of abstracts for those that need embeddings computed
@@ -111,11 +111,11 @@ def get_embeddings_from_field(patent,
                 # Update the patent and save it to the checked patents dictionary
                 filtered_patents[i].set_embedding(computed_embeddings[computed_idx])
                 docs_embeddings[i] = computed_embeddings[computed_idx]
-                checked_patents[filtered_patents[i].patent_id] = filtered_patents[i]
+                #checked_patents[filtered_patents[i].patent_id] = filtered_patents[i]
                 computed_idx += 1
 
     # Save the updated checked_patents back to the pickle file
-    apipat.save_patents(list(checked_patents.values()))
+    apipat.save_patents_with_embeddings(filtered_patents)
 
     return np.vstack(docs_embeddings), filtered_abstracts, filtered_patents
 

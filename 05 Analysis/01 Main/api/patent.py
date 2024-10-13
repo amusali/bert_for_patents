@@ -98,9 +98,9 @@ class Patent:
         return sorted_by_application, sorted_by_granted
 
 
-# Saving patents to file
-def save_patents(patent_list, checked_patents_full_path=checked_patents_full_path):
-    """Adds new Patent objects to the existing checked_patents file without overwriting."""
+# Saving patents to file (with only patent_id as the key and patent_embedding as the value)
+def save_patents_with_embeddings(patent_list, checked_patents_full_path=checked_patents_full_path):
+    """Saves patent_id as the key and patent_embedding as the value to the existing checked_patents file without overwriting."""
     
     # Load existing patents from the pickle file
     try:
@@ -109,14 +109,16 @@ def save_patents(patent_list, checked_patents_full_path=checked_patents_full_pat
         print(f"No existing patent file found at {checked_patents_full_path}. Creating a new one.")
         existing_patents = {}
     
-    # If a single abstract (string) is passed, convert it to a list of one element
+    # If a single patent is passed, convert it to a list of one element
     if not isinstance(patent_list, list):
         patent_list = [patent_list]
 
     # Convert input list of Patent objects to a dictionary with patent_id as the key
-    new_patents = {patent.patent_id: patent for patent in patent_list}
+    # and only patent_embedding as the value
+    new_patents = {patent.patent_id: patent.patent_embedding
+                   for patent in patent_list if patent.patent_embedding is not None}
 
-    # Update the existing patents with new patents
+    # Update the existing patents with new ones
     existing_patents.update(new_patents)
 
     # Save the updated dictionary back to the file
@@ -124,6 +126,7 @@ def save_patents(patent_list, checked_patents_full_path=checked_patents_full_pat
         pickle.dump(existing_patents, f)
     
     print(f"Patents have been updated and saved to {checked_patents_full_path}.")
+
 
 
 # Loading patents from file

@@ -36,7 +36,7 @@ def get_closest_assignees(company_name, threshold=85):
     legacy_base_url = 'https://api.patentsview.org/assignees/query?q='
     assignee_urls = []
     company_names = remove_common_endings(company_name)
-    print("Company names are: ", company_names)
+    #print("Company names are: ", company_names)
 
     assignee_orgs = set()
     best_matches = []
@@ -104,15 +104,15 @@ def get_closest_assignees(company_name, threshold=85):
                     #print(name, ' is being matched to', matches_above_threshold)
     if assignee_orgs:
         
-        print('All THE FOUND COMPANIES ARE: ', assignee_orgs)
+        #print('All THE FOUND COMPANIES ARE: ', assignee_orgs)
         if best_matches:
-            print("Best matches are: ", best_matches)
+           # print("Best matches are: ", best_matches)
 
             return best_matches
         else:
-            print("No best matches found.")
+           # print("No best matches found.")
             return None
     else:
-        print('NO Assignees Found')
+        #print('NO Assignees Found')
         return None
         
