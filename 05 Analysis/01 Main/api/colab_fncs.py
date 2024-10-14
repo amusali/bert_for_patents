@@ -2,7 +2,7 @@ import os
 import dill as pickle
 
 # Define paths
-SAVE_DIR = '/content/drive/My Drive/subgroup_checked'
+SAVE_DIR = '/content/drive/My Drive/PhD Data/subgroup_checked'
 if not os.path.exists(SAVE_DIR):
     os.makedirs(SAVE_DIR)
 
@@ -46,7 +46,7 @@ def process_assignees(df, get_patents_function, find_closest_patent_function):
             patents_after = patents['after']
 
         # Now find the closest patent for each in patents_after
-        for patent in patents_after:
+        for patent in patents_before:
             closest_patent, distance_cs, distance_eu = find_closest_patent_function(patent, group_only=False, batch_size=32, filter_tfidf=True)
             
             # Add closest patent information to the patent object
