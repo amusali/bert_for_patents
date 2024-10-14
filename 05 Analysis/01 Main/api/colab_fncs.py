@@ -33,7 +33,7 @@ def process_assignees(df, get_patents_function, find_closest_patent_function):
         patents = load_patents_from_drive(assignee_name, date_effective)
         if patents is None:
             # Get patents if not previously saved
-            patents_before_after = get_patents_function({assignee_name}, {date_effective})
+            patents_before_after = get_patents_function(assignee_name, date_effective)
             patents_before = patents_before_after[0]
             patents_after = patents_before_after[1]
             
