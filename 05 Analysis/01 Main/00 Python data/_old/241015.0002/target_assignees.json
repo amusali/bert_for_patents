@@ -1,7 +1,6 @@
 {
     "Fox Software Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Stac Electronics Inc": {
         "str_matched": [
@@ -9,18 +8,13 @@
                 "Stac Electronics, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Stac Electronics, Inc."
         ]
     },
     "Altamira Software Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "One Tree Software": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "UUNet Technologies Inc": {
         "str_matched": [
@@ -28,9 +22,6 @@
                 "UUNet Technologies, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "UUNet Technologies, Inc."
         ]
     },
     "Wang Laboratories Inc": {
@@ -39,9 +30,6 @@
                 "Wang Laboratories, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Wang Laboratories, Inc."
         ]
     },
     "Individual Inc": {
@@ -66,24 +54,16 @@
                 "Individual, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Individual, Inc.",
-            "Individual Software, Inc.",
-            "Individual Network, LLC"
         ]
     },
     "Blue Ribbon SoundWorks Ltd": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Netwise Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Bruce Artwick Organization": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Vermeer Technologies": {
         "str_matched": [
@@ -103,24 +83,16 @@
                 "Albers VerMeer Design, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Vermeer Technologies, Inc.",
-            "Vermeer Manufacturing Company",
-            "Vermeer Corporation"
         ]
     },
     "Aspect Software Engineering": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Colusa Software Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Mobile Telecommunications Technologies Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Exos Inc": {
         "str_matched": [
@@ -128,16 +100,13 @@
                 "EXOS GMBH",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "eShop Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "SingleTrac Entertainment Technologies Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "WebTV Networks Inc": {
         "str_matched": [
@@ -149,27 +118,19 @@
                 "WebTV Networks Inc. (Microsoft)",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "WebTV Networks, Inc.",
-            "WebTV Networks Inc. (Microsoft)"
         ]
     },
     "VDOnet Corp Ltd": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Microsoft Network LLC{MSN}": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "CMG Information Services Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "NetCarta Corp(CMG Information Service Inc)": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "NeXT Computer Inc": {
         "str_matched": [
@@ -177,22 +138,16 @@
                 "NeXT Computer, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "NeXT Computer, Inc."
         ]
     },
     "Digital Anvil": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Interse Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Dimension X Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Comcast Corp": {
         "str_matched": [
@@ -216,22 +171,13 @@
                 "Comcast IP Holdings I, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "COMCAST CABLE COMMUNICATIONS, LLC",
-            "Comcast Cable Holdings, LLC",
-            "Comcast Cable Communications Management, LLC",
-            "Comcast Interactive Media, LLC",
-            "Comcast IP Holdings I, LLC"
         ]
     },
     "Cooper & Peters Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "VXtreme Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Apple Computer Inc": {
         "str_matched": [
@@ -239,9 +185,6 @@
                 "Apple Computer Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Apple Computer Inc."
         ]
     },
     "Progressive Networks Inc": {
@@ -250,14 +193,10 @@
                 "Progressive Networks, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Progressive Networks, Inc."
         ]
     },
     "Power Computing Corp-Clone- Making Division": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "E-Stamp Corp": {
         "str_matched": [
@@ -265,14 +204,10 @@
                 "E-Stamp Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "E-Stamp Corporation"
         ]
     },
     "Hotmail Corp(Microsoft Corp)": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "General Magic Inc": {
         "str_matched": [
@@ -280,9 +215,6 @@
                 "General Magic",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "General Magic"
         ]
     },
     "WavePhore Inc": {
@@ -291,9 +223,6 @@
                 "WavePhore, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "WavePhore, Inc."
         ]
     },
     "FireFly Network Inc": {
@@ -302,14 +231,10 @@
                 "Firefly Network, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Firefly Network, Inc."
         ]
     },
     "Internet Movie Database Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "MESA Group Inc": {
         "str_matched": [
@@ -361,24 +286,16 @@
                 "Cedar Mesa Design Company LLC",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "Mesa Engineering, Inc.",
-            "MESA ASSOCIATES, INC.",
-            "La Mesa Industries, Inc."
         ]
     },
     "Telebook Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "NetCarta Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Hotmail Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Junglee Corp": {
         "str_matched": [
@@ -386,14 +303,10 @@
                 "Junglee Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Junglee Corporation"
         ]
     },
     "PlanetAll": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Valence Research Inc": {
         "str_matched": [
@@ -413,12 +326,6 @@
                 "Valence Technology (Nevada), Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Valence Technology, Inc.",
-            "Valence Operating Company",
-            "Valence Process Equipment, Inc.",
-            "Valence Technology (Nevada), Inc."
         ]
     },
     "Qwest Communications Corp": {
@@ -435,11 +342,6 @@
                 "Qwest Communications Int'l., Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Qwest Communications Inc.",
-            "Qwest Communications International Inc.",
-            "Qwest Communications Int'l., Inc."
         ]
     },
     "SkyTel Communications Inc": {
@@ -448,18 +350,13 @@
                 "SkyTel Communications, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "SkyTel Communications, Inc."
         ]
     },
     "FASA Interactive Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Microsoft Network LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Banyan Systems Inc": {
         "str_matched": [
@@ -479,11 +376,6 @@
                 "Banyan International LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Banyan Systems, Inc.",
-            "BANYAN ENERGY INC.",
-            "Banyan International LLC"
         ]
     },
     "NTL Inc": {
@@ -496,9 +388,6 @@
                 "NTL Biotech, Inc.",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "NTL Technologies, Ltd."
         ]
     },
     "GeoWorks Inc": {
@@ -507,9 +396,6 @@
                 "Geoworks Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Geoworks Corporation"
         ]
     },
     "Drugstore.com Inc": {
@@ -518,9 +404,6 @@
                 "Drugstore.com",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Drugstore.com"
         ]
     },
     "Dialogic Corp": {
@@ -541,25 +424,16 @@
                 "Dialogic Systems Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Dialogic Corporation",
-            "Dialogic (US) Inc.",
-            "Dialogic Communications Corporation",
-            "Dialogic Systems Corporation"
         ]
     },
     "CompareNet Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Numinous Technologies Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Accept.com Financial Services Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Alexa Internet": {
         "str_matched": [
@@ -567,26 +441,19 @@
                 "Alexa Internet",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Alexa Internet"
         ]
     },
     "Exchange.com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Jump Networks Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Interactive Objects Inc-Digital Audio Player Technology": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "AT&T Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nextel Communications Inc": {
         "str_matched": [
@@ -598,15 +465,10 @@
                 "Nextel Communications Company L.P.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Nextel Communications, Inc.",
-            "Nextel Communications Company L.P."
         ]
     },
     "HomeGrocer.com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "WebMD Inc": {
         "str_matched": [
@@ -618,10 +480,6 @@
                 "WEBMD HEALTH",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "WebMD, LLC",
-            "WEBMD HEALTH"
         ]
     },
     "Akamai Technologies Inc": {
@@ -630,9 +488,6 @@
                 "AKAMAI TECHNOLOGIES, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "AKAMAI TECHNOLOGIES, INC."
         ]
     },
     "Inprise Corp": {
@@ -641,34 +496,25 @@
                 "Inprise Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Inprise Corporation"
         ]
     },
     "NaviSite Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Omnibrowse Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Concentric Network Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Gear.Com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Tuttle Decision Systems Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Visio Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Softway Systems Inc": {
         "str_matched": [
@@ -676,9 +522,6 @@
                 "Softway Industrial Solutions, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Softway Industrial Solutions, LLC"
         ]
     },
     "Convergence Corp": {
@@ -739,14 +582,6 @@
                 "Global Convergence Solutions",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "CONVERGENCE, INC.",
-            "Convergence. Com",
-            "Digital:Convergence Corporation",
-            "Targeted Convergence Corporation",
-            "Global Convergence Solutions",
-            "Radical Convergence Inc."
         ]
     },
     "Entropic Inc": {
@@ -763,20 +598,13 @@
                 "ENTROPIC INNOVATION LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Entropic Communications, LLC",
-            "Entropic Systems, Inc.",
-            "ENTROPIC INNOVATION LLC"
         ]
     },
     "Raycer Graphics": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Ashford.Com Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "NetSelector": {
         "str_matched": [
@@ -784,9 +612,6 @@
                 "NetSelector, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "NetSelector, Inc."
         ]
     },
     "Intertainer Inc": {
@@ -795,9 +620,6 @@
                 "Intertainer, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Intertainer, Inc."
         ]
     },
     "Audible Inc": {
@@ -826,20 +648,13 @@
                 "Prompting Audible Incentive Devices, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Audible, Inc.",
-            "Audible Technology, LLC",
-            "AUDIBLE APIS, INC."
         ]
     },
     "Living.com Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Greg Manning Auctions Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Basis Technology Corp": {
         "str_matched": [
@@ -847,14 +662,10 @@
                 "Basis Technology Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Basis Technology Corporation"
         ]
     },
     "BroadBand Office Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Realnames Corporation": {
         "str_matched": [
@@ -862,30 +673,22 @@
                 "RealNames Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "RealNames Corporation"
         ]
     },
     "Eziba Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Bungie Software": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "NetGames USA": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "CAIS Internet Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "MongoMusic Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Pacific Microsonics Inc": {
         "str_matched": [
@@ -893,9 +696,6 @@
                 "Pacific Microsonics, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Pacific Microsonics, Inc."
         ]
     },
     "Chyron Corp": {
@@ -904,30 +704,22 @@
                 "Chyron Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Chyron Corporation"
         ]
     },
     "Great Plains Software Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Deja.com Inc-Usenet Discussion Service": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "PowerSchool Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "CEP Systems Inc-Certain Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "bluebuzz.com Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Spruce Technologies Inc": {
         "str_matched": [
@@ -955,26 +747,19 @@
                 "Blue Spruce Holdings, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Spruce Environmental Technologies, Inc."
         ]
     },
     "Outride Inc-Technology Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Egghead.com Inc d": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nothing Real LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "USA Networks Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Zayante Inc": {
         "str_matched": [
@@ -982,18 +767,13 @@
                 "Zayante",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Zayante"
         ]
     },
     "Sales Management Systems Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Silicon Grail Corp-Chalice & Rayz Digital Effects Products": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Propel Software Corp": {
         "str_matched": [
@@ -1001,14 +781,10 @@
                 "Propel Software Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Propel Software Corporation"
         ]
     },
     "XDegrees Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Vicinity Corp": {
         "str_matched": [
@@ -1016,9 +792,6 @@
                 "Vicinity Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Vicinity Corporation"
         ]
     },
     "PlaceWare Inc": {
@@ -1027,18 +800,13 @@
                 "Placeware, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Placeware, Inc."
         ]
     },
     "Pyra Labs": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Connectix Corp-Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Applied Semantics Inc": {
         "str_matched": [
@@ -1046,62 +814,46 @@
                 "Applied Semantics, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Applied Semantics, Inc."
         ]
     },
     "3DO Co-High Heat Baseball Product Line": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Kaltix Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sprinks": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Neotonic Software": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Encore Business Solutions Inc-IP Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "ActiveViews Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Ignite Logic": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Picasa Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Lookout Software LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Keyhole Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "GIANT Co Software Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "PhatBits": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sybari Software Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Groove Networks Inc": {
         "str_matched": [
@@ -1109,9 +861,6 @@
                 "Groove Networks, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Groove Networks, Inc."
         ]
     },
     "Urchin Software Corp": {
@@ -1120,30 +869,22 @@
                 "Urchin Software Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Urchin Software Corporation"
         ]
     },
     "Zipdash Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Dodgeball.com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "MessageCast Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "2Web Technologies": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "FrontBridge Technologies Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Android Inc": {
         "str_matched": [
@@ -1171,9 +912,6 @@
                 "American Android Corp.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Android Corporation"
         ]
     },
     "Teleo Inc": {
@@ -1182,14 +920,10 @@
                 "Teleo, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Teleo, Inc."
         ]
     },
     "Transformic Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Skia": {
         "str_matched": [
@@ -1197,16 +931,13 @@
                 "SKIA International Incorporated",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "ByteTaxi Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "UMT-Software and IP Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "America Online Inc": {
         "str_matched": [
@@ -1214,14 +945,10 @@
                 "America Online, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "America Online, Inc."
         ]
     },
     "dMarc Broadcasting Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Seadragon Software": {
         "str_matched": [
@@ -1229,34 +956,25 @@
                 "SEADRAGON SOFTWARE, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "SEADRAGON SOFTWARE, INC."
         ]
     },
     "Measure Map": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Shopbop.com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Apptimum Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Onfolio Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Upstartle LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "@Last Software": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Vexcel Corp": {
         "str_matched": [
@@ -1264,9 +982,6 @@
                 "Vexcel Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Vexcel Corporation"
         ]
     },
     "ProClarity Corp": {
@@ -1275,9 +990,6 @@
                 "ProClarity Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "ProClarity Corporation"
         ]
     },
     "Massive Inc": {
@@ -1290,12 +1002,10 @@
                 "Massive Incorporated",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Whale Communications Ltd": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Softricity Inc": {
         "str_matched": [
@@ -1303,26 +1013,19 @@
                 "Softricity, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Softricity, Inc."
         ]
     },
     "Winternals Software LP": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Neven Vision Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "DesktopStandard Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "YouTube Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Colloquis Inc": {
         "str_matched": [
@@ -1330,26 +1033,19 @@
                 "Colloquis, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Colloquis, Inc."
         ]
     },
     "Silicon Color Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "JotSpot Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Adscape Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Medstory Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Tellme Networks Inc": {
         "str_matched": [
@@ -1357,14 +1053,10 @@
                 "TellMe Networks, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "TellMe Networks, Inc."
         ]
     },
     "devBiz Business Solutions LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "DoubleClick Inc": {
         "str_matched": [
@@ -1372,9 +1064,6 @@
                 "DoubleClick Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "DoubleClick Inc."
         ]
     },
     "Tonic Systems Inc": {
@@ -1387,8 +1076,7 @@
                 "Tonic AI, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "aQuantive Inc": {
         "str_matched": [
@@ -1396,42 +1084,31 @@
                 "aQuantive, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "aQuantive, Inc."
         ]
     },
     "GreenBorder Technologies Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "FeedBurner Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Engyro Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "PeakStream": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Stratature Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Zenter": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Savvis Inc-Data Centers, Santa Clara,California": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "GrandCentral Communications": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Postini Inc": {
         "str_matched": [
@@ -1439,14 +1116,10 @@
                 "Postini, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Postini, Inc."
         ]
     },
     "Parakey Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Parlano Inc": {
         "str_matched": [
@@ -1454,14 +1127,10 @@
                 "Parlano, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Parlano, Inc."
         ]
     },
     "Jellyfish.com Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Calista Technologies Inc": {
         "str_matched": [
@@ -1477,9 +1146,6 @@
                 "CALISTA CAPITAL, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Calista Technologies, Inc."
         ]
     },
     "Danger Inc": {
@@ -1496,9 +1162,6 @@
                 "Danger Research",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Danger, Inc."
         ]
     },
     "Kidaro": {
@@ -1507,9 +1170,6 @@
                 "Kidaro, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Kidaro, Inc."
         ]
     },
     "Rapt Inc": {
@@ -1534,14 +1194,10 @@
                 "RAPT Ventures, Inc.",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "RAPT LLC"
         ]
     },
     "Komoku Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Farecast Inc": {
         "str_matched": [
@@ -1549,22 +1205,16 @@
                 "Farecast, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Farecast, Inc."
         ]
     },
     "PA Semi Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Navic Networks": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Powerset Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "DATAllegro Inc": {
         "str_matched": [
@@ -1572,22 +1222,16 @@
                 "DATAllegro, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "DATAllegro, Inc."
         ]
     },
     "Omnisio Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Shelfari": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Reflexive Entertainment": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Lexcycle Inc": {
         "str_matched": [
@@ -1595,18 +1239,13 @@
                 "Lexcycle, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Lexcycle, Inc."
         ]
     },
     "Rosetta Biosoftware-Certain Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Zappos.com Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "On2 Technologies Inc": {
         "str_matched": [
@@ -1618,54 +1257,40 @@
                 "On2 Technologies, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "On2 Technologies, Inc."
         ]
     },
     "FriendFeed Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "reCAPTCHA": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Interactive Supercomputing": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Placebase": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "AdMob Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Gizmo5": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "SourceGear LLC-Teamprise Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Teracent Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "AppJet Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "la la Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Yahoo! Inc-Internet Search & Advertising Operations": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sentillion Inc": {
         "str_matched": [
@@ -1673,62 +1298,46 @@
                 "Sentillion, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Sentillion, Inc."
         ]
     },
     "Quattro Wireless Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Touchco Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Mechanical Zoo Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "reMail": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Picnik.com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "DocVerse Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Episodic Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Agnilux Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "SIRI Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Ruba Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Simplify Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sharegrove Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Invite Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "ITA Software Inc": {
         "str_matched": [
@@ -1736,18 +1345,13 @@
                 "ITA Software, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "ITA Software, Inc."
         ]
     },
     "Woot Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nextstop.com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Metaweb Technologies Inc": {
         "str_matched": [
@@ -1755,9 +1359,6 @@
                 "Metaweb Technologies, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Metaweb Technologies, Inc."
         ]
     },
     "Slide Inc": {
@@ -1794,20 +1395,16 @@
                 "Swing-N-Slide Corp.",
                 "assignee"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Jambool Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Chai Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "HotPotato Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Like.com": {
         "str_matched": [
@@ -1815,22 +1412,16 @@
                 "Like.com",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Like.com"
         ]
     },
     "Angstro Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Amie Street Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "BlindType Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "AVIcode Inc": {
         "str_matched": [
@@ -1838,14 +1429,10 @@
                 "Avicode Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Avicode Inc."
         ]
     },
     "Everything Is The Best LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Canesta Inc": {
         "str_matched": [
@@ -1853,14 +1440,10 @@
                 "Canesta, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Canesta, Inc."
         ]
     },
     "Drop.io Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "HomeAway Inc": {
         "str_matched": [
@@ -1872,9 +1455,6 @@
                 "HomeAway, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "HomeAway, Inc."
         ]
     },
     "Quidsi Inc": {
@@ -1883,14 +1463,10 @@
                 "Quidsi, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Quidsi, Inc."
         ]
     },
     "Walletin": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "LivingSocial Inc": {
         "str_matched": [
@@ -1898,9 +1474,6 @@
                 "LIVINGSOCIAL, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "LIVINGSOCIAL, INC."
         ]
     },
     "Widevine Technologies Inc": {
@@ -1909,14 +1482,10 @@
                 "Widevine Technologies, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Widevine Technologies, Inc."
         ]
     },
     "eBook Technologies Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "SayNow Inc": {
         "str_matched": [
@@ -1924,34 +1493,25 @@
                 "SayNow Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "SayNow Corporation"
         ]
     },
     "Beluga Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "TalkBin": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sparkbuy Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Admeld Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "SageTV LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Punchd Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Fridge": {
         "str_matched": [
@@ -1963,8 +1523,7 @@
                 "Fridge Frame Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Pittsburgh Pattern Recognition": {
         "str_matched": [
@@ -1972,18 +1531,13 @@
                 "Pittsburgh Pattern Recognition, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Pittsburgh Pattern Recognition, Inc."
         ]
     },
     "The Dealmap": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Push Pop Press": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Motorola Mobility Holdings Inc": {
         "str_matched": [
@@ -1991,24 +1545,19 @@
                 "Motorola Mobility LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Zave Networks Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Zagat Survey LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Friend.ly": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Twisted Pixel Games LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Strobe Inc": {
         "str_matched": [
@@ -2020,16 +1569,13 @@
                 "Strobe Detector Technologies, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Apture Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Katango Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "VideoSurf Inc": {
         "str_matched": [
@@ -2037,14 +1583,10 @@
                 "VIDEOSURF, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "VIDEOSURF, INC."
         ]
     },
     "Gowalla Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Foxit Corp": {
         "str_matched": [
@@ -2052,16 +1594,13 @@
                 "FOXIT SOFTWARE INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Clever Sense Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Quorus Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Chomp Inc": {
         "str_matched": [
@@ -2069,14 +1608,10 @@
                 "Chomp, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Chomp, Inc."
         ]
     },
     "GazeHawk Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Kiva Systems Inc": {
         "str_matched": [
@@ -2092,46 +1627,34 @@
                 "Digital Kiva, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Kiva Systems, Inc."
         ]
     },
     "TxVia Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Instagram Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Malbec Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nook Media LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Glancee Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Karma Science Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Bolt & Peters": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Meebo.com Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Quickoffice Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Yammer Inc": {
         "str_matched": [
@@ -2139,9 +1662,6 @@
                 "Yammer, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Yammer, Inc."
         ]
     },
     "Perceptive Pixel Inc": {
@@ -2150,9 +1670,6 @@
                 "PERCEPTIVE PIXEL, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "PERCEPTIVE PIXEL, INC."
         ]
     },
     "Spool Inc": {
@@ -2165,12 +1682,10 @@
                 "Cool Spool, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "AuthenTec Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Wildfire Interactive Inc": {
         "str_matched": [
@@ -2178,18 +1693,13 @@
                 "Wildfire Interactive, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Wildfire Interactive, Inc."
         ]
     },
     "John Wiley & Sons Inc-Consumer Print & Digital Publishing Asset": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Threadsy Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "PhoneFactor Inc": {
         "str_matched": [
@@ -2197,9 +1707,6 @@
                 "Phonefactor, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Phonefactor, Inc."
         ]
     },
     "StorSimple Inc": {
@@ -2208,18 +1715,13 @@
                 "STORSIMPLE, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "STORSIMPLE, INC."
         ]
     },
     "MarketingPilot Software LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Incentive Targeting Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "id8 Group R2 Studios Inc": {
         "str_matched": [
@@ -2227,9 +1729,6 @@
                 "id8 Group R2 Studios, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "id8 Group R2 Studios, Inc."
         ]
     },
     "Channel Intelligence Inc": {
@@ -2238,26 +1737,19 @@
                 "Channel Intelligence, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Channel Intelligence, Inc."
         ]
     },
     "Atlas Advertiser Suite": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Mixtent Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "WifiSLAM": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Goodreads Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Parse Inc": {
         "str_matched": [
@@ -2265,14 +1757,10 @@
                 "PARSE INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "PARSE INC."
         ]
     },
     "Wavii Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "LendingClub Corp": {
         "str_matched": [
@@ -2284,14 +1772,10 @@
                 "LENDINGCLUB BANK, NATIONAL ASSOCIATION",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "LendingClub Corporation"
         ]
     },
     "Catch.Com": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Vevo LLC": {
         "str_matched": [
@@ -2299,8 +1783,7 @@
                 "VEVO SPORTS, LLC.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Hopstop.com Inc": {
         "str_matched": [
@@ -2308,9 +1791,6 @@
                 "HOPSTOP.COM, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "HOPSTOP.COM, INC."
         ]
     },
     "Passif Semiconductor Corp": {
@@ -2319,9 +1799,6 @@
                 "Passif Semiconductor Corp.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Passif Semiconductor Corp."
         ]
     },
     "Mobile Technologies": {
@@ -2394,8 +1871,7 @@
                 "Klone Mobile, LLC",
                 "assignee"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Matcha Inc": {
         "str_matched": [
@@ -2403,8 +1879,7 @@
                 "World Matcha Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Embark Inc": {
         "str_matched": [
@@ -2424,9 +1899,6 @@
                 "EMBARK GLOBAL COMPANY LLC",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "Embark, Inc."
         ]
     },
     "WIMM Labs Inc": {
@@ -2435,9 +1907,6 @@
                 "WIMM Labs, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "WIMM Labs, Inc."
         ]
     },
     "Bump Technologies Inc": {
@@ -2458,18 +1927,13 @@
                 "Oxy Bump Corporation",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "Bump Technologies, Inc."
         ]
     },
     "Flutter Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Bot Square Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Cue": {
         "str_matched": [
@@ -2489,9 +1953,6 @@
                 "CUE INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "CUE INC."
         ]
     },
     "Onavo Inc": {
@@ -2500,12 +1961,10 @@
                 "ONAVO MOBILE LTD.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Apiphany Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Topsy Labs Inc": {
         "str_matched": [
@@ -2513,9 +1972,6 @@
                 "Topsy Labs, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Topsy Labs, Inc."
         ]
     },
     "Meka Robotics LLC": {
@@ -2524,26 +1980,19 @@
                 "Meka Robotics, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Meka Robotics, LLC"
         ]
     },
     "SportStream": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "GoPago Inc-Mobile Payment Technology Assets": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Broadmap": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "SnappyLabs": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nest Labs Inc": {
         "str_matched": [
@@ -2551,18 +2000,13 @@
                 "Nest Labs, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Nest Labs, Inc."
         ]
     },
     "Branch Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Impermium Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Foursquare Labs Inc": {
         "str_matched": [
@@ -2570,14 +2014,10 @@
                 "Foursquare Labs, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Foursquare Labs, Inc."
         ]
     },
     "Double Helix Games LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "WhatsApp Inc": {
         "str_matched": [
@@ -2589,10 +2029,6 @@
                 "WhatsApp LLC.",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "WhatsApp LLC",
-            "WhatsApp LLC."
         ]
     },
     "Renaissance Learning Inc": {
@@ -2601,14 +2037,10 @@
                 "RENAISSANCE LEARNING, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "RENAISSANCE LEARNING, INC."
         ]
     },
     "Burstly Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Green Throttle Games": {
         "str_matched": [
@@ -2616,9 +2048,6 @@
                 "Green Throttle Games, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Green Throttle Games, Inc."
         ]
     },
     "Oculus VR Inc": {
@@ -2627,14 +2056,10 @@
                 "Oculus VR, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Oculus VR, LLC"
         ]
     },
     "Iconology Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Titan Aerospace": {
         "str_matched": [
@@ -2642,8 +2067,7 @@
                 "Titan Aerospace Electronics Division",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Adometry Inc": {
         "str_matched": [
@@ -2651,26 +2075,19 @@
                 "Adometry, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Adometry, Inc."
         ]
     },
     "Appetas Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Stackdriver Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Quest Visual Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Enterproid Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Beats Electronics LLC": {
         "str_matched": [
@@ -2678,9 +2095,6 @@
                 "Beats Electronics, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Beats Electronics, LLC"
         ]
     },
     "Skybox Imaging Inc": {
@@ -2689,9 +2103,6 @@
                 "Skybox Imaging, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Skybox Imaging, Inc."
         ]
     },
     "Appurify Inc": {
@@ -2700,9 +2111,6 @@
                 "Appurify, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Appurify, Inc."
         ]
     },
     "InMage Systems Inc": {
@@ -2711,18 +2119,13 @@
                 "InMage Systems, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "InMage Systems, Inc."
         ]
     },
     "Tinker Square Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Jetpac Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Twitch Interactive Inc": {
         "str_matched": [
@@ -2730,30 +2133,22 @@
                 "Twitch Interactive, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Twitch Interactive, Inc."
         ]
     },
     "Zync Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nonstop Games Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Lynx Design Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Input Factory Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Firebase Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Union Bay Networks": {
         "str_matched": [
@@ -2761,50 +2156,37 @@
                 "Union Bay Networks, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Union Bay Networks, Inc."
         ]
     },
     "Relative Wave LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Acompli Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Wit.ai Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "QuickFire Networks Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Revolution Analytics Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Launchpad Toys Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sunrise Atelier Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Athena Wireless Communications Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Red Hot Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "2lemetry Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "TheFind Inc": {
         "str_matched": [
@@ -2812,9 +2194,6 @@
                 "TheFind, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "TheFind, Inc."
         ]
     },
     "LiveLoop Inc": {
@@ -2823,14 +2202,10 @@
                 "LIVELOOP, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "LIVELOOP, INC."
         ]
     },
     "Cloudreach Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Dryft": {
         "str_matched": [
@@ -2838,8 +2213,7 @@
                 "Let's Dryft, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Shoefitr Inc": {
         "str_matched": [
@@ -2847,18 +2221,13 @@
                 "Shoefitr, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Shoefitr, Inc."
         ]
     },
     "Softcard": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Timeful Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Coherent Navigation Inc": {
         "str_matched": [
@@ -2866,9 +2235,6 @@
                 "Coherent Navigation, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Coherent Navigation, Inc."
         ]
     },
     "BlueStripe Software Inc": {
@@ -2877,18 +2243,13 @@
                 "BlueStripe Software, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "BlueStripe Software, Inc."
         ]
     },
     "Agawi Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Trellis Automation Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Pixate Inc": {
         "str_matched": [
@@ -2896,14 +2257,10 @@
                 "Pixate, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Pixate, Inc."
         ]
     },
     "Incent Games Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Elemental Technologies Inc": {
         "str_matched": [
@@ -2935,22 +2292,16 @@
                 "Elemental Portfolio, LLC",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "Elemental Technologies, Inc."
         ]
     },
     "Adallom Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Double Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Safaba Translation Solutions Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Jibe Mobile Inc": {
         "str_matched": [
@@ -2958,18 +2309,13 @@
                 "Jibe Mobile",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Jibe Mobile"
         ]
     },
     "Perceptio Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Divshot Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Mobile Data Labs Inc": {
         "str_matched": [
@@ -2977,22 +2323,16 @@
                 "MOBILE DATA LABS, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "MOBILE DATA LABS, INC."
         ]
     },
     "Fly Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Bebop Technology LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Metanautix Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Talko Inc": {
         "str_matched": [
@@ -3000,9 +2340,6 @@
                 "Talko Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Talko Inc."
         ]
     },
     "Emotient Inc": {
@@ -3011,14 +2348,10 @@
                 "Emotient, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Emotient, Inc."
         ]
     },
     "LearnSprout Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Flyby Media Inc": {
         "str_matched": [
@@ -3026,14 +2359,10 @@
                 "Flyby Media, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Flyby Media, Inc."
         ]
     },
     "Legbacore LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "LinkedIn Corp": {
         "str_matched": [
@@ -3041,14 +2370,10 @@
                 "LinkedIn Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "LinkedIn Corporation"
         ]
     },
     "Webpass Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Anvato Inc": {
         "str_matched": [
@@ -3056,9 +2381,6 @@
                 "Anvato, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Anvato, Inc."
         ]
     },
     "FortyTwo Inc": {
@@ -3067,26 +2389,19 @@
                 "FortyTwo, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "FortyTwo, Inc."
         ]
     },
     "Cloud9 IDE Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Booklamp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Turi": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Orbitera Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Beam": {
         "str_matched": [
@@ -3118,12 +2433,10 @@
                 "Electron Beam Technologies, Inc.",
                 "assignee"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Gliimpse": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Apigee Corp": {
         "str_matched": [
@@ -3131,9 +2444,6 @@
                 "Apigee Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Apigee Corporation"
         ]
     },
     "Urban Engines Inc": {
@@ -3142,18 +2452,13 @@
                 "URBAN ENGINES, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "URBAN ENGINES, INC."
         ]
     },
     "Nascent Objects Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Webpass Telecommunications LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Eyefluence Inc": {
         "str_matched": [
@@ -3161,34 +2466,25 @@
                 "EYEFLUENCE, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "EYEFLUENCE, INC."
         ]
     },
     "CrowdTangle Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "FacioMetrics LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Qwiklabs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Twitter Inc-Fabric Software": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Icloud.Net": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Kaggle Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "CNEX Labs Inc": {
         "str_matched": [
@@ -3196,14 +2492,10 @@
                 "CNEX LABS, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "CNEX LABS, Inc."
         ]
     },
     "DeskConnect LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Intentional Software Corp": {
         "str_matched": [
@@ -3211,26 +2503,19 @@
                 "INTENTIONAL SOFTWARE CORPORATION",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "INTENTIONAL SOFTWARE CORPORATION"
         ]
     },
     "Owlchemy Labs": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Lattice Data Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Source3 Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Ozlo Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Cycle Computing LLC": {
         "str_matched": [
@@ -3238,9 +2523,6 @@
                 "Cycle Computing, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Cycle Computing, LLC"
         ]
     },
     "Bitium Inc": {
@@ -3249,26 +2531,19 @@
                 "BITIUM, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "BITIUM, INC."
         ]
     },
     "Altspace VR": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Body Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Relay Media Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "XtalPi Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sqrrl Data Inc": {
         "str_matched": [
@@ -3276,18 +2551,13 @@
                 "Sqrrl Data, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Sqrrl Data, Inc."
         ]
     },
     "Confirm Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "PlayFab Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Ring Inc": {
         "str_matched": [
@@ -3299,12 +2569,10 @@
                 "Ring Industrial Group, LP",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Socratic Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Tenor Inc": {
         "str_matched": [
@@ -3312,12 +2580,10 @@
                 "KLA-Tenor Corp.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Velostrata Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Semantic Machines Inc": {
         "str_matched": [
@@ -3325,9 +2591,6 @@
                 "Semantic Machines, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Semantic Machines, Inc."
         ]
     },
     "GitHub Inc": {
@@ -3336,22 +2599,16 @@
                 "GITHUB, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "GITHUB, INC."
         ]
     },
     "Undead Labs LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Flipgrid Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Lobe Artificial Intelligence Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "inXile Entertainment Inc": {
         "str_matched": [
@@ -3359,9 +2616,6 @@
                 "INXILE ENTERTAINMENT, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "INXILE ENTERTAINMENT, INC."
         ]
     },
     "FSLogix Inc": {
@@ -3370,22 +2624,16 @@
                 "FSLOGIX, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "FSLOGIX, INC."
         ]
     },
     "cwist Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "BrightBytes Inc-DataSense Business": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "DevOps Research & Assessment LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Laserlike Inc": {
         "str_matched": [
@@ -3393,18 +2641,13 @@
                 "Laserlike, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Laserlike, Inc."
         ]
     },
     "Citus Data Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Grokstyle Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "PullString Inc": {
         "str_matched": [
@@ -3412,14 +2655,10 @@
                 "PULLSTRING, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "PULLSTRING, INC."
         ]
     },
     "Alooma Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Canvas Technology LLC": {
         "str_matched": [
@@ -3427,14 +2666,10 @@
                 "Canvas Technology, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Canvas Technology, Inc."
         ]
     },
     "Express Logic Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Looker Data Sciences Inc": {
         "str_matched": [
@@ -3442,14 +2677,10 @@
                 "LOOKER DATA SCIENCES INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "LOOKER DATA SCIENCES INC."
         ]
     },
     "Double Fine Productions Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Drive.ai Inc": {
         "str_matched": [
@@ -3457,14 +2688,10 @@
                 "drive.ai Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "drive.ai Inc."
         ]
     },
     "Intel Corp-Smartphone modem chip business": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "BlueTalon Inc": {
         "str_matched": [
@@ -3472,18 +2699,13 @@
                 "BlueTalon, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "BlueTalon, Inc."
         ]
     },
     "Spotfront Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Movere Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "CTRL-Labs Corp": {
         "str_matched": [
@@ -3491,14 +2713,10 @@
                 "CTRL-labs Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "CTRL-labs Corporation"
         ]
     },
     "Health Navigator Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Fitbit Inc": {
         "str_matched": [
@@ -3510,23 +2728,16 @@
                 "FITBIT, INC.",
                 "assignee"
             ]
-        ],
-        "google_matched": [
-            "FITBIT LLC",
-            "FITBIT, INC."
         ]
     },
     "Cloudsimple Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Packagd Corp": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "AppSheet Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Xnor.Ai Inc": {
         "str_matched": [
@@ -3534,18 +2745,13 @@
                 "XNOR.ai, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "XNOR.ai, Inc."
         ]
     },
     "DataRow": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Sanzaru Games Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Affirmed Networks Inc": {
         "str_matched": [
@@ -3557,14 +2763,10 @@
                 "AFFIRMED NETWORKS COMMUNICATIONS TECHNOLOGIES, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Affirmed Networks, Inc."
         ]
     },
     "Dark Sky Co LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "CyberX Inc": {
         "str_matched": [
@@ -3572,8 +2774,7 @@
                 "CYBERX ENGINEERING INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "NextVR Inc": {
         "str_matched": [
@@ -3581,9 +2782,6 @@
                 "NextVR Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "NextVR Inc."
         ]
     },
     "Giphy Inc": {
@@ -3592,18 +2790,13 @@
                 "GIPHY, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "GIPHY, INC."
         ]
     },
     "ADRM Software Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Fleetsmith Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "ADT Inc": {
         "str_matched": [
@@ -3611,8 +2804,7 @@
                 "ADT US Holdings, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "American Well Corp": {
         "str_matched": [
@@ -3620,9 +2812,6 @@
                 "American Well Corporation",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "American Well Corporation"
         ]
     },
     "Spaces Inc": {
@@ -3647,8 +2836,7 @@
                 "OUTDOOR SPACES, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "ZeniMax Media Inc": {
         "str_matched": [
@@ -3656,9 +2844,6 @@
                 "ZeniMax Media Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "ZeniMax Media Inc."
         ]
     },
     "Actifio Inc": {
@@ -3667,18 +2852,13 @@
                 "Actifio, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Actifio, Inc."
         ]
     },
     "Neverware Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "StratoZone LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "The Marsden Group Inc": {
         "str_matched": [
@@ -3686,14 +2866,10 @@
                 "THE MARSDEN GROUP",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "THE MARSDEN GROUP"
         ]
     },
     "Inpher Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Nuance Communications Inc": {
         "str_matched": [
@@ -3705,14 +2881,10 @@
                 "International Business Machines Corporation Nuance Communications, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Nuance Communications, Inc."
         ]
     },
     "Downpour Interactive LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Provino Technologies Inc": {
         "str_matched": [
@@ -3720,9 +2892,6 @@
                 "PROVINO TECHNOLOGIES, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "PROVINO TECHNOLOGIES, INC."
         ]
     },
     "ReFirm Labs Inc": {
@@ -3731,14 +2900,10 @@
                 "ReFirm Labs, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "ReFirm Labs, Inc."
         ]
     },
     "BigBox VR Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Wickr Inc": {
         "str_matched": [
@@ -3746,9 +2911,6 @@
                 "WICKR INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "WICKR INC."
         ]
     },
     "Art19 Inc": {
@@ -3757,9 +2919,6 @@
                 "ART19, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "ART19, Inc."
         ]
     },
     "CloudKnox Security Inc": {
@@ -3768,14 +2927,10 @@
                 "CloudKnox Security, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "CloudKnox Security, Inc."
         ]
     },
     "Suplari Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Rubrik Inc": {
         "str_matched": [
@@ -3783,9 +2938,6 @@
                 "Rubrik, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Rubrik, Inc."
         ]
     },
     "Ally Technologies Inc": {
@@ -3794,12 +2946,10 @@
                 "Ally Financial Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Clear Software LLC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Xandr Inc": {
         "str_matched": [
@@ -3807,14 +2957,10 @@
                 "Xandr Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Xandr Inc."
         ]
     },
     "Activision Blizzard Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Mandiant Inc": {
         "str_matched": [
@@ -3822,14 +2968,10 @@
                 "Mandiant, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Mandiant, Inc."
         ]
     },
     "Mantis Robotics Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Raxium Inc": {
         "str_matched": [
@@ -3837,18 +2979,13 @@
                 "RAXIUM, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "RAXIUM, INC."
         ]
     },
     "BrightBytes Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Snackable.AI": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Fungible Inc": {
         "str_matched": [
@@ -3856,9 +2993,6 @@
                 "Fungible, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Fungible, Inc."
         ]
     },
     "OpenAI LLC": {
@@ -3867,8 +3001,7 @@
                 "OpenAI Opco, LLC",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "WaveOne Inc": {
         "str_matched": [
@@ -3876,9 +3009,6 @@
                 "WAVEONE INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "WAVEONE INC."
         ]
     },
     "Mira Labs Inc": {
@@ -3887,9 +3017,6 @@
                 "Mira Labs, Inc.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "Mira Labs, Inc."
         ]
     },
     "Rocket Systems Inc": {
@@ -3934,20 +3061,16 @@
                 "B&J Rocket America, Inc.",
                 "assignee"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Hercules Labs Inc": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Anthropic PBC": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Talen Energy Corp-Data Center": {
-        "str_matched": [],
-        "google_matched": []
+        "str_matched": []
     },
     "Cumulus Digital LLC": {
         "str_matched": [
@@ -3955,8 +3078,7 @@
                 "CUMULUS DIGITAL SYSTEMS, INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": []
+        ]
     },
     "Cameyo Inc": {
         "str_matched": [
@@ -3964,9 +3086,6 @@
                 "CAMEYO INC.",
                 "legacy"
             ]
-        ],
-        "google_matched": [
-            "CAMEYO INC."
         ]
     },
     "Augmented Intelligence Inc": {
@@ -3975,7 +3094,6 @@
                 "Augmented intelligence Technologies, Inc.",
                 "assignee"
             ]
-        ],
-        "google_matched": []
+        ]
     }
 }

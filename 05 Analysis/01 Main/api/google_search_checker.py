@@ -63,6 +63,7 @@ def remove_common_endings(company_name):
 
 def perform_google_search(company_name, matched_names, api_key = api_key, search_engine_id = search_engine_id):
     #true_names = []
+    start_time = time.time()
     api_count = 0
    # for x in matched_names:
     #    true_names.append(str(x[0]))
@@ -113,6 +114,10 @@ def perform_google_search(company_name, matched_names, api_key = api_key, search
             common_domains = get_common_domains(company_search_results, result["search_results"])
             if common_domains:
                 successful_matches.append(result["matched_name"])
+
+    end_time = time.time()
+    print(f"It took {end_time - start_time:.2f} secs to find the successfull match.")
+
 
     return successful_matches, api_count
 
