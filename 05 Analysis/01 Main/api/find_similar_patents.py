@@ -163,7 +163,7 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
 
     embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
     if embd_of_to_compare_against is None:
-        return None, None, None
+        return None, None, None, None
    
 
     ## Get own abstract embedding
