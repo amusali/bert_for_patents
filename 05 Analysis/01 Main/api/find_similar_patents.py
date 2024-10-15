@@ -187,7 +187,7 @@ def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 
     try:
         own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
     except Exception:
-        return None
+        return None, None, None
     
     dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
 

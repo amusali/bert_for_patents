@@ -47,10 +47,10 @@ def process_assignees(df, get_patents_function, find_closest_patent_function):
 
         # Now find the closest patent for each in patents_before
         for patent in patents_before:
-            try:
-                closest_patent, distance_cs, distance_eu = find_closest_patent_function(patent, group_only=False, batch_size=32, filter_tfidf=True)
-            except Exception:
-                print("An error occurred, skipping this patent...")
+            
+            closest_patent, distance_cs, distance_eu = find_closest_patent_function(patent, group_only=False, batch_size=32, filter_tfidf=True)
+            if closest_patent is None:
+                print("Error happened: skipping this patent")
                 continue
             # Add closest patent information to the patent object
             patent.closest_patent = closest_patent
