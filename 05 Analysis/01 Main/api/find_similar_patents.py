@@ -37,16 +37,26 @@ def get_embeddings_from_field(patent,
 
     Output: Returns embeddings of every patent in the field of a patent - in list
     """
-
+    try: ## Read the file of treated assignees
+        df = pd.read_excel(assignee_file)
+    except FileNotFoundError:
+        print(f"The file {assignee_file} was not found in the project folder.")
+        return False
+    
     # Load the checked patents from the pkl file
     checked_patents = apipat.load_patents(checked_patents_file)
 
     ## Get patent data
     if group_only:    
         target_field = patent.tech_field_group_id
+
     else:
         target_field = patent.tech_field_subgroup_id
 
+    if target_field is None:
+        print('NULL tech field of the given patent')
+        return None
+    
     year = patent.date_application.year
     target_patent_id = patent.patent_id
 
@@ -54,20 +64,18 @@ def get_embeddings_from_field(patent,
 
     ### Find the abstracts in the same CPC sub-group in the same APPLICATION YEAR
     resp = get_patents_from_fields(target_field, year, group_only)
+    
     patents_to_compare = resp[0][target_field][str(year)]['patents']
-    #total_count = resp[1]
     print('There are in total', len(patents_to_compare), 'patents to be compared against.')
 
     ### Eliminate treated patents
-    try: ## Read the file
-        df = pd.read_excel(assignee_file)
-    except FileNotFoundError:
-        print(f"The file {assignee_file} was not found in the project folder.")
-        return False
-    
-    #### Filter out patents that are treated or the target patent itself
+        #### Filter out patents that are treated or the target patent itself
     filtered_patents = [d for d in patents_to_compare if d.assignee_organization not in df['Assignees'].values and d.patent_id != target_patent_id] 
 
+    ### Case of no filtered patents (e.g. G06N3/0455 in 2017 only contains WAVEONE INC. patents )
+    if filtered_patents == []:
+        get_embeddings_from_field(patent, group_only=True, search_threshold=5)
+        
     ### Eliminate unlikely similar patents using TF-IDF
     if filter_tfidf:
         if len(filtered_patents) > search_threshold:
@@ -83,7 +91,7 @@ def get_embeddings_from_field(patent,
     filtered_abstracts = [pat.abstract for pat in filtered_patents]
     batched_abstracts = [filtered_abstracts[i:i + batch_size] for i in range(0, len(filtered_abstracts), batch_size)]
 
-   
+    
     ## Iterate over filtered_patents in their original order
     for filtered_patent in filtered_patents:
         if apipat.is_patent_checked(filtered_patent.patent_id, checked_patents):
@@ -91,6 +99,7 @@ def get_embeddings_from_field(patent,
             if checked_patents[filtered_patent.patent_id] is not None:
                 #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
                 filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
+                print("adding embedding")
                 docs_embeddings.append(filtered_patent.patent_embedding)
         else:
             # Add to a list of abstracts for those that need embeddings computed
@@ -138,7 +147,13 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
     """
      
     ## Get abstract embeddings to compare against
-    embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
+    try:
+
+        embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
+
+    except (TypeError, ValueError) as e:
+        print(f"Error: {e}. Skipping processing for this patent.")
+        return None
 
     ## Get own abstract embedding
     embd_of_patent_being_compared = be.get_embd_of_whole_abstract(patent.abstract, has_context_token=True)
@@ -156,7 +171,11 @@ def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 
     
     """
     ## Get own and against embeddings
-    own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
+    try:
+        own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
+    except Exception:
+        return None
+    
     dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
 
     ## Create dict to return
