@@ -136,7 +136,13 @@ def load_patents(checked_patents_full_path = checked_patents_full_path):
             patent_dict = pickle.load(f)
         return patent_dict
     except FileNotFoundError:
-        print(f"No file found: {checked_patents_full_path}")
+        # Create an empty dictionary or any empty object to pickle
+        empty_object = {}
+
+        # Write the empty object to a pickle file
+        with open(checked_patents_full_path, 'wb') as file:
+            pickle.dump(empty_object, file)
+        print(f"No file found: {checked_patents_full_path}. Creating an empty file!!!")
         return {}
 
 
