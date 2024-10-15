@@ -67,7 +67,7 @@ def get_embeddings_from_field(patent,
 
     if target_field is None:
         print('NULL tech field of the given patent')
-        return None
+        return None, None, None
     
     year = patent.date_application.year
     target_patent_id = patent.patent_id
@@ -111,7 +111,7 @@ def get_embeddings_from_field(patent,
             if checked_patents[filtered_patent.patent_id] is not None:
                 #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
                 filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
-                print("adding embedding")
+                #print("adding embedding")
                 docs_embeddings.append(filtered_patent.patent_embedding)
         else:
             # Add to a list of abstracts for those that need embeddings computed
