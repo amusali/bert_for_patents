@@ -22,10 +22,11 @@ checked_patents_full_path = os.path.join(base_path, checked_patents_relative_pat
 
 def get_embeddings_from_field(patent,
                             group_only,
-                            filter_tfidf,
+                            filter_tfidf = True,
                             batch_size = 32,
                             assignee_file = os.path.join(base_path, "05 Analysis/01 Main/00 Python data/True Matches by Google.xlsx"),
                             checked_patents_file=checked_patents_full_path,
+                            search_threshold = 1000,
                             ):
     """
     Args:
@@ -65,15 +66,15 @@ def get_embeddings_from_field(patent,
         return False
     
     #### Filter out patents that are treated or the target patent itself
-    filtered_patents = [d for d in patents_to_compare if patent.assignee_organization not in df['Assignees'].values and d.patent_id != target_patent_id] 
+    filtered_patents = [d for d in patents_to_compare if d.assignee_organization not in df['Assignees'].values and d.patent_id != target_patent_id] 
 
     ### Eliminate unlikely similar patents using TF-IDF
     if filter_tfidf:
+        if len(filtered_patents) > search_threshold:
+            filtered_patents = filter_patents_by_tfidf(filtered_patents, patent)
 
-        filtered_patents = filter_patents_by_tfidf(filtered_patents, patent)
-
-        ### Report on the progress
-        print(f"There were {len(patents_to_compare)} files in total. After TF-IDF filtering, there are {len(filtered_patents)} patents left now.")
+            ### Report on the progress
+            print(f"There were {len(patents_to_compare)} files in total. After TF-IDF filtering, there are {len(filtered_patents)} patents left now.")
 
     ## Prepare list to store embeddings in the original order
     docs_embeddings = []
@@ -82,6 +83,7 @@ def get_embeddings_from_field(patent,
     filtered_abstracts = [pat.abstract for pat in filtered_patents]
     batched_abstracts = [filtered_abstracts[i:i + batch_size] for i in range(0, len(filtered_abstracts), batch_size)]
 
+   
     ## Iterate over filtered_patents in their original order
     for filtered_patent in filtered_patents:
         if apipat.is_patent_checked(filtered_patent.patent_id, checked_patents):
@@ -116,6 +118,7 @@ def get_embeddings_from_field(patent,
 
     # Save the updated checked_patents back to the pickle file
     apipat.save_patents_with_embeddings(filtered_patents)
+    print(docs_embeddings)
 
     return np.vstack(docs_embeddings), filtered_abstracts, filtered_patents
 

@@ -23,7 +23,6 @@ class CitedByPatent:
         current_date = datetime.now()
         delta = current_date - self.date_granted
         return delta.days
-from collections import OrderedDict
 
 @dataclass
 class Patent:
