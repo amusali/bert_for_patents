@@ -21,13 +21,12 @@ base_path = get_base_path()
 
 # Check if running in Colab or locally for checked patents file
 if 'COLAB_GPU' in os.environ:
-    checked_patents_relative_path = '/content/drive/My Drive/PhD Data/checked_patents.pkl'
-    if not os.path.exists(checked_patents_relative_path):
-        os.makedirs(checked_patents_relative_path)
+    checked_patents_full_path = '/content/drive/My Drive/PhD Data/checked_patents.pkl'
+    if not os.path.exists(checked_patents_full_path):
+        os.makedirs(checked_patents_full_path)
 else:
     checked_patents_relative_path = "05 Analysis/01 Main/00 Python data/checked_patents.pkl"
-
-checked_patents_full_path = os.path.join(base_path, checked_patents_relative_path)
+    checked_patents_full_path = os.path.join(base_path, checked_patents_relative_path)
 
 # Assignee file
 assignee_file = os.path.join(base_path, "05 Analysis/01 Main/00 Python data/True Matches by Google.xlsx")
@@ -160,13 +159,12 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
     """
      
     ## Get abstract embeddings to compare against
-    try:
+    
 
-        embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
-
-    except (TypeError, ValueError) as e:
-        print(f"Error: {e}. Skipping processing for this patent.")
-        return None
+    embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
+    if embd_of_to_compare_against is None:
+        return None, None, None
+   
 
     ## Get own abstract embedding
     embd_of_patent_being_compared = be.get_embd_of_whole_abstract(patent.abstract, has_context_token=True)
@@ -184,9 +182,9 @@ def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 
     
     """
     ## Get own and against embeddings
-    try:
-        own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
-    except Exception:
+    
+    own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
+    if own is None:
         return None, None, None
     
     dist_eu, index_eu, dist_cs, index_cs = find_distances(own, against)
