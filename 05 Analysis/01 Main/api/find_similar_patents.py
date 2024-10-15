@@ -24,7 +24,7 @@ def get_embeddings_from_field(patent,
                             group_only,
                             filter_tfidf,
                             batch_size = 32,
-                            assignee_file = os.path.join(base_path, r"05 Analysis\01 Main\00 Python data\True Matches by Google.xlsx"),
+                            assignee_file = os.path.join(base_path, "05 Analysis/01 Main/00 Python data/True Matches by Google.xlsx"),
                             checked_patents_file=checked_patents_full_path,
                             ):
     """
