@@ -132,7 +132,7 @@ def save_patents_with_embeddings(patent_list, checked_patents_full_path=checked_
 def load_patents(checked_patents_full_path = checked_patents_full_path):
     """Loads the dictionary of Patent objects from a file."""
     try:
-        if os.path.exists(checked_patents_full_path) and os.path.getsize(checked_patents_full_path) > 0:  # Check if file exists and is not empty
+        if os.path.exists(checked_patents_full_path) and os.path.getsize(checked_patents_full_path) > 15:  # Check if file exists and is not empty
             with open(checked_patents_full_path, 'rb') as f:
                 patent_dict = pickle.load(f)
             return patent_dict
