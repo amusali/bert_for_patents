@@ -85,7 +85,8 @@ def get_embeddings_from_field(patent,
     filtered_patents = [d for d in patents_to_compare if d.assignee_organization not in df['Assignees'].values and d.patent_id != target_patent_id] 
 
     ### Case of no filtered patents (e.g. G06N3/0455 in 2017 only contains WAVEONE INC. patents )
-    if filtered_patents == []:
+    if filtered_patents == []: ## NEED TO DEAL WITH LATER
+        return None, None, None
         get_embeddings_from_field(patent, group_only=True, search_threshold=5)
         
     ### Eliminate unlikely similar patents using TF-IDF
