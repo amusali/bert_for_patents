@@ -41,7 +41,7 @@ def get_embeddings_from_field(patent,
                             filter_tfidf = True,
                             batch_size = 32,
                             df = df,
-                            checked_patents_file=checked_patents_full_path,
+                            checked_patents_file='/content/drive/My Drive/PhD Data/checked_patents.pkl',
                             search_threshold = 1000,
                             ):
     """
