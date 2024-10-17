@@ -96,9 +96,12 @@ class Patent:
 
         return sorted_by_application, sorted_by_granted
 
+import pickle
+import os
+import time
 
 # Saving patents to file (with only patent_id as the key and patent_embedding as the value)
-def save_patents_with_embeddings(patent_list, checked_patents_full_path=checked_patents_full_path):
+def save_patents_with_embeddings(patent_list, checked_patents_full_path):
     """Saves patent_id as the key and patent_embedding as the value to the existing checked_patents file without overwriting."""
     
     # Load existing patents from the pickle file
@@ -107,7 +110,7 @@ def save_patents_with_embeddings(patent_list, checked_patents_full_path=checked_
     except FileNotFoundError:
         print(f"No existing patent file found at {checked_patents_full_path}. Creating a new one.")
         existing_patents = {}
-    
+
     # If a single patent is passed, convert it to a list of one element
     if not isinstance(patent_list, list):
         patent_list = [patent_list]
@@ -120,16 +123,45 @@ def save_patents_with_embeddings(patent_list, checked_patents_full_path=checked_
     # Update the existing patents with new ones
     existing_patents.update(new_patents)
 
-    # Save the updated dictionary back to the file
-    with open(checked_patents_full_path, 'wb') as f:
+    # Safely save the updated dictionary back to the file using atomic write
+    temp_filename = checked_patents_full_path + '.tmp'
+    with open(temp_filename, 'wb') as f:
         pickle.dump(existing_patents, f)
-    
+
+    # Replace the old file with the newly written file
+    os.replace(temp_filename, checked_patents_full_path)
+
     print(f"Patents have been updated and saved to {checked_patents_full_path}.")
 
+# Periodic saving function (save patents in batches)
+def save_patents_in_batches(patent_list, checked_patents_full_path, batch_size=100):
+    """Saves patents in batches to avoid losing all progress if interrupted."""
+    try:
+        # Load existing patents
+        existing_patents = load_patents(checked_patents_full_path)
 
+        # Process patents in batches
+        temp_patents = {}
+        for i, patent in enumerate(patent_list):
+            temp_patents[patent.patent_id] = patent.patent_embedding
+
+            if (i + 1) % batch_size == 0:
+                existing_patents.update(temp_patents)
+                save_patents_with_embeddings([], checked_patents_full_path)  # Atomic save
+                print(f"Saved batch {i // batch_size} at {time.ctime()}")
+                temp_patents.clear()
+
+        # Save any remaining patents
+        if temp_patents:
+            existing_patents.update(temp_patents)
+            save_patents_with_embeddings([], checked_patents_full_path)
+        
+    except KeyboardInterrupt:
+        print("Interrupted! Saving current progress before exiting...")
+        save_patents_with_embeddings([], checked_patents_full_path)  # Ensure save before exiting
 
 # Loading patents from file
-def load_patents(checked_patents_full_path = checked_patents_full_path):
+def load_patents(checked_patents_full_path):
     """Loads the dictionary of Patent objects from a file."""
     print('Full path to pickle file: ', checked_patents_full_path)
     try:
@@ -148,10 +180,3 @@ def load_patents(checked_patents_full_path = checked_patents_full_path):
             pickle.dump(empty_object, file)
         print(f"No file found: {checked_patents_full_path}. Creating an empty file!!!")
         return {}
-
-
-# Checking if a patent has been checked
-def is_patent_checked(patent_id, checked_patents):
-    """Checks if a patent with the given patent_id is in the dictionary."""
-    return patent_id in checked_patents
-
