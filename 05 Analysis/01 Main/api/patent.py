@@ -180,3 +180,8 @@ def load_patents(checked_patents_full_path):
             pickle.dump(empty_object, file)
         print(f"No file found: {checked_patents_full_path}. Creating an empty file!!!")
         return {}
+
+# Checking if a patent has been checked
+def is_patent_checked(patent_id, checked_patents):
+    """Checks if a patent with the given patent_id is in the dictionary."""
+    return patent_id in checked_patents
