@@ -21,11 +21,11 @@ base_path = get_base_path()
 
 # Check if running in Colab or locally for checked patents file
 if 'COLAB_GPU' in os.environ:
-    checked_patents_full_path = '/content/drive/My Drive/PhD Data/checked_patents.pkl'
+    checked_patents_full_path = '/content/drive/My Drive/PhD Data/CheckedPatents_CLSonly.pkl'
     #if not os.path.exists(checked_patents_full_path):
     #    os.makedirs(checked_patents_full_path)
 else:
-    checked_patents_relative_path = "05 Analysis/01 Main/00 Python data/checked_patents.pkl"
+    checked_patents_relative_path = "05 Analysis/01 Main/00 Python data/CheckedPatents_CLSonly.pkl"
     checked_patents_full_path = os.path.join(base_path, checked_patents_relative_path)
 
 # Assignee file
@@ -41,7 +41,7 @@ def get_embeddings_from_field(patent,
                             filter_tfidf = True,
                             batch_size = 32,
                             df = df,
-                            checked_patents_file='/content/drive/My Drive/PhD Data/checked_patents.pkl',
+                            checked_patents_file=checked_patents_full_path,
                             search_threshold = 1000,
                             ):
     """
