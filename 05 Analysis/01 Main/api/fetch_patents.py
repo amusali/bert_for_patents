@@ -1,21 +1,12 @@
 # Import modules
 import os
 import requests
-from fuzzywuzzy import fuzz
-from fuzzywuzzy import process
-from datetime import datetime, timedelta
-from urllib.parse import parse_qs, unquote, urlparse
-import re
+from datetime import datetime
 import time
 from fake_useragent import UserAgent
 import random
 import time
-import pandas as pd
 import random
-from numpy.linalg import norm
-import numpy as np 
-import tensorflow as tf
-import json
 from path_utils import get_base_path
 import api.patent as apipat
 import importlib
@@ -90,7 +81,7 @@ def get_patents(company_name, date, source='legacy'):
                             tech_field_group_id = patent['cpc_current'][0]['cpc_group_id']
                             tech_field_group = patent['cpc_current'][0].get('cpc_category', 'Unknown')
                             tech_field_subgroup_id = patent['cpc_current'][0].get('cpc_subgroup_id', 'Unknown')
-                            tech_field_subgroup = patent['cpc_current'][0].get('cpc_subgroup_title', 'Unknown')
+                            tech_field_subgroup = patent['cpc_current'][0].get('cpc_current', 'Unknown')
 
                             citations = patent['patent_num_times_cited_by_us_patents']
                             abstract = patent['patent_abstract']
@@ -220,7 +211,11 @@ import requests
 from typing import List
 from datetime import datetime
 
-def get_patents_from_fields(field, year, group_only=False):
+def get_patents_from_fields(field, year, group_only=False, partial_call = False, source = "legacy"):
+    global headers
+    #Timer start
+    start = time.time()
+
     year = str(year)
     
     analyzed_fields = {}
@@ -231,29 +226,96 @@ def get_patents_from_fields(field, year, group_only=False):
     if year not in analyzed_fields[field]:
         analyzed_fields[field][year] = {}
 
+
+    analyzed_fields[field][year]["patents"] = []
+
+        # Source: 'assignee'
+    if source == 'assignee':
+        patent_base_url = 'https://search.patentsview.org/api/v1/patent/'
+        assignee_field = 'assignees.assignee_organization, assignees.assignee_country, assignees.assignee_id'
+
+        if group_only:
+            query = f'{{"_and":[{{"_and":[{{"cpc_at_issue.cpc_subclass_id":"{field}"}},{{"cpc_at_issue.cpc_sequence":1}}]}},{{"_gte":{{"application.filing_date":"{year}-01-01"}}}},{{"_lte":{{"application.filing_date":"{year}-12-31"}}}}]}}'
+        else:
+            query = f'{{"_and":[{{"_and":[{{"cpc_at_issue.cpc_group_id":"{field}"}},{{"cpc_at_issue.cpc_sequence":1}}]}},{{"_gte":{{"application.filing_date":"{year}-01-01"}}}},{{"_lte":{{"application.filing_date":"{year}-12-31"}}}}]}}'
+        
+        if not partial_call:
+            fields = '["cpc_at_issue.cpc_group_id", "cpc_at_issue.cpc_subclass_id", "patent_num_times_cited_by_us_patents","application.filing_date", "patent_id",  "patent_abstract", "assignees.assignee_organization", "assignees.assignee_country", "assignees.assignee_id"]'
+        
+        else:
+            fields = '["patent_id", "patent_abstract"]'
+        
+        patent_url = f'{patent_base_url}?q={query}&f={fields}'
+        print(patent_url)
+
+        while True:
+            time.sleep(random.random())
+            patent_response = requests.get(patent_url, headers=headers)
+            print(patent_url)
+            
+            if patent_response.status_code == 200:
+                patent_data = patent_response.json()
+                patents = patent_data['patents']
+                
+                if patents:
+                    for patent in patents:
+                        patent_obj = Patent(
+                            patent_id=patent['patent_id'],
+                            abstract=patent['patent_abstract']
+                        )
+
+                        # Append the Patent object to the list
+                        analyzed_fields[field][year]["patents"].append(patent_obj)
+
+                    last_patent_id = patents[-1]['patent_id']
+                    patent_url = f'{patent_base_url}?q={query}&f={fields}&o={{"size":1000, "after":"{last_patent_id}"}}&s=[{{"patent_id":"asc"}}]'
+
+                else:
+                    break
+            else:
+                print(f"Error: Could not retrieve patent data from ASSIGNEE. Error code: {patent_response.status_code}")
+                return None
+
+        ## Timer ends & report progress
+        end = time.time()
+        print(f"It took {end - start:.2f} sec to retrieve patents under Partial call = {partial_call}")
+
+        count = len(analyzed_fields[field][year]['patents'])  # Total number of patents
+        return analyzed_fields, count
+    
+    else:
         # Construct the query URL
         base_url = 'https://api.patentsview.org/patents/query?o={"page":1,"per_page":10000}&q='
-        
-        ## Change URL based on the field requested
+
+        # Define group specific queries
         if group_only:
             query = f'{{"_and":[{{"_and":[{{"cpc_group_id":"{field}"}},{{"cpc_sequence":0}}]}},{{"_gte":{{"app_date":"{year}-01-01"}}}},{{"_lte":{{"app_date":"{year}-12-31"}}}}]}}'
         else:
             query = f'{{"_and":[{{"_and":[{{"cpc_subgroup_id":"{field}"}},{{"cpc_sequence":0}}]}},{{"_gte":{{"app_date":"{year}-01-01"}}}},{{"_lte":{{"app_date":"{year}-12-31"}}}}]}}'
 
-        fields = '["cpc_subgroup_id", "cpc_group_id", "cpc_group_title", "cpc_subgroup_title" ,"app_date", "patent_date","patent_id", "patent_date","cpc_category","assignee_country", "assignee_organization", "assignee_id", "patent_num_cited_by_us_patents", "patent_abstract", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
-
+        
+        ## Full search - retrieving all necessary patent data
+        if not partial_call:
+            ## Change URL based on the field requested
+            fields = '["cpc_category", "cpc_subgroup_id", "cpc_group_id", "cpc_group_title", "cpc_subgroup_title", "app_date", "patent_date","patent_id", "patent_abstract", "assignee_country", "assignee_organization", "assignee_id", "patent_num_cited_by_us_patents", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
+                    
+        else:
+            fields = '["patent_id", "patent_abstract"]'
+            
+        # Full url
         full_url = f'{base_url}{query}&f={fields}'
+        #print(full_url)
 
-        print(full_url)
+        # Counter for last page for moving into next batch of 10k patents
         last_page = 1
-        analyzed_fields[field][year]["patents"] = []
+       
 
         while True:
             headers = {'User-Agent': ua.random}  # Randomize user-agent to avoid blocking
             tt = random.random()  # Random sleep time between requests
-            print('Sleeping for: ', tt, 'seconds')
-            time.sleep(tt + 2)
-            
+            #print(f'Sleeping for: {tt:.2f} seconds')
+            time.sleep(tt)
+            #print(full_url)
             response = requests.get(full_url, headers=headers)
             if response.status_code == 200:
                 last_page += 1
@@ -267,44 +329,55 @@ def get_patents_from_fields(field, year, group_only=False):
                     # Skip patents without abstracts
                     if patent['patent_abstract'] is None:
                         continue
-
-                    # Create a list of CitedByPatent objects
-                    if patent['citedby_patents'][0]['citedby_patent_date'] is not None:
-                        citedby_patents = [CitedByPatent(pat['citedby_patent_id'], datetime.strptime(pat['citedby_patent_date'], "%Y-%m-%d")) for pat in patent['citedby_patents']]
-                    else:
-                        citedby_patents = []  # No citing patents
                     
-                    # Fix the dates and format
-                    filing_date = datetime.strptime(patent['applications'][0]['app_date'], "%Y-%m-%d")
-                    grant_date = datetime.strptime(patent['patent_date'], "%Y-%m-%d")
+                    # search cpecific data retrieval (we only retrieve ID and Abstract for partial search)
+                    if not partial_call:
+                        # Create a list of CitedByPatent objects
+                        if patent['citedby_patents'][0]['citedby_patent_date'] is not None:
+                            citedby_patents = [CitedByPatent(pat['citedby_patent_id'], datetime.strptime(pat['citedby_patent_date'], "%Y-%m-%d")) for pat in patent['citedby_patents']]
+                        else:
+                            citedby_patents = []  # No citing patents
+                        
+                        # Fix the dates and format
+                        filing_date = datetime.strptime(patent['applications'][0]['app_date'], "%Y-%m-%d")
+                        grant_date = datetime.strptime(patent['patent_date'], "%Y-%m-%d")
 
-                    # Fields
-                    tech_field_group_id = patent['cpcs'][0]['cpc_group_id']
-                    tech_field_group = patent['cpcs'][0].get('cpc_category', 'Unknown')
-                    tech_field_subgroup_id = patent['cpcs'][0].get('cpc_subgroup_id', 'Unknown')
-                    tech_field_subgroup = patent['cpcs'][0].get('cpc_subgroup_title', 'Unknown')
+                        # Fields
+                        tech_field_group_id = patent['cpcs'][0]['cpc_group_id']
+                        tech_field_group = patent['cpcs'][0].get('cpc_category', 'Unknown')
+                        tech_field_subgroup_id = patent['cpcs'][0].get('cpc_subgroup_id', 'Unknown')
+                        tech_field_subgroup = patent['cpcs'][0].get('cpc_subgroup_title', 'Unknown')
 
-                    ## Assignee
-                    assignee_organization = patent['assignees'][0].get('assignee_organization', 'Unknown')
-                    assignee_key_id = str(patent['assignees'][0].get('assignee_key_id', 'Unknown'))
-                    assignee_country = str(patent['assignees'][0].get('assignee_country', 'Unknown'))
-            
-                    # Create the Patent object
-                    patent_obj = Patent(
-                        patent_id = patent['patent_id'],
-                        forward_citations = patent['patent_num_cited_by_us_patents'],
-                        date_application = filing_date,
-                        date_granted = grant_date,  # Assuming you don't have the granted date from the API
-                        abstract = patent['patent_abstract'],
-                        tech_field_group=tech_field_group,
-                        tech_field_group_id=tech_field_group_id,
-                        tech_field_subgroup=tech_field_subgroup,
-                        tech_field_subgroup_id=tech_field_subgroup_id, 
-                        assignee_organization=assignee_organization,
-                        assignee_country=assignee_country,
-                        assignee_id = assignee_key_id,
-                        citedby_patents = citedby_patents
-                    )
+                        ## Assignee
+                        assignee_organization = patent['assignees'][0].get('assignee_organization', 'Unknown')
+                        assignee_key_id = str(patent['assignees'][0].get('assignee_key_id', 'Unknown'))
+                        assignee_country = str(patent['assignees'][0].get('assignee_country', 'Unknown'))
+
+                
+                        # Create the Patent object
+                        patent_obj = Patent(
+                            patent_id = patent['patent_id'],
+                            forward_citations = patent['patent_num_cited_by_us_patents'],
+                            date_application = filing_date,
+                            date_granted = grant_date,  # Assuming you don't have the granted date from the API
+                            abstract = patent['patent_abstract'],
+                            tech_field_group=tech_field_group,
+                            tech_field_group_id=tech_field_group_id,
+                            tech_field_subgroup=tech_field_subgroup,
+                            tech_field_subgroup_id=tech_field_subgroup_id, 
+                            assignee_organization=assignee_organization,
+                            assignee_country=assignee_country,
+                            assignee_id = assignee_key_id,
+                            citedby_patents = citedby_patents
+                        )
+
+                    else:
+                        # Create the Patent object
+                        patent_obj = Patent(
+                            patent_id = patent['patent_id'],
+                            abstract = patent['patent_abstract'],
+                        )
+
 
                     # Append the Patent object to the list
                     analyzed_fields[field][year]["patents"].append(patent_obj)
@@ -320,5 +393,8 @@ def get_patents_from_fields(field, year, group_only=False):
                 analyzed_fields[field][year] = None
                 return None
 
+        # timer ends
+        end = time.time()
+        print(f"It took {end - start:.2f} sec to retrieve patents under Partial call = {partial_call}")
         count = len(analyzed_fields[field][year]['patents'])  # Total number of patents
         return analyzed_fields, count

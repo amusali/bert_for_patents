@@ -27,10 +27,10 @@ class CitedByPatent:
 @dataclass
 class Patent:
     patent_id: str
-    forward_citations: int
-    date_application: datetime
-    date_granted: datetime
-    abstract: str
+    abstract: str 
+    forward_citations: Optional[int] = 0
+    date_application: Optional[datetime] = None
+    date_granted: Optional[datetime] = None
     tech_field_group: str = ""
     tech_field_group_id: str = ""
     tech_field_subgroup: str = ""
@@ -95,6 +95,7 @@ class Patent:
         sorted_by_granted = OrderedDict(sorted(citations_by_granted_years.items()))
 
         return sorted_by_application, sorted_by_granted
+
 
 import pickle
 import os
