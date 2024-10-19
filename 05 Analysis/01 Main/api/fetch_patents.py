@@ -313,9 +313,6 @@ def get_patents_from_fields(field, year, group_only=False, partial_call = False,
         # Counter for last page for moving into next batch of 10k patents
         last_page = 1
 
-        # Your ScraperAPI key
-        scraperapi_key = '3d88c51d7d06d37faf26b41322558f23'
-
         # Function to generate ScraperAPI URL with the target URL
         def get_scraperapi_url(target_url):
             return f"http://api.scraperapi.com?api_key={scraperapi_key}&url={target_url}"
@@ -327,6 +324,7 @@ def get_patents_from_fields(field, year, group_only=False, partial_call = False,
             #print(f'Sleeping for: {tt:.2f} seconds')
             time.sleep(tt + 2)
             #print(full_url)
+            
             #headers = {'User-Agent': random.choice(user_agents)}  # Randomize user-agent
             
             full_url = get_scraperapi_url(full_url) 
