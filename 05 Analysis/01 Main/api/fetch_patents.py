@@ -29,6 +29,10 @@ else:
     with open(api_key_path, 'r') as file:
         api_key = file.read().strip()
 
+    scraperapi_key_path = os.path.join(base_path, "05 Analysis/01 Main/api/scraperapikey.txt")
+    # Read the API key from the file
+    with open(scraperapi_key_path, 'r') as file:
+        scraperapi_key = file.read().strip()
 
 # Build Headers
 headers = {
@@ -212,7 +216,7 @@ from typing import List
 from datetime import datetime
 
 def get_patents_from_fields(field, year, group_only=False, partial_call = False, source = "legacy"):
-    global headers
+    global scraperapi_key
     #Timer start
     start = time.time()
 
@@ -308,15 +312,25 @@ def get_patents_from_fields(field, year, group_only=False, partial_call = False,
 
         # Counter for last page for moving into next batch of 10k patents
         last_page = 1
-       
+
+        # Your ScraperAPI key
+        scraperapi_key = '3d88c51d7d06d37faf26b41322558f23'
+
+        # Function to generate ScraperAPI URL with the target URL
+        def get_scraperapi_url(target_url):
+            return f"http://api.scraperapi.com?api_key={scraperapi_key}&url={target_url}"
+
 
         while True:
             headers = {'User-Agent': ua.random}  # Randomize user-agent to avoid blocking
             tt = random.random()  # Random sleep time between requests
             #print(f'Sleeping for: {tt:.2f} seconds')
-            time.sleep(tt)
+            time.sleep(tt + 2)
             #print(full_url)
-            response = requests.get(full_url, headers=headers)
+            #headers = {'User-Agent': random.choice(user_agents)}  # Randomize user-agent
+            
+            full_url = get_scraperapi_url(full_url) 
+            response = requests.get(full_url)#, headers=headers)
             if response.status_code == 200:
                 last_page += 1
                 data = response.json()
