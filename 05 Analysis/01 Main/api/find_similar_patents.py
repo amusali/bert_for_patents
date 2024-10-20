@@ -38,6 +38,8 @@ except FileNotFoundError:
 
 # Global storage for newly computed embeddings
 new_patent_embeddings = {}
+# Initialize the global variable to None
+checked_patents = None
 
 # Function to get the current timestamp as a formatted string
 def get_current_timestamp():
@@ -52,6 +54,12 @@ def save_patents_every_20_minutes(checked_patents_folder, default_file):
     
     # Clear the memory dictionary after saving
     new_patent_embeddings.clear()
+
+    # Reset the global checked_patents variable so it will reload next time
+    global checked_patents
+    checked_patents = None  # Set it to None to ensure it gets reloaded next time
+
+    print("Checked patents data has been reset. It will be reloaded next time.")
 
 # Load the most recent file based on the timestamp
 def load_most_recent_checked_patents(checked_patents_folder):
@@ -85,10 +93,10 @@ def get_embeddings_from_field(patent,
     """
     # gLOBALS
     global new_patent_embeddings
-
+    
+    global checked_patents
       # Load the most recent checked patents file at the start
-    if 'checked_patents' not in globals():
-        global checked_patents
+    if checked_patents is None:
         checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings')
 
     ## Get patent data
