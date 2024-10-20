@@ -97,19 +97,48 @@ class Patent:
         return sorted_by_application, sorted_by_granted
 
 
-import pickle
+import dill as pickle
 import os
 import time
 
-# Saving patents to file (with only patent_id as the key and patent_embedding as the value)
-def save_patents_with_embeddings(patent_list, checked_patents_full_path):
-    """Saves patent_id as the key and patent_embedding as the value to the existing checked_patents file without overwriting."""
+import os
+import pickle
+from datetime import datetime
+
+# Function to get the current timestamp as a formatted string
+def get_current_timestamp():
+    return datetime.now().strftime('%Y.%m.%d_%H:%M')
+
+# Function to get the most recent file
+def get_most_recent_file(folder_path, default_file):
+    # List all files in the folder that start with 'CheckedPatents_CLSonly' and end with '.pkl'
+    files = [f for f in os.listdir(folder_path) if f.startswith('CheckedPatents_CLSonly') and f.endswith('.pkl')]
+    
+    # If no files are found, use the default file
+    if not files:
+        print(f"No files found. Using the default file: {default_file}")
+        return default_file
+    
+    # Sort the files by modification time (most recent first)
+    files.sort(key=lambda f: os.path.getmtime(os.path.join(folder_path, f)), reverse=True)
+    
+    # Return the most recent file
+    most_recent_file = os.path.join(folder_path, files[0])
+    print(f"Loading from most recent file: {most_recent_file}")
+    return most_recent_file
+
+# Saving patents to a new file with the current timestamp
+def save_patents_with_embeddings(patent_list, checked_patents_folder, default_file):
+    """Saves patent_id as the key and patent_embedding as the value to a new file with a timestamp."""
+    
+    # Get the most recent file or fallback to the default
+    checked_patents_full_path = get_most_recent_file(checked_patents_folder, default_file)
     
     # Load existing patents from the pickle file
     try:
         existing_patents = load_patents(checked_patents_full_path)
     except FileNotFoundError:
-        print(f"No existing patent file found at {checked_patents_full_path}. Creating a new one.")
+        print(f"No patent file found at {checked_patents_full_path}. Creating a new one.")
         existing_patents = {}
 
     # If a single patent is passed, convert it to a list of one element
@@ -124,15 +153,21 @@ def save_patents_with_embeddings(patent_list, checked_patents_full_path):
     # Update the existing patents with new ones
     existing_patents.update(new_patents)
 
-    # Safely save the updated dictionary back to the file using atomic write
-    temp_filename = checked_patents_full_path + '.tmp'
+    # Generate a new filename with the current timestamp
+    timestamp = get_current_timestamp()
+    new_file_name = f'CheckedPatents_CLSonly_{timestamp}.pkl'
+    new_file_path = os.path.join(checked_patents_folder, new_file_name)
+
+    # Safely save the updated dictionary to the new file using atomic write
+    temp_filename = new_file_path + '.tmp'
     with open(temp_filename, 'wb') as f:
         pickle.dump(existing_patents, f)
 
-    # Replace the old file with the newly written file
-    os.replace(temp_filename, checked_patents_full_path)
+    # Replace the temporary file with the final file
+    os.replace(temp_filename, new_file_path)
 
-    print(f"Patents have been updated and saved to {checked_patents_full_path}.")
+    print(f"Patents have been updated and saved to {new_file_path}.")
+
 
 # Periodic saving function (save patents in batches)
 def save_patents_in_batches(patent_list, checked_patents_full_path, batch_size=100):
@@ -166,7 +201,7 @@ def load_patents(checked_patents_full_path):
     """Loads the dictionary of Patent objects from a file."""
     print('Full path to pickle file: ', checked_patents_full_path)
     try:
-        if os.path.exists(checked_patents_full_path):# and os.path.getsize(checked_patents_full_path) > 5:  # Check if file exists and is not empty
+        if os.path.exists(checked_patents_full_path) and os.path.getsize(checked_patents_full_path) > 5:  # Check if file exists and is not empty
             with open(checked_patents_full_path, 'rb') as f:
                 patent_dict = pickle.load(f)
             return patent_dict

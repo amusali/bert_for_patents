@@ -11,7 +11,7 @@ from api.fetch_patents import get_patents_from_fields
 import api.patent as apipat
 import importlib
 importlib.reload(apipat)
-
+from datetime import datetime
 from path_utils import get_base_path
 tf.config.optimizer.set_jit(True)  
 
@@ -36,6 +36,36 @@ except FileNotFoundError:
     print(f"The file {assignee_file} was not found in the project folder.")
     #return False
 
+# Global storage for newly computed embeddings
+new_patent_embeddings = {}
+
+# Function to get the current timestamp as a formatted string
+def get_current_timestamp():
+    return datetime.now().strftime('%Y.%m.%d_%H:%M')
+
+# Save embeddings to a new file every 20 minutes
+def save_patents_every_20_minutes(checked_patents_folder, default_file):
+
+    # Save the current state of embeddings to a new file
+    print(f"Saving new embeddings")
+    apipat.save_patents_with_embeddings(new_patent_embeddings, checked_patents_folder,  default_file)
+    
+    # Clear the memory dictionary after saving
+    new_patent_embeddings.clear()
+
+# Load the most recent file based on the timestamp
+def load_most_recent_checked_patents(checked_patents_folder):
+    files = [f for f in os.listdir(checked_patents_folder) if f.startswith('CheckedPatents_CLSonly') and f.endswith('.pkl')]
+    if not files:
+        return {}
+    
+    # Sort files by modified time and load the most recent one
+    latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(checked_patents_folder, f)))
+    latest_file_path = os.path.join(checked_patents_folder, latest_file)
+    
+    print(f"Loading checked patents from {latest_file}...")
+    return apipat.load_patents(latest_file_path)
+
 def get_embeddings_from_field(patent,
                             group_only,
                             filter_tfidf = True,
@@ -53,10 +83,13 @@ def get_embeddings_from_field(patent,
 
     Output: Returns embeddings of every patent in the field of a patent - in list
     """
-   
-    
-    # Load the checked patents from the pkl file
-    checked_patents = apipat.load_patents(checked_patents_file)
+    # gLOBALS
+    global new_patent_embeddings
+
+      # Load the most recent checked patents file at the start
+    if 'checked_patents' not in globals():
+        global checked_patents
+        checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings/CheckedPatents_CLSonly_2024.10.20_23.28.pkl')
 
     ## Get patent data
     if group_only:    
@@ -135,7 +168,9 @@ def get_embeddings_from_field(patent,
                 # Update the patent and save it to the checked patents dictionary
                 filtered_patents[i].set_embedding(computed_embeddings[computed_idx])
                 docs_embeddings[i] = computed_embeddings[computed_idx]
-                #checked_patents[filtered_patents[i].patent_id] = filtered_patents[i]
+
+                # Add new embeddings to the temporary dictionary for later saving
+                new_patent_embeddings[filtered_patents[i].patent_id] = filtered_patents[i]
                 computed_idx += 1
 
     # Save the updated checked_patents back to the pickle file
