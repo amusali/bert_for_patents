@@ -89,7 +89,7 @@ def get_embeddings_from_field(patent,
       # Load the most recent checked patents file at the start
     if 'checked_patents' not in globals():
         global checked_patents
-        checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings/CheckedPatents_CLSonly_2024.10.20_23.28.pkl')
+        checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings')
 
     ## Get patent data
     if group_only:    

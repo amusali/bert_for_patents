@@ -31,7 +31,7 @@ def process_assignees(df, get_patents_function, find_closest_patent_function):
 
         # Try to load previously saved patents
         patents_before = load_patents_from_drive(assignee_name, f"{date_effective}_before")
-        patents_after = load_patents_from_drive(assignee_name, f"{date_effective}_before")
+        patents_after = load_patents_from_drive(assignee_name, f"{date_effective}_after")
 
         if patents_before is None or patents_after is None:
             # Get patents if not previously saved
