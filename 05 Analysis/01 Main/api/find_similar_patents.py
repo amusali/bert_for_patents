@@ -174,7 +174,7 @@ def get_embeddings_from_field(patent,
                 computed_idx += 1
 
     # Save the updated checked_patents back to the pickle file
-    apipat.save_patents_with_embeddings(filtered_patents, checked_patents_full_path=checked_patents_file)
+    #apipat.save_patents_with_embeddings(filtered_patents, checked_patents_full_path=checked_patents_file)
     #print(docs_embeddings)
 
     return np.vstack(docs_embeddings), filtered_abstracts, filtered_patents
