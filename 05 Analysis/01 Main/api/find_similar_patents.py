@@ -21,7 +21,7 @@ base_path = get_base_path()
 
 # Check if running in Colab or locally for checked patents file
 if 'COLAB_GPU' in os.environ:
-    checked_patents_full_path = '/content/drive/My Drive/PhD Data/CheckedPatents_CLSonly.pkl'
+    checked_patents_full_path = '/content/drive/MyDrive/PhD Data/01 CLS Embeddings/CheckedPatents_CLSonly_2024.10.20_23.28.pkl'
     #if not os.path.exists(checked_patents_full_path):
     #    os.makedirs(checked_patents_full_path)
 else:

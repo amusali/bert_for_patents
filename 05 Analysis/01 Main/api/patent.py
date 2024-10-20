@@ -166,7 +166,7 @@ def load_patents(checked_patents_full_path):
     """Loads the dictionary of Patent objects from a file."""
     print('Full path to pickle file: ', checked_patents_full_path)
     try:
-        if os.path.exists(checked_patents_full_path) and os.path.getsize(checked_patents_full_path) > 15:  # Check if file exists and is not empty
+        if os.path.exists(checked_patents_full_path):# and os.path.getsize(checked_patents_full_path) > 5:  # Check if file exists and is not empty
             with open(checked_patents_full_path, 'rb') as f:
                 patent_dict = pickle.load(f)
             return patent_dict
