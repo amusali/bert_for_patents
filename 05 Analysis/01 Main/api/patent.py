@@ -50,13 +50,19 @@ class Patent:
     euclidean_distance_to_closest_patent : Optional[float] = None
     cosine_similarity_with_closest_patent : Optional[float] = None
 
-    def set_embedding(self, embedding: np.ndarray):
+    def set_embedding(self, embedding):
         """Sets the embedding with the expected shape (1, 1024)."""
-        if embedding.shape == (1024,):
+        # Check if embedding is a Patent object and get its patent_embedding if so
+        if isinstance(embedding, Patent):
+            embedding = embedding.patent_embedding
+        
+        # Now check the shape and set the embedding
+        if embedding.shape == (1024,):  
             self.patent_embedding = embedding
         else:
-            raise ValueError(f"Expected embedding of shape (1024,), got {embedding.shape}")
-        
+            raise ValueError(f"Expected embedding shape (1024,), but got {embedding.shape}")
+
+            
 
     # Method to calculate the total number of cited patents
     def total_cited_patents(self) -> int:
