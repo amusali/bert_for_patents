@@ -117,7 +117,8 @@ def get_embeddings_from_field(patent,
 
     ### Find the abstracts in the same CPC sub-group in the same APPLICATION YEAR
     resp = get_patents_from_fields(target_field, year, group_only)
-    
+    if resp is None:
+        return None, None, None
     patents_to_compare = resp[0][target_field][str(year)]['patents']
     print('There are in total', len(patents_to_compare), 'patents to be compared against.')
 
