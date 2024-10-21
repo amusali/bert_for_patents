@@ -156,6 +156,8 @@ def get_embeddings_from_field(patent,
             patents_to_compare = field_dict[target_field][str(year)]
         else:
             patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)
+            if patents_to_compare is None:
+                return None, None
             if target_field in new_fields:
                 new_fields[target_field][str(year)] = patents_to_compare
             else:
@@ -163,6 +165,8 @@ def get_embeddings_from_field(patent,
                 new_fields[target_field][str(year)] = patents_to_compare
     else:
         patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)
+        if patents_to_compare is None:
+                return None, None
         if target_field in new_fields:
             new_fields[target_field][str(year)] = patents_to_compare
         else:
@@ -175,10 +179,10 @@ def get_embeddings_from_field(patent,
     ## Find the abstracts in the same CPC sub-group in the same APPLICATION YEAR
     
     #resp = get_patents_from_fields(target_field, year, group_only)
-    resp = get_quasipatents_from_field(target_field, year, group_only)
-    if resp is None:
-        return None, None
-    patents_to_compare = resp[0][target_field][str(year)]['patents']
+    #resp = get_quasipatents_from_field(target_field, year, group_only)
+    #if resp is None:
+        #return None, None
+    #patents_to_compare = resp[0][target_field][str(year)]['patents']
     
     print('There are in total', len(patents_to_compare), 'patents to be compared against.')
 
