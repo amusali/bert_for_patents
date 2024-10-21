@@ -212,7 +212,6 @@ from typing import List
 from datetime import datetime
 
 def get_patents_from_fields(field, year, group_only=False, partial_call = False, source = "legacy"):
-    global scraperapi_key
     #Timer start
     start = time.time()
 
