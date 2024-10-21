@@ -405,7 +405,7 @@ import dill as pickle
 
 
     
-def get_quasipatents_from_field(field, year, field_dict_quasi_patents, group_only=False,  source = "legacy"):
+def get_quasipatents_from_field(field, year, group_only=True,  source = "legacy"):
     global headers
     #Timer start
     start = time.time()
