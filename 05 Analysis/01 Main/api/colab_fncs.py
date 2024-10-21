@@ -17,6 +17,7 @@ def save_patents_to_drive(patents, assignee_name, date_effective):
 def load_patents_from_drive(assignee_name, date_effective):
     filename = f'{assignee_name}_{date_effective}.pkl'
     filepath = os.path.join(SAVE_DIR, filename)
+    print(filepath)
     if os.path.exists(filepath):
         with open(filepath, 'rb') as f:
             return pickle.load(f)
