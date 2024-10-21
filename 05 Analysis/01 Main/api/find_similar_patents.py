@@ -6,9 +6,10 @@ import json
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
-from api.fetch_patents import get_patents_from_fields
+from api.fetch_patents import get_patents_from_fields, get_quasipatents_from_field
 
 import api.patent as apipat
+import api.fetch_patents
 import importlib
 importlib.reload(apipat)
 from datetime import datetime
@@ -36,10 +37,13 @@ except FileNotFoundError:
     print(f"The file {assignee_file} was not found in the project folder.")
     #return False
 
-# Global storage for newly computed embeddings
+# Global storage for newly computed embeddings and fields
 new_patent_embeddings = {}
+new_fields = {}
+
 # Initialize the global variable to None
 checked_patents = None
+field_dict = None
 
 # Function to get the current timestamp as a formatted string
 def get_current_timestamp():
@@ -61,9 +65,26 @@ def save_patents_every_20_minutes(checked_patents_folder, default_file):
 
     print("Checked patents data has been reset. It will be reloaded next time.")
 
+
+# Save embeddings to a new file every 20 minutes
+def save_field_dict_every_20_minutes(field_dict_folder, default_file):
+
+    # Save the current state of embeddings to a new file
+    print(f"Saving new embeddings")
+    api.fetch_patents.save_field_dict(new_fields, field_dict_folder, default_file)
+    
+    # Clear the memory dictionary after saving
+    new_fields.clear()
+
+    # Reset the global checked_patents variable so it will reload next time
+    global field_dict
+    field_dict = None  # Set it to None to ensure it gets reloaded next time
+
+    print("Field dict data has been reset. It will be reloaded next time.")
+
 # Load the most recent file based on the timestamp
 def load_most_recent_checked_patents(checked_patents_folder):
-    files = [f for f in os.listdir(checked_patents_folder) if f.startswith('CheckedPatents_CLSonly') and f.endswith('.pkl')]
+    files = [f for f in os.listdir(checked_patents_folder) if f.startswith('Field dict - quasi patents') and f.endswith('.pkl')]
     if not files:
         return {}
     
@@ -73,6 +94,19 @@ def load_most_recent_checked_patents(checked_patents_folder):
     
     print(f"Loading checked patents from {latest_file}...")
     return apipat.load_patents(latest_file_path)
+
+def load_most_recent_field_dict(field_dict_folder):
+    files = [f for f in os.listdir(field_dict_folder) if f.startswith('Field dict - quasi patents') and f.endswith('.pkl')]
+    if not files:
+        return {}
+    
+    # Sort files by modified time and load the most recent one
+    latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(field_dict_folder, f)))
+    latest_file_path = os.path.join(field_dict_folder, latest_file)
+    
+    print(f"Loading field dict from {latest_file}...")
+    return api.fetch_patents.load_field_dict(latest_file_path)
+
 
 def get_embeddings_from_field(patent,
                             group_only,
@@ -93,11 +127,14 @@ def get_embeddings_from_field(patent,
     """
     # gLOBALS
     global new_patent_embeddings
-    
+    global new_fields
     global checked_patents
+    global field_dict 
       # Load the most recent checked patents file at the start
     if checked_patents is None:
         checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings')
+    if field_dict is None:
+        field_dict = load_most_recent_field_dict('/content/drive/MyDrive/PhD Data/04 Field dictionaries')
 
     ## Get patent data
     if group_only:    
@@ -108,18 +145,41 @@ def get_embeddings_from_field(patent,
 
     if target_field is None:
         print('NULL tech field of the given patent')
-        return None, None, None
+        return None, None
     
     year = patent.date_application.year
     target_patent_id = patent.patent_id
 
+    ## Retrieve quasi-patents to check whether the field-year has been loaded before
+    if target_field in field_dict:
+        if year in field_dict[target_field]:
+            patents_to_compare = field_dict[target_field][str(year)]
+        else:
+            patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)
+            if target_field in new_fields:
+                new_fields[target_field][str(year)] = patents_to_compare
+            else:
+                new_fields[target_field] = {}
+                new_fields[target_field][str(year)] = patents_to_compare
+    else:
+        patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)
+        if target_field in new_fields:
+            new_fields[target_field][str(year)] = patents_to_compare
+        else:
+            new_fields[target_field] = {}
+            new_fields[target_field][str(year)] = patents_to_compare
+
+
     ## Get embedding of all the patents in the same CPC sub-group
 
-    ### Find the abstracts in the same CPC sub-group in the same APPLICATION YEAR
-    resp = get_patents_from_fields(target_field, year, group_only)
+    ## Find the abstracts in the same CPC sub-group in the same APPLICATION YEAR
+    
+    #resp = get_patents_from_fields(target_field, year, group_only)
+    resp = get_quasipatents_from_field(target_field, year, group_only)
     if resp is None:
-        return None, None, None
+        return None, None
     patents_to_compare = resp[0][target_field][str(year)]['patents']
+    
     print('There are in total', len(patents_to_compare), 'patents to be compared against.')
 
     ### Eliminate treated patents
@@ -128,7 +188,7 @@ def get_embeddings_from_field(patent,
 
     ### Case of no filtered patents (e.g. G06N3/0455 in 2017 only contains WAVEONE INC. patents )
     if filtered_patents == []: ## NEED TO DEAL WITH LATER
-        return None, None, None
+        return None, None
         get_embeddings_from_field(patent, group_only=True, search_threshold=5)
         
     ### Eliminate unlikely similar patents using TF-IDF
@@ -155,7 +215,7 @@ def get_embeddings_from_field(patent,
                 #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
                 #filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
                 #print("adding embedding")
-                docs_embeddings.append(filtered_patent.patent_embedding)
+                docs_embeddings.append(checked_patents[filtered_patent.patent_id])
         else:
             # Add to a list of abstracts for those that need embeddings computed
             docs_embeddings.append(None)  # Placeholder for embeddings to be computed
@@ -208,7 +268,7 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
 
     embd_of_to_compare_against,  patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
     if embd_of_to_compare_against is None:
-        return None, None, None, None
+        return None, None, None
    
 
     ## Get own abstract embedding

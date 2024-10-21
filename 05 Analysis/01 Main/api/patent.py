@@ -175,33 +175,6 @@ def save_patents_with_embeddings(new_patents, checked_patents_folder, default_fi
     print(f"Patents have been updated and saved to {new_file_path}.")
 
 
-# Periodic saving function (save patents in batches)
-def save_patents_in_batches(patent_list, checked_patents_full_path, batch_size=100):
-    """Saves patents in batches to avoid losing all progress if interrupted."""
-    try:
-        # Load existing patents
-        existing_patents = load_patents(checked_patents_full_path)
-
-        # Process patents in batches
-        temp_patents = {}
-        for i, patent in enumerate(patent_list):
-            temp_patents[patent.patent_id] = patent.patent_embedding
-
-            if (i + 1) % batch_size == 0:
-                existing_patents.update(temp_patents)
-                save_patents_with_embeddings([], checked_patents_full_path)  # Atomic save
-                print(f"Saved batch {i // batch_size} at {time.ctime()}")
-                temp_patents.clear()
-
-        # Save any remaining patents
-        if temp_patents:
-            existing_patents.update(temp_patents)
-            save_patents_with_embeddings([], checked_patents_full_path)
-        
-    except KeyboardInterrupt:
-        print("Interrupted! Saving current progress before exiting...")
-        save_patents_with_embeddings([], checked_patents_full_path)  # Ensure save before exiting
-
 # Loading patents from file
 def load_patents(checked_patents_full_path):
     """Loads the dictionary of Patent objects from a file."""
