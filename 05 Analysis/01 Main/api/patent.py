@@ -128,7 +128,7 @@ def get_most_recent_file(folder_path, default_file):
     return most_recent_file
 
 # Saving patents to a new file with the current timestamp
-def save_patents_with_embeddings(patent_list, checked_patents_folder, default_file):
+def save_patents_with_embeddings(new_patents, checked_patents_folder, default_file):
     """Saves patent_id as the key and patent_embedding as the value to a new file with a timestamp."""
     
     # Get the most recent file or fallback to the default
@@ -142,13 +142,13 @@ def save_patents_with_embeddings(patent_list, checked_patents_folder, default_fi
         existing_patents = {}
 
     # If a single patent is passed, convert it to a list of one element
-    if not isinstance(patent_list, list):
-        patent_list = [patent_list]
+    #if not isinstance(patent_list, list):
+        #patent_list = [patent_list]
 
     # Convert input list of Patent objects to a dictionary with patent_id as the key
     # and only patent_embedding as the value
-    new_patents = {patent.patent_id: patent.patent_embedding
-                   for patent in patent_list if patent.patent_embedding is not None}
+    #new_patents = {patent.patent_id: patent.patent_embedding
+                   #for patent in patent_list if patent.patent_embedding is not None}
 
     # Update the existing patents with new ones
     existing_patents.update(new_patents)
