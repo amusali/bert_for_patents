@@ -153,7 +153,7 @@ def get_embeddings_from_field(patent,
             # Retrieve the embeddings of already checked patents
             if checked_patents[filtered_patent.patent_id] is not None:
                 #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
-                filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
+                #filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
                 #print("adding embedding")
                 docs_embeddings.append(filtered_patent.patent_embedding)
         else:
@@ -186,7 +186,7 @@ def get_embeddings_from_field(patent,
     #apipat.save_patents_with_embeddings(filtered_patents, checked_patents_full_path=checked_patents_file)
     #print(docs_embeddings)
 
-    return np.vstack(docs_embeddings), filtered_abstracts, filtered_patents
+    return np.vstack(docs_embeddings), filtered_patents
 
 
 def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf = True):
@@ -206,7 +206,7 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
     ## Get abstract embeddings to compare against
     
 
-    embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
+    embd_of_to_compare_against,  patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
     if embd_of_to_compare_against is None:
         return None, None, None, None
    
@@ -215,7 +215,7 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
     embd_of_patent_being_compared = be.get_embd_of_whole_abstract(patent.abstract, has_context_token=True)
     patent.patent_embedding = embd_of_patent_being_compared
 
-    return  embd_of_patent_being_compared, embd_of_to_compare_against, abstracts_to_compare_against, patents_to_compare_against
+    return  embd_of_patent_being_compared, embd_of_to_compare_against, patents_to_compare_against
     
 def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 'cosinesim'):
     """
@@ -228,7 +228,7 @@ def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 
     """
     ## Get own and against embeddings
     
-    own, against, abstracts, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
+    own, against, patents = get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf)
     if own is None:
         return None, None, None
     
