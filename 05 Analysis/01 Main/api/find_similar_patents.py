@@ -173,7 +173,7 @@ def get_embeddings_from_field(patent,
         else:
             new_fields[target_field] = {}
             new_fields[target_field][str(year)] = patents_to_compare
-
+    print(patents_to_compare)
 
     ## Get embedding of all the patents in the same CPC sub-group
 
