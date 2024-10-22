@@ -152,7 +152,7 @@ def get_embeddings_from_field(patent,
 
     ## Retrieve quasi-patents to check whether the field-year has been loaded before
     if target_field in field_dict:
-        if year in field_dict[target_field]:
+        if str(year) in field_dict[target_field]:
             print("Loading patents from Field Dictionary")
             patents_to_compare = field_dict[target_field][str(year)]
         else:
