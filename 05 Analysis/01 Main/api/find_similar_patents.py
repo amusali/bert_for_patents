@@ -133,9 +133,11 @@ def get_embeddings_from_field(patent,
       # Load the most recent checked patents file at the start
     if checked_patents is None:
         checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings')
+        print("Lenght of checked patents:", len(checked_patents))
     if field_dict is None:
         field_dict = load_most_recent_field_dict('/content/drive/MyDrive/PhD Data/04 Field dictionaries')
-
+    
+    
     ## Get patent data
     if group_only:    
         target_field = patent.tech_field_group_id
@@ -215,10 +217,10 @@ def get_embeddings_from_field(patent,
     
     ## Iterate over filtered_patents in their original order
     for filtered_patent in filtered_patents:
-        if apipat.is_patent_checked(filtered_patent.patent_id, checked_patents):
+        if filtered_patent.patent_id in checked_patents:
             # Retrieve the embeddings of already checked patents
             if checked_patents[filtered_patent.patent_id] is not None:
-                #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
+                print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
                 #filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
                 #print("adding embedding")
                 docs_embeddings.append(checked_patents[filtered_patent.patent_id])

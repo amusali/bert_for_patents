@@ -139,7 +139,7 @@ def save_patents_with_embeddings(new_patents, checked_patents_folder, default_fi
     
     # Get the most recent file or fallback to the default
     checked_patents_full_path = get_most_recent_file(checked_patents_folder, default_file)
-    
+    print("Checked patents full path:", checked_patents_full_path)
     # Load existing patents from the pickle file
     try:
         existing_patents = load_patents(checked_patents_full_path)
