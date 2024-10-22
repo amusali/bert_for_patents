@@ -243,7 +243,7 @@ def get_embeddings_from_field(patent,
                 docs_embeddings[i] = computed_embeddings[computed_idx]
 
                 # Add new embeddings to the temporary dictionary for later saving
-                new_patent_embeddings[filtered_patents[i].patent_id] = filtered_patents[i]
+                new_patent_embeddings[filtered_patents[i].patent_id] = computed_embeddings[computed_idx]
                 computed_idx += 1
 
     # Save the updated checked_patents back to the pickle file
