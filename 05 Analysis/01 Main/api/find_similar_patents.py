@@ -261,6 +261,7 @@ def get_embeddings_from_field(patent,
 
 
 def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfidf = True):
+    global new_patent_embeddings
     """
     Input: i) Parent object
             ii) Group Only - True if the search should be broad (over group), o/w False
@@ -278,12 +279,16 @@ def get_embedding_of_target_and_field(patent, group_only, batch_size, filter_tfi
     
 
     embd_of_to_compare_against,  patents_to_compare_against = get_embeddings_from_field(patent, group_only, filter_tfidf, batch_size)
+    
+    
     if embd_of_to_compare_against is None:
         return None, None, None
    
 
     ## Get own abstract embedding
     embd_of_patent_being_compared = be.get_embd_of_whole_abstract(patent.abstract, has_context_token=True)
+    ## Add the embedding to the Pickle file
+    new_patent_embeddings[patent.patent_id] = embd_of_patent_being_compared
     patent.patent_embedding = embd_of_patent_being_compared
 
     return  embd_of_patent_being_compared, embd_of_to_compare_against, patents_to_compare_against
