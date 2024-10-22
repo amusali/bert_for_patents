@@ -220,7 +220,7 @@ def get_embeddings_from_field(patent,
         if filtered_patent.patent_id in checked_patents:
             # Retrieve the embeddings of already checked patents
             if checked_patents[filtered_patent.patent_id] is not None:
-                print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
+                #print(f"Patent {filtered_patent.patent_id} has been processed before. Retrieving embeddings...")
                 #filtered_patent.set_embedding(checked_patents[filtered_patent.patent_id])
                 #print("adding embedding")
                 docs_embeddings.append(checked_patents[filtered_patent.patent_id])
