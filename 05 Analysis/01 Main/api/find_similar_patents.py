@@ -114,7 +114,7 @@ def get_embeddings_from_field(patent,
                             batch_size = 32,
                             df = df,
                             checked_patents_file=checked_patents_full_path,
-                            search_threshold = 1000,
+                            search_threshold = 100,
                             ):
     """
     Args:
@@ -244,6 +244,9 @@ def get_embeddings_from_field(patent,
 
                 # Add new embeddings to the temporary dictionary for later saving
                 new_patent_embeddings[filtered_patents[i].patent_id] = computed_embeddings[computed_idx]
+                if new_patent_embeddings[filtered_patents[i].patent_id] is not None:
+                    print("Getting patent embedding from Drive.")
+                    #print(new_patent_embeddings)
                 computed_idx += 1
 
     # Save the updated checked_patents back to the pickle file
