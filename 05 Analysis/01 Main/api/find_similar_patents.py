@@ -246,8 +246,8 @@ def get_embeddings_from_field(patent,
 
                 # Add new embeddings to the temporary dictionary for later saving
                 new_patent_embeddings[filtered_patents[i].patent_id] = computed_embeddings[computed_idx]
-                if new_patent_embeddings[filtered_patents[i].patent_id] is not None:
-                    print("Getting patent embedding from Drive.")
+                #if new_patent_embeddings[filtered_patents[i].patent_id] is not None:
+                   # print("Getting patent embedding from Drive.")
                     #print(new_patent_embeddings)
                 computed_idx += 1
 
@@ -344,7 +344,7 @@ def find_distances(embd_of_patent_being_compared, embd_of_to_compare_against):
     
     return distances_euclidean, closest_patent_euclidean_index, distances_cs, closest_patent_cs_index
 
-def filter_patents_by_tfidf(patents, target_patent, threshold = 0.1):
+def filter_patents_by_tfidf(patents, target_patent, threshold = 0.05):
 
     """
     Input: Two inputs:
