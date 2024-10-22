@@ -160,18 +160,21 @@ def get_embeddings_from_field(patent,
             #print("Loading patents from Field Dictionary")
             patents_to_compare = field_dict[target_field][str(year)]
         else:
-            patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)[0]
+            patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)
             if patents_to_compare is None:
                 return None, None
+            patents_to_compare = patents_to_compare[0]
             if target_field in new_fields:
                 new_fields[target_field][str(year)] = patents_to_compare
             else:
                 new_fields[target_field] = {}
                 new_fields[target_field][str(year)] = patents_to_compare
     else:
-        patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)[0]
+        patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)
         if patents_to_compare is None:
                 return None, None
+        patents_to_compare = patents_to_compare[0]
+        
         if target_field in new_fields:
             new_fields[target_field][str(year)] = patents_to_compare
         else:
