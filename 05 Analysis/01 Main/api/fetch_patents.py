@@ -630,3 +630,103 @@ def save_field_dict(new_field_dict, field_dict_folder, default_file):
     os.replace(temp_filename, new_file_path)
 
     print(f"Patents have been updated and saved to {new_file_path}.")
+
+
+
+    
+def get_patent_fromID(patent_id): ## ONLY AVAILABLE FOR LEGACY API !!!
+    #Timer start
+    start = time.time()
+    
+    # Start an empty list to hold patents
+    patent_list = []
+
+    # Construct the query URL
+    base_url = 'https://api.patentsview.org/patents/query?o={"page":1,"per_page":10000}&q='
+
+    # Define the query for ID
+
+    query = f'{{"patent_id":{patent_id}}}'
+    
+    ## Full search - retrieving all necessary patent data
+
+    fields = '["cpc_category", "cpc_subgroup_id", "cpc_group_id", "cpc_group_title", "cpc_subgroup_title", "app_date", "patent_date","patent_id", "patent_abstract", "assignee_country", "assignee_organization", "assignee_id", "patent_num_cited_by_us_patents", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'         
+        
+    # Full url
+    full_url = f'{base_url}{query}&f={fields}'
+    print(full_url)
+
+    tt = random.random()  # Random sleep time between requests
+    #print(f'Sleeping for: {tt:.2f} seconds')
+    time.sleep(tt+0.5)
+    
+    #headers = {'User-Agent': random.choice(user_agents)}  # Randomize user-agent
+    aux1 = time.time()
+    response = requests.get(full_url, headers=headers)
+    aux2 = time.time()
+
+    print(f"It took {aux2-aux1:.2f}s for GET request from Patent ID")
+
+    if response.status_code == 200:
+        data = response.json()
+        patent = data['patents']
+
+        assert len(patent) == 1, f"Patent size should be 1, instead is {len(patent)}"
+        patent = patent[0]
+
+        if not patent:
+            print(f'NO PATENT FOUND FROM PATENT ID : {patent_id}, returning None...')
+            return None
+    
+        # Skip patent without abstracts
+        if patent['patent_abstract'] is None:
+            print(f"No abstract available for patent : {patent_id}")
+            return None
+        
+        # Create a list of CitedByPatent objects
+        if patent['citedby_patents'][0]['citedby_patent_date'] is not None:
+            citedby_patents = [CitedByPatent(pat['citedby_patent_id'], datetime.strptime(pat['citedby_patent_date'], "%Y-%m-%d")) for pat in patent['citedby_patents']]
+        else:
+            citedby_patents = []  # No citing patents
+        
+        # Fix the dates and format
+        filing_date = datetime.strptime(patent['applications'][0]['app_date'], "%Y-%m-%d")
+        grant_date = datetime.strptime(patent['patent_date'], "%Y-%m-%d")
+
+        # Fields
+        tech_field_group_id = patent['cpcs'][0]['cpc_group_id']
+        tech_field_group = patent['cpcs'][0]['cpc_category']
+        tech_field_subgroup_id = patent['cpcs'][0]['cpc_subgroup_id']
+        tech_field_subgroup = patent['cpcs'][0]['cpc_subgroup_title']
+
+        ## Assignee
+        assignee_organization = patent['assignees'][0]['assignee_organization']
+        assignee_key_id = str(patent['assignees'][0]['assignee_key_id'])
+        assignee_country = str(patent['assignees'][0]['assignee_country'])
+
+
+        # Create the Patent object
+        patent_obj = Patent(
+            patent_id = patent['patent_id'],
+            forward_citations = patent['patent_num_cited_by_us_patents'],
+            date_application = filing_date,
+            date_granted = grant_date,  # Assuming you don't have the granted date from the API
+            abstract = patent['patent_abstract'],
+            tech_field_group=tech_field_group,
+            tech_field_group_id=tech_field_group_id,
+            tech_field_subgroup=tech_field_subgroup,
+            tech_field_subgroup_id=tech_field_subgroup_id, 
+            assignee_organization=assignee_organization,
+            assignee_country=assignee_country,
+            assignee_id = assignee_key_id,
+            citedby_patents = citedby_patents
+        )
+    
+    else:
+        print('Error code is: ', response.status_code)
+        return None
+
+    # timer ends
+    end = time.time()
+    print(f"It took {end - start:.2f} sec to retrieve Patent from ID...")
+    return patent_obj

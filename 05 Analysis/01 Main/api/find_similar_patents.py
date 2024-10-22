@@ -305,7 +305,9 @@ def find_closest_patent(patent, group_only, batch_size,  filter_tfidf, metric = 
     else:
         indx = index_eu
     
-    return patents[indx], dist_cs[indx], dist_eu[indx] 
+    closest_patent = patents[indx]
+    
+    return api.fetch_patents.get_patent_fromID(closest_patent.patent_id), dist_cs[indx], dist_eu[indx] 
     
 def find_distances(embd_of_patent_being_compared, embd_of_to_compare_against):
     """
