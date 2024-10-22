@@ -84,7 +84,7 @@ def save_field_dict_every_20_minutes(field_dict_folder, default_file):
 
 # Load the most recent file based on the timestamp
 def load_most_recent_checked_patents(checked_patents_folder):
-    files = [f for f in os.listdir(checked_patents_folder) if f.startswith('Field dict - quasi patents') and f.endswith('.pkl')]
+    files = [f for f in os.listdir(checked_patents_folder) if f.startswith('CheckedPatents_CLSonly') and f.endswith('.pkl')]
     if not files:
         return {}
     
@@ -133,7 +133,7 @@ def get_embeddings_from_field(patent,
       # Load the most recent checked patents file at the start
     if checked_patents is None:
         checked_patents = load_most_recent_checked_patents('/content/drive/MyDrive/PhD Data/01 CLS Embeddings')
-        print("Lenght of checked patents:", len(checked_patents))
+        print("Length of checked patents:", len(checked_patents))
     if field_dict is None:
         field_dict = load_most_recent_field_dict('/content/drive/MyDrive/PhD Data/04 Field dictionaries')
     
