@@ -114,7 +114,7 @@ def get_embeddings_from_field(patent,
                             batch_size = 32,
                             df = df,
                             checked_patents_file=checked_patents_full_path,
-                            search_threshold = 100,
+                            search_threshold = 200,
                             ):
     """
     Args:
@@ -152,8 +152,10 @@ def get_embeddings_from_field(patent,
 
     ## Retrieve quasi-patents to check whether the field-year has been loaded before
     if target_field in field_dict:
+        print(f"Target field {target_field} found at Field Dict")
         if str(year) in field_dict[target_field]:
-            print("Loading patents from Field Dictionary")
+            print(f"Target year {year} found in field {target_field}")
+            #print("Loading patents from Field Dictionary")
             patents_to_compare = field_dict[target_field][str(year)]
         else:
             patents_to_compare = get_quasipatents_from_field(target_field, year, group_only)[0]
