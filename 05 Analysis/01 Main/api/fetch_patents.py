@@ -151,7 +151,6 @@ def get_patents(company_name, date, source='legacy'):
                             grant_date = datetime.strptime(patent['patent_date'], "%Y-%m-%d")
                             if filing_date.year < first_year:
                                 continue
-                            print(type(patent['cpcs']))
                             ## Tech fieldss
                             for cps in patent['cpcs']:
                                 
