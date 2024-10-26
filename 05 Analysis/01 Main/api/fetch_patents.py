@@ -581,7 +581,7 @@ def get_most_recent_file(folder_path, default_file):
 # Loading patents from file
 def load_field_dict(field_path):
     """Loads the Field dictionary of Quasi-Patent objects from a file where keys are field-year combo."""
-    print('Full path to pickle file: ', field_path)
+    #print('Full path to pickle file: ', field_path)
     try:
         if os.path.exists(field_path) and os.path.getsize(field_path) > 5:  # Check if file exists and is not empty
             with open(field_path, 'rb') as f:
