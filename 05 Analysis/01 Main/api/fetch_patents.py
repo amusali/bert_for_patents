@@ -127,7 +127,7 @@ def get_patents(company_name, date, source='legacy'):
     elif source == 'legacy':
         patent_base_url = 'https://api.patentsview.org/patents/query?o={"page":1,"per_page":10000}&q='
         assignee_field = 'assignee_organization'
-        fields = '["cpc_subgroup_id", "cpc_group_id", "cpc_group_title", "cpc_subgroup_title" ,"app_date", "patent_date","patent_id", "patent_date","cpc_category","assignee_country", "assignee_organization", "assignee_id", "patent_num_cited_by_us_patents", "patent_abstract", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
+        fields = '["cpc_subgroup_id", "cpc_group_id", "cpc_group_title", "cpc_subgroup_title", "cpc_sequence" ,"app_date", "patent_date","patent_id", "patent_date","cpc_category","assignee_country", "assignee_organization", "assignee_id", "patent_num_cited_by_us_patents", "patent_abstract", "citedby_patent_id", "citedby_patent_title", "citedby_patent_date"]'
         patent_url = f'{patent_base_url}{{"{assignee_field}": "{closest_match}"}}&f={fields}'
         print(patent_url)
 
@@ -151,12 +151,20 @@ def get_patents(company_name, date, source='legacy'):
                             grant_date = datetime.strptime(patent['patent_date'], "%Y-%m-%d")
                             if filing_date.year < first_year:
                                 continue
-                            
+                            print(type(patent['cpcs']))
                             ## Tech fieldss
-                            tech_field_group_id = patent['cpcs'][0].get('cpc_group_id', "Unknown")
-                            tech_field_group = patent['cpcs'][0].get('cpc_category', 'Unknown')
-                            tech_field_subgroup_id = patent['cpcs'][0].get('cpc_subgroup_id', 'Unknown')
-                            tech_field_subgroup = patent['cpcs'][0].get('cpc_subgroup_title', 'Unknown')
+                            for cps in patent['cpcs']:
+                                
+                                if cps['cpc_sequence'] == 0:
+                                    tech_field_group_id = cps['cpc_group_id']
+                                    tech_field_group = cps['cpc_category']
+                                    tech_field_subgroup_id = cps['cpc_subgroup_id']
+                                    tech_field_subgroup = cps['cpc_subgroup_title']
+                                    break
+                            #tech_field_group_id = patent['cpcs'][0].get('cpc_group_id', "Unknown")
+                            #tech_field_group = patent['cpcs'][0].get('cpc_category', 'Unknown')
+                            #tech_field_subgroup_id = patent['cpcs'][0].get('cpc_subgroup_id', 'Unknown')
+                            #tech_field_subgroup = patent['cpcs'][0].get('cpc_subgroup_title', 'Unknown')
 
                             citations = patent['patent_num_cited_by_us_patents'] ## citations
                             abstract = patent['patent_abstract'] ## abstracts
