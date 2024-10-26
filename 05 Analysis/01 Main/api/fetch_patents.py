@@ -149,8 +149,14 @@ def get_patents(company_name, date, source='legacy'):
                         if patent['applications'][0]['app_date']:
                             filing_date = datetime.strptime(patent['applications'][0]['app_date'], "%Y-%m-%d")
                             grant_date = datetime.strptime(patent['patent_date'], "%Y-%m-%d")
-                            if filing_date.year < first_year:
+                            if filing_date.year < first_year or  filing_date > date:
                                 continue
+
+                            tech_field_group_id = None
+                            tech_field_group = None
+                            tech_field_subgroup_id = None
+                            tech_field_subgroup = None
+
                             ## Tech fieldss
                             for cps in patent['cpcs']:
                                 
