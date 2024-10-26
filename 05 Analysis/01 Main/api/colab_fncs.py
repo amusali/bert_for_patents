@@ -2,7 +2,7 @@ import os
 import dill as pickle
 
 # Define paths
-SAVE_DIR = '/content/drive/My Drive/PhD Data/03 Patents with pairs (group checked)'
+SAVE_DIR = '/content/drive/My Drive/PhD Data/04 Patents with pairs (group checked, regularized)'
 if not os.path.exists(SAVE_DIR):
     os.makedirs(SAVE_DIR)
 
