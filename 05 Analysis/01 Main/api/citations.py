@@ -117,10 +117,10 @@ def regularize_patents(patents: List[Patent]):
 
         # Step 2: Check if both patents have embeddings, generate if not
         if patent.patent_embedding is None:
-            patent.set_embedding(get_embd_of_whole_abstract(patent.abstract))
+            patent.set_embedding(get_embd_of_whole_abstract(patent.abstract, has_context_token=True))
 
         if patent.closest_patent.patent_embedding is None:
-            patent.closest_patent.set_embedding(get_embd_of_whole_abstract(patent.closest_patent.abstract))
+            patent.closest_patent.set_embedding(get_embd_of_whole_abstract(patent.closest_patent.abstract, has_context_token=True))
         
         # Step2.5: Reshape the embeddings if they are not 1D arrays
         if patent.patent_embedding.shape == (1, 1024):
