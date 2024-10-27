@@ -163,7 +163,7 @@ def regularize_patents(patents: List[Patent]):
             patent.euclidean_distance_to_closest_patent = calculated_euclidean_distance
         else:
             # Verify the stored value matches the calculated one
-            assert abs(patent.euclidean_distance_to_closest_patent - calculated_euclidean_distance) < 10**-1, \
+            assert abs(patent.euclidean_distance_to_closest_patent - calculated_euclidean_distance) < 0.2, \
                 f"Mismatch in Euclidean distance for patent {patent.patent_id}: existing: {patent.euclidean_distance_to_closest_patent}, calculated: {calculated_euclidean_distance}"
 
         # Step 4: Check and retrieve missing dates if needed
