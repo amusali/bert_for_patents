@@ -102,6 +102,7 @@ from typing import List
 from scipy.spatial.distance import cosine, euclidean
 import numpy as np
 from api.bertembeddings import get_embd_of_whole_abstract
+from api.fetch_patents import get_patent_fromID
 
 def regularize_patents(patents: List[Patent]):
     skipped_patents = []
@@ -154,6 +155,25 @@ def regularize_patents(patents: List[Patent]):
             # Verify the stored value matches the calculated one
             assert abs(patent.euclidean_distance_to_closest_patent - calculated_euclidean_distance) < 10**-1, \
                 f"Mismatch in Euclidean distance for patent {patent.patent_id}: existing: {patent.euclidean_distance_to_closest_patent}, calculated: {calculated_euclidean_distance}"
+
+        # Step 4: Check and retrieve missing dates if needed
+        if not (patent.closest_patent.date_application and patent.closest_patent.date_granted):
+            print(f"Retrieving additional data for closest patent of patent {patent.patent_id}")
+            closest_patent_info = get_patent_fromID(patent.closest_patent.patent_id)
+            
+            if closest_patent_info:
+                # Update missing fields only, preserve embeddings
+                patent.closest_patent.date_application = closest_patent_info.date_application
+                patent.closest_patent.date_granted = closest_patent_info.date_granted
+                patent.closest_patent.abstract = closest_patent_info.abstract
+                patent.closest_patent.tech_field_group = closest_patent_info.tech_field_group
+                patent.closest_patent.tech_field_group_id = closest_patent_info.tech_field_group_id
+                patent.closest_patent.tech_field_subgroup = closest_patent_info.tech_field_subgroup
+                patent.closest_patent.tech_field_subgroup_id = closest_patent_info.tech_field_subgroup_id
+                patent.closest_patent.assignee_organization = closest_patent_info.assignee_organization
+                patent.closest_patent.assignee_country = closest_patent_info.assignee_country
+                patent.closest_patent.assignee_id = closest_patent_info.assignee_id
+                patent.closest_patent.citedby_patents = closest_patent_info.citedby_patents
 
         # Step 4: Final assertion to ensure all required attributes are available
         assert patent.closest_patent is not None, f"Missing closest_patent for {patent.patent_id}"
