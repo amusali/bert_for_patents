@@ -167,7 +167,7 @@ def regularize_patents(patents: List[Patent]):
             f"Incomplete data for patent {patent.patent_id}"
         assert all([patent.closest_patent.patent_id, patent.closest_patent.abstract, 
                     patent.closest_patent.date_application, patent.closest_patent.date_granted]), \
-            f"Incomplete data for closest patent of {patent.patent_id}"
+            f"Incomplete data for closest patent of {patent.patent_id}, where abstract is {True if patent.closest_patent.abstract else 'None'}, date_application is {True if patent.closest_patent.date_application else 'None'}, date_granted is {True if patent.closest_patent.date_granted else 'None'}"
     
         print(f"Processed patent {i}/{len(patents)}")
     # Log the IDs of skipped patents
