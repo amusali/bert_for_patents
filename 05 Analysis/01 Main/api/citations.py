@@ -117,10 +117,12 @@ def regularize_patents(patents: List[Patent]):
 
         # Step 2: Check if both patents have embeddings, generate if not
         if patent.patent_embedding is None:
-            patent.set_embedding(get_embd_of_whole_abstract(patent.abstract, has_context_token=True))
+            print(f"Generating embedding for patent {patent.patent_id}")
+            patent.set_embedding(get_embd_of_whole_abstract(patent.abstract, has_context_token=True)[-1])
 
         if patent.closest_patent.patent_embedding is None:
-            patent.closest_patent.set_embedding(get_embd_of_whole_abstract(patent.closest_patent.abstract, has_context_token=True))
+            print(f"Generating embedding for closest patent of patent {patent.patent_id}")
+            patent.closest_patent.set_embedding(get_embd_of_whole_abstract(patent.closest_patent.abstract, has_context_token=True)[-1])
         
         # Step2.5: Reshape the embeddings if they are not 1D arrays
         if patent.patent_embedding.shape == (1, 1024):
@@ -134,6 +136,7 @@ def regularize_patents(patents: List[Patent]):
 
         # Calculate cosine similarity and Euclidean distance if needed
         calculated_cosine_similarity = 1 - cosine(embedding1, embedding2)
+        print(calculated_cosine_similarity)
         calculated_euclidean_distance = euclidean(embedding1, embedding2)
         
         # Check and set cosine similarity
