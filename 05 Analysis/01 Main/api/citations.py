@@ -140,12 +140,15 @@ def regularize_patents(patents: List[Patent]):
         #print(calculated_cosine_similarity)
         calculated_euclidean_distance = np.linalg.norm(embedding1 - embedding2)
 
+        if patent.abstract == patent.closest_patent.abstract:
+            print(f"Identical patents: {patent.patent_id} and {patent.closest_patent.patent_id} have the same abstract. Skipping further checks. Please check manually. ")
+            continue
         if calculated_euclidean_distance < 0.001:
             print(f"Identical patents: {patent.patent_id} and {patent.closest_patent.patent_id} have the same embedding. Skipping further checks. Please check manually. ")
             print(f"Euclidean distance for patent {patent.patent_id} is too small: {calculated_euclidean_distance}.")
             print(f"Patent embedding is: {embedding1}")
             print(f"Closest patent embedding is: {embedding2}")
-            #continue  # Skip to the next patent
+            continue if patent.abstract == patent.closest_patent.abstract  # Skip to the next patent
         
         # Check and set cosine similarity
         if patent.cosine_similarity_with_closest_patent is None:
