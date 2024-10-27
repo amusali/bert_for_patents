@@ -141,6 +141,7 @@ def regularize_patents(patents: List[Patent]):
         calculated_euclidean_distance = np.linalg.norm(embedding1 - embedding2)
 
         if calculated_euclidean_distance < 0.001:
+            print(f"Identical patents: {patent.patent_id} and {patent.closest_patent.patent_id} have the same embedding. Skipping further checks. Please check manually. ")
             print(f"Euclidean distance for patent {patent.patent_id} is too small: {calculated_euclidean_distance}.")
             print(f"Patent embedding is: {embedding1}")
             print(f"Closest patent embedding is: {embedding2}")
