@@ -136,7 +136,7 @@ def regularize_patents(patents: List[Patent]):
 
         # Calculate cosine similarity and Euclidean distance if needed
         calculated_cosine_similarity = 1 - cosine(embedding1, embedding2)
-        print(calculated_cosine_similarity)
+        #print(calculated_cosine_similarity)
         calculated_euclidean_distance = euclidean(embedding1, embedding2)
         
         # Check and set cosine similarity
