@@ -148,7 +148,7 @@ def regularize_patents(patents: List[Patent]):
             print(f"Euclidean distance for patent {patent.patent_id} is too small: {calculated_euclidean_distance}.")
             print(f"Patent embedding is: {embedding1}")
             print(f"Closest patent embedding is: {embedding2}")
-            continue if patent.abstract == patent.closest_patent.abstract  # Skip to the next patent
+            continue #if patent.abstract == patent.closest_patent.abstract  # Skip to the next patent
         
         # Check and set cosine similarity
         if patent.cosine_similarity_with_closest_patent is None:
