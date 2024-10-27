@@ -31,6 +31,7 @@ class Patent:
     forward_citations: Optional[int] = 0
     date_application: Optional[datetime] = None
     date_granted: Optional[datetime] = None
+    date_acquired: Optional[datetime] = None
     tech_field_group: str = ""
     tech_field_group_id: str = ""
     tech_field_subgroup: str = ""

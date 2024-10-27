@@ -36,7 +36,7 @@ bert_predictor = BertPredictor(
 
 print('BERT loaded...')
 
-def get_embd_of_whole_abstract(abstracts, return_cls_embedding=True, has_context_token=False):
+def get_embd_of_whole_abstract(abstracts, return_cls_embedding=True, has_context_token=True):
     """
     Function to handle both single abstracts and batches of abstracts.
     
