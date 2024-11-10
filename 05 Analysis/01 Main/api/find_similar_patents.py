@@ -30,7 +30,7 @@ else:
     checked_patents_full_path = os.path.join(base_path, checked_patents_relative_path)
 
 # Assignee file
-assignee_file = os.path.join(base_path, "05 Analysis/01 Main/00 Python data/True Matches by Google.xlsx")
+assignee_file = os.path.join(base_path, "05 Analysis/01 Main/00 Python data/05 Deals/_old/True Matches by Google.xlsx")
 try: ## Read the file of treated assignees
     df = pd.read_excel(assignee_file)
 except FileNotFoundError:
