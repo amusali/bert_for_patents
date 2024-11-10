@@ -37,8 +37,9 @@ headers = {
 
 ua = UserAgent()
 
-
+print(headers)
 def get_patents(company_name, date, source='legacy'):
+    global headers, ua
     if "&" in company_name:
         company_name = company_name.replace("&", "%26")
         print(company_name)
@@ -60,8 +61,9 @@ def get_patents(company_name, date, source='legacy'):
 
         while True:
             time.sleep(random.random())
-            patent_response = requests.get(patent_url)
+            patent_response = requests.get(patent_url, headers=headers)
             print(patent_url)
+            print(patent_response.json())
             
             if patent_response.status_code == 200:
                 patent_data = patent_response.json()
