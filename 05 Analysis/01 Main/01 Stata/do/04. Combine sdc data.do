@@ -42,3 +42,5 @@
      
     drop _merge
     merge 1:m  Acquiror6digitCUSIP AcquirorFullName Target6digitCUSIP TargetFullName using `try'
+
+    export excel using "${python}/05 Deals/SDC gafam - all, combined.xlsx",  firstrow(variables) replace

@@ -34,9 +34,10 @@ __pycache__/
 .vscode/
 
 # Stata raw data
-#05 Analysis/01 Main/01 Stata/raw/
+05 Analysis/01 Main/01 Stata/raw/
 
 # Drive data
+05 Analysis/01 Main/01 Stata/
 05 Analysis/01 Main/00 Python data/Drive/
 05 Analysis/01 Main/00 Python data/02 Field dictionaries/
 05 Analysis/01 Main/00 Python data/01 CLS embeddings/
