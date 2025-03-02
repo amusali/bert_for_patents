@@ -33,13 +33,35 @@ __pycache__/
 # .vscode
 .vscode/
 
+# Admin stuff
+00 Admin/
 # Stata raw data
-05 Analysis/01 Main/01 Stata/raw/
 
 # Drive data
-05 Analysis/01 Main/01 Stata/
+05 Analysis/01 Main/01 Stata/00 Setting up/raw
+05 Analysis/01 Main/01 Stata/00 Setting up/out
+05 Analysis/01 Main/01 Stata/00 Setting up/dta
+05 Analysis/01 Main/01 Stata/00 Setting up/_aux
+05 Analysis/01 Main/01 Stata/00 Setting up/log
+05 Analysis\01 Main\01 Stata\00 Setting up\matching_estimates.xlsx
+05 Analysis/01 Main/01 Stata/02 Estimation
+
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/raw
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/raw
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/dta
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/dta
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/_aux
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/_aux
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/log
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/log
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/out
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/out
+
+05 Analysis/01 Main/00 Python data
+05 Analysis/01 Main/00 Python data/_old
 05 Analysis/01 Main/00 Python data/Drive/
 05 Analysis/01 Main/00 Python data/02 Field dictionaries/
 05 Analysis/01 Main/00 Python data/01 CLS embeddings/
 05 Analysis/01 Main/00 Python data/04 Patents with pairs (group checked, regularized, only before)/
 05 Analysis/01 Main/00 Python data/03 Cleaned patents/
+05 Analysis/01 Main/__ aux/processed_patents_quarterly.xlsx
