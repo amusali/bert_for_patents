@@ -260,3 +260,5 @@
 
     compress
     gisid deal_id date 
+
+    save "${dta}\01 GAFAM empire - processed.dta", replace

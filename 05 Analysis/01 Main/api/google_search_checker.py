@@ -86,11 +86,11 @@ def perform_google_search(company_name, matched_names, api_key = api_key, search
             continue
         matched_search_url = f"https://www.googleapis.com/customsearch/v1?key={api_key}&cx={search_engine_id}&q={matched_name}"
         matched_search_response = requests.get(matched_search_url)
-        print(matched_search_response)
+        #print(matched_search_response)
         api_count += 1
 
         matched_search_results = matched_search_response.json().get("items", [])
-        print(matched_search_results)
+        #print(matched_search_results)
         #print(matched_search_results)
         matched_results.append({
             "matched_name": matched_name,
@@ -118,7 +118,7 @@ def perform_google_search(company_name, matched_names, api_key = api_key, search
                 successful_matches.append(result["matched_name"])
 
     end_time = time.time()
-    print(f"It took {end_time - start_time:.2f} secs to find the successfull match.")
+    #print(f"It took {end_time - start_time:.2f} secs to find the successfull match.")
 
 
     return successful_matches, api_count
