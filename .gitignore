@@ -26,6 +26,11 @@ __pycache__/
 05 Analysis/01 Main/api/search_engine_id.txt
 05 Analysis/01 Main/api/scraperapikey.txt
 
+# Papers 
+01 Papers/
+# Docs
+03 PhD docs/
+
 
 # Legacy codes from TFM
 05 Analysis/00 Master Thesis legacy codes/
@@ -35,15 +40,29 @@ __pycache__/
 
 # Admin stuff
 00 Admin/
-# Stata raw data
 
 # Drive data
+.xlsx 
+.xls 
+.csv 
+.dta
+.parquet
+.json
+.pickle
+.pptx
+.docx
+.pdf
+.ppt
+.pptm
+.doc
+
+# Stata raw data
 05 Analysis/01 Main/01 Stata/00 Setting up/raw
 05 Analysis/01 Main/01 Stata/00 Setting up/out
 05 Analysis/01 Main/01 Stata/00 Setting up/dta
 05 Analysis/01 Main/01 Stata/00 Setting up/_aux
 05 Analysis/01 Main/01 Stata/00 Setting up/log
-05 Analysis\01 Main\01 Stata\00 Setting up\matching_estimates.xlsx
+05 Analysis/01 Main/01 Stata/00 Setting up/matching_estimates.xlsx
 05 Analysis/01 Main/01 Stata/02 Estimation
 
 05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/raw
@@ -56,6 +75,11 @@ __pycache__/
 05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/log
 05 Analysis/01 Main/01 Stata/01 Main/01 Data load/01 Deals/out
 05 Analysis/01 Main/01 Stata/01 Main/01 Data load/00 Patents/out
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/02 Combine/_aux
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/02 Combine/raw
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/02 Combine/dta
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/02 Combine/out
+05 Analysis/01 Main/01 Stata/01 Main/01 Data load/02 Combine/log
 
 05 Analysis/01 Main/00 Python data
 05 Analysis/01 Main/00 Python data/_old
@@ -65,3 +89,24 @@ __pycache__/
 05 Analysis/01 Main/00 Python data/04 Patents with pairs (group checked, regularized, only before)/
 05 Analysis/01 Main/00 Python data/03 Cleaned patents/
 05 Analysis/01 Main/__ aux/processed_patents_quarterly.xlsx
+
+05 Analysis/01 Main/01 Stata/01 Main/02 Estimation/00 Consolidate data/dta
+05 Analysis/01 Main/01 Stata/01 Main/02 Estimation/00 Consolidate data/raw
+05 Analysis/01 Main/01 Stata/01 Main/02 Estimation/01 DiD - TWFE/dta
+05 Analysis/01 Main/01 Stata/01 Main/02 Estimation/01 DiD - TWFE/raw
+05 Analysis/01 Main/01 Stata/01 Main/02 Estimation/_old
+
+05 Analysis/01 Main/03 Python scripts/02 Find off deal patents/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/01 Baseline/01 M&A/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/01 Baseline/01 M&A/raw
+05 Analysis/01 Main/03 Python scripts/03 Estimation/01 Baseline/02 Off deal/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/01 Baseline/02 Off deal/raw
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/01 M&A/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/01 M&A/raw
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/02 Off deal/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/02 Off deal/raw
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/01 M&A - closer patents/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/01 M&A - closer patents/raw
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/02 Off deal - closer patents/out
+05 Analysis/01 Main/03 Python scripts/03 Estimation/02 Top Tech/02 Off deal - closer patents/raw
+05 Analysis/01 Main/03 Python scripts/03 Estimation/_old

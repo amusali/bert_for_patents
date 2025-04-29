@@ -275,6 +275,10 @@
     drop if regexm(deal_synopsis, "stake") & !inlist(child, "WEBTV NETWORKS INC", "NEXT COMPUTER INC" )
     drop if assignee == "Nuance Corporation, Inc."
     drop if child == "SYMBOL TECH INC" // went with Motorola Solutions, not with Motorola Mobility
+    drop if parent == "Dialog Semiconductor"
+    drop if child == "AVANADE" | regexm(strlower(parent), "avanade")
+    drop if assignee == "LinkedIn Corporation" & !mi(resold_date)
+
 
 
     ** Create a Deal ID
@@ -286,10 +290,10 @@
     preserve
         keep if deal_id == 207
         insobs 1
-        replace assignee = "Activision Publishing, Inc." if mi(deal_id)
+        replace assignee = "Activision Publishing, Inc." if mi(assignee)
 
         insobs 1
-        replace assignee = "BLIZZARD ENTERTAINMENT, INC." if mi(deal_id)
+        replace assignee = "BLIZZARD ENTERTAINMENT, INC." if mi(assignee)
 
         replace deal_id = 207
         replace acquisition_date = td(12oct2023)
@@ -328,23 +332,57 @@
     drop check dup 
 
     *** Whatsapp case
-    replace acquisition_date = td(5oct2014) if deal_id == 116
+    replace acquisition_date = td(5oct2014) if regexm(child, "WHATSAPP") | regexm(parent, "WHATSAPP") 
 
     *** Fitbit case
-    replace acquisition_date = td(13jan2021) if deal_id == 148
+    replace acquisition_date = td(13jan2021) if regexm(strlower(parent), "fitbit") | regexm(strlower(child), "fitbit")
 
     *** LinkedIn case
-    replace acquisition_date = td(8dec2016) if deal_id == 264
+    drop if parent == "" & child == "LINKEDIN" // does not add any infor (source:G&L)
+    replace acquisition_date = td(8dec2016) if regexm(child, "LINKEDIN")
 
     *** Motorola case
     replace acquisition_date = td(22may2012) if regexm(child, "MOTOROLA") | regexm(parent, "MOTOROLA")
-
+    replace resold_date = td(30oct2014) if regexm(strlower(assignee), "motorola")
     *** Anapurna Labs
-    replace acquisition_date = td(22jan2015) if deal_id == 5
+    replace acquisition_date = td(22jan2015) if child == "ANNAPURNA LABS"
+
+    *** Authentec case
+    replace acquisition_date = td(3oct2012) if parent == "AuthenTec"
+
+    *** SourceDna case
+    replace acquisition_date = td(15apr2016) if child == "SOURCEDNA"
+
+    *** ZeniMax
+    replace acquisition_date = td(8mar2021) if parent == "ZeniMax"
+
+    *** Avere 
+    replace acquisition_date = td(20mar2018) if child == "AVERE SYSTEMS"
+
+    *** Bungie
+    replace resold_date = td(5oct2007) if assignee == "Bungie, Inc."
+
+    *** Activision
+    replace acquisition_date = td(12oct2023) if parent == "Activision Blizzard" | parent == "King.com"
+
+    *** Xandr
+    replace acquisition_date = td(5jun2022) if parent == "Xandr"
+
+    *** BD
+    replace resold_date = td(8jun2017) if assignee == "Boston Dynamics, Inc."
+    replace acquisition_date = td(13dec2013) if assignee == "Boston Dynamics, Inc."
+    replace acquisition_date = td(31aug2008) if assignee == "CIAO INC."
+    replace acquisition_date = td(26jan2014) if assignee == "DeepMind Technologies Limited"
+    replace acquisition_date = td(13dec2011) if assignee == "Anobit Technologies Ltd."
+    replace acquisition_date = td(26jun2020) if assignee == "Zoox, Inc."
+
+    ** TellMe Netwroks
+    replace resold_date = . if regexm(child, "TELLME")
 
     *** Nuance Communications
-    replace acquisition_date = td(3mar2022) if parent == "Nuance Communications"
-/*
+    replace acquisition_date = td(4dec2012) if child == "ACCENTUS" // source: https://mergr.com/transaction/nuance-communications-acquires-accentus
+    replace acquisition_date = td(3mar2022) if parent == "Nuance Communications" & child != "ACCENTUS" 
+
     *** Make SDC Platinum the main date of acquisition 
     duplicates tag deal_id, gen(dup)
     preserve
@@ -368,11 +406,61 @@
 
     ** Acquisition year
     replace acquisition_year = yofd(acquisition_date)
- 
+
+********************************************************************************
+* F. Consolidate deal IDs
+********************************************************************************    
+    ** Generate duplicates based on Ultimate Parent x Date
+    cap drop dup aux
+    duplicates tag ult_parent acquisition_date, gen(dup)
+    gen aux = 0 if dup > 0
+    bys ult_parent acquisition_date (deal_id): replace aux = 1 if _n > 1 & dup > 0 & deal_id[_n] != deal_id[_n-1]
+    bys ult_parent acquisition_date (deal_id): egen check = sum(aux) if dup > 0
+
+    order ult acquisition_date
+
+    ** Generate and ID that incorporates "subsidiary of target" situations
+    egen id = group(ult_parent acquisition_date) 
+
+    ** Manually change the id for the cases when GAFAM acquires different companies on the same day
+    *** Amazon - 24 June 2021
+    replace id = 10001 if regexm(child, "ART19") & ult_parent == "AMZ" & acquisition_date == td(24jun2021)
+    replace id = 10002 if regexm(child, "WICKR") & ult_parent == "AMZ" & acquisition_date == td(24jun2021)
+
+    *** Google - 1 January 2014 // TBC
+    replace id = 10003 if regexm(child, "DEEPMIND") & ult_parent == "GOOG" & acquisition_date == td(01jan2024)
+    replace id = 10004 if regexm(child, "GRIDCENTRIC") & ult_parent == "GOOG" & acquisition_date == td(01jan2024)
+    replace id = 10005 if regexm(child, "SIDEWALK LABS") & ult_parent == "GOOG" & acquisition_date == td(01jan2024)
+
+    *** Duplicates deals for the same assignee
+    replace id = 10006 if assignee == "CIAO INC."
+    replace id = 10007 if assignee == "Anobit Technologies Ltd."
+    replace id = 10008 if assignee == "DeepMind Technologies Limited"
+    replace id = 10009 if assignee == "Zoox, Inc."
+    replace id = 10010 if assignee == "Boston Dynamics, Inc."
+
+    drop deal_id
+    rename id deal_id
+
+
+
+ ********************************************************************************
+ * G. Save
+ ********************************************************************************
     ** Save
-    order source deal_id 
+    sort ult_parent acquisition_date
+    order ult_parent acquisition_date deal_id parent child source deal_synopsis 
     compress
     save "${dta}/01 All deals - cleaned and matched.dta", replace
+
+    ** Save assignee x acquisition_date
+    keep acquisition_date assignee resold_date deal_id
+    duplicates drop 
+    gisid assignee
+    compress
+    order assignee
+
+    save "${dta}/01 Acquires assignees.dta", replace
 
 
 
