@@ -410,10 +410,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 def visualize_mse(results_df):
     """Visualize MSE results using a dual-axis plot."""
     import matplotlib.pyplot as plt
-
-    # Set the style
-    plt.style.use('seaborn-darkgrid')
-
+    
     # Create a figure and axis
     fig, ax = plt.subplots(figsize=(10, 6))
 
