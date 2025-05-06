@@ -7,6 +7,7 @@ bert_repo/
 # Ignore any virtual environment folders
 venv/
 .env/
+.gitignore
 
 # Ignore system files
 .DS_Store
@@ -42,19 +43,20 @@ __pycache__/
 00 Admin/
 
 # Drive data
-.xlsx 
-.xls 
-.csv 
-.dta
-.parquet
-.json
-.pickle
-.pptx
-.docx
-.pdf
-.ppt
-.pptm
-.doc
+*.xlsx 
+*.xls 
+*.csv 
+*.dta
+*.parquet
+*.json
+*.pickle
+*.pptx
+*.docx
+*.pdf
+*.ppt
+*.pptm
+*.doc
+*.zip
 
 # Stata raw data
 05 Analysis/01 Main/01 Stata/00 Setting up/raw
