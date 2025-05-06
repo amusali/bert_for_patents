@@ -169,7 +169,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
     
     # Compute hybrid distance as convex combination
     d_h = lam * d_mah_scaled + (1 - lam) * d_cos_scaled
-    return d_h
+    return d_h, d_mah_scaled, d_cos_scaled
 
 
 
@@ -243,7 +243,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
         d_c_np = cp.asnumpy(d_c)
 
         # Compute hybrid distance using min-max scaled Mahalanobis and cosine distances
-        d_h = compute_hybrid_distance(d_c_np, np.stack(cosine_list, axis=0), lam)
+        d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, np.stack(cosine_list, axis=0), lam)
 
         # Identify best match (lowest hybrid distance) for each treated patent
         best_indices = np.argmin(d_h, axis=1)
@@ -257,7 +257,9 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
                 'treated_vector': treated_vectors[i],
                 'control_vector': candidate_vectors[best_idx],
                 'mahalanobis_distance': float(d_c_np[i, best_idx]),
+                'mahalanobis_distance_scaled': float(d_mah_scaled[i, best_idx]),
                 'cosine_distance': float(cosine_list[i][best_idx]),
+                'cosine_distance_scaled': float(d_cos_scaled[i, best_idx]),
                 'hybrid_distance': float(d_h[i, best_idx]),
                 'pre_quarters': pre_quarters
             })
