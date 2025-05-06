@@ -441,20 +441,28 @@ def visualize_mse(results_df):
     """Visualize MSE results using a dual-axis plot."""
     import matplotlib.pyplot as plt
 
-    # Create a figure and axis
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    # Plot MSE (Diff) and MSE (Reg)
-    ax.plot(results_df['lambda'], results_df['mse_diff'], marker='o', label='MSE (Diff)', color='blue')
-    ax.plot(results_df['lambda'], results_df['mse_reg'], marker='s', label='MSE (Reg)', color='red')
+    # Plot MSE (Diff) on the left y-axis
+    color1 = 'tab:blue'
+    ax1.set_xlabel('Lambda')
+    ax1.set_ylabel('MSE (Diff)', color=color1)
+    ax1.plot(results_df['lambda'], results_df['mse_diff'], marker='o', color=color1, label='MSE (Diff)')
+    ax1.tick_params(axis='y', labelcolor=color1)
 
-    # Set labels and title
-    ax.set_xlabel('Lambda')
-    ax.set_ylabel('Mean Squared Error')
-    ax.set_title('MSE Comparison: Diff vs. Reg across Lambda')
-    ax.legend()
+    # Create a second y-axis for MSE (Reg)
+    ax2 = ax1.twinx()
+    color2 = 'tab:red'
+    ax2.set_ylabel('MSE (Reg)', color=color2)
+    ax2.plot(results_df['lambda'], results_df['mse_reg'], marker='s', color=color2, label='MSE (Reg)')
+    ax2.tick_params(axis='y', labelcolor=color2)
+
+    # Title and grid
+    fig.suptitle('MSE Comparison: Diff vs. Reg across Lambda')
+    fig.tight_layout()
     plt.grid(True)
     plt.show()
+
 
 # -------------------------------
 # 9. Save Results
