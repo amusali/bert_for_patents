@@ -362,7 +362,7 @@ def load_aux_data():
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, delta=0.2, baseline_begin_period=9):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -373,7 +373,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
         results_df: DataFrame with lambda, MSE (true), and squared bias (regression-style) metrics.
         matched_df_dict: Dictionary mapping lambda to the matched DataFrame.
     """
-    lambda_values = np.arange(0, 1 + delta, delta)
+    lambda_values = np.arange(lambda_start, lambda_end + delta, delta)
     mse_diff_list = []
     mse_reg_list = []
     matched_df_dict = {}
