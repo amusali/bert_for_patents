@@ -131,6 +131,10 @@ def compute_cosine_distances(treated, control):
             d_e = 1 - cos_sim.cpu().numpy()
             cosine_distance_by_treated[tid] = d_e
 
+    # Save
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+        pickle.dump(cosine_distance_by_treated, f)
+
     return cosine_distance_by_treated
 
 
@@ -331,6 +335,32 @@ def prepare():
 
     # Compute cosine distances
     cosine_distance_by_treated = compute_cosine_distances(treated, control)
+
+    # Save all 
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/citation_counts_dict.pkl", "wb") as f:
+        pickle.dump(citation_counts_dict, f)
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated_counts_dict.pkl", "wb") as f:
+        pickle.dump(treated_counts_dict, f)
+
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+        pickle.dump(cosine_distance_by_treated, f)
+    # Save treated and control DataFrames
+    treated.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated.pkl")
+    control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/control.pkl")
+
+    return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
+
+def load_aux_data():
+    """Load auxiliary data from pickle files."""
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/citation_counts_dict.pkl", "rb") as f:
+        citation_counts_dict = pickle.load(f)
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated_counts_dict.pkl", "rb") as f:
+        treated_counts_dict = pickle.load(f)
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "rb") as f:
+        cosine_distance_by_treated = pickle.load(f)
+
+    treated = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated.pkl")
+    control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/control.pkl")
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
