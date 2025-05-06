@@ -177,7 +177,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 # 5. Matching
 # ------------------------------
 
-def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated):
+def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 9, baseline_end_period = 6):
     """Perform hybrid matching between treated and control patents for a given lambda."""
 
     # Group control patents by (grant_year, cpc_subclass)
@@ -193,7 +193,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
         acq_period = pd.Period(acq_quarter, freq='Q')
 
         # Select pre-treatment quarters (5th to 8th quarters before acquisition)
-        pre_quarters = [str(acq_period - i) for i in range(8, 4, -1)]
+        pre_quarters = [str(acq_period - i) for i in range(baseline_begin_period, baseline_end_period - 1, -1)]
 
         # Get candidate control patents with matching (grant_year, cpc_subclass)
         candidates = control_group_dict.get((grant_year, cpc_subclass), pd.DataFrame())
