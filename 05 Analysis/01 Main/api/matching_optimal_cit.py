@@ -153,8 +153,10 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
     d_mah_max = np.max(d_mah, axis=1, keepdims=True)
     d_mah_scaled = (d_mah - d_mah_min) / (d_mah_max - d_mah_min + 1e-16)  # Add epsilon to avoid divide-by-zero
 
-    # Cosine distances should already be in [0, 2]; normalize to [0, 1]
-    d_cos_scaled = d_cos / 2
+    # Min-Max scale cosine distances to [0, 1]
+    d_cos_min = np.min(d_cos, axis=1, keepdims=True)
+    d_cos_max = np.max(d_cos, axis=1, keepdims=True)
+    d_cos_scaled = (d_cos - d_cos_min) / (d_cos_max - d_cos_min + 1e-16)  # Add epsilon to avoid divide-by-zero
 
     # --- Explicit checks ---
     if not (0 <= d_mah_scaled.min() <= d_mah_scaled.max() <= 1):
