@@ -273,51 +273,45 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
 # -------------------------------
 # 6. Placebo Effect Estimation Function
 # -------------------------------
-def estimate_placebo_effect(matched_df, citation_counts_dict, treated, baseline_end_period = 6, outcome_begin_period = 5, outcome_end_period = 2):
+def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_periods=[5, 4, 3, 2]):
     """
-    For each matched pair in matched_df, define the placebo effect as a difference-in-differences
-    using a modified window:
-      - Baseline: cumulative citations in the four quarters from Q_actual - 7 to Q_actual - 4,
-      - Outcomes: citation count in Q_actual - 3 and Q_actual - 2.
+    Estimate placebo effects for each matched treated-control pair by computing the difference in citations
+    for each placebo period (t-5 to t-2). Assumes no treatment effect before acquisition, so true effect should be 0.
 
-    For each matched pair i, define: NEEDS TO BE MODIFIED
-      e_{i,t-3} = [Y^T_i(Q_{actual}-3) - sum_{q=Q_actual-7}^{Q_actual-4} Y^T_i(q)]
-                  - [Y^C_i(Q_{actual}-3) - sum_{q=Q_actual-7}^{Q_actual-4} Y^C_i(q)]
-      e_{i,t-2} = [Y^T_i(Q_{actual}-2) - sum_{q=Q_actual-7}^{Q_actual-4} Y^T_i(q)]
-                  - [Y^C_i(Q_{actual}-2) - sum_{q=Q_actual-7}^{Q_actual-4} Y^C_i(q)]
+    Args:
+        matched_df: DataFrame with matched treated and control patent pairs.
+        citation_counts_dict: Dictionary with patent_id -> {quarter -> citation count}.
+        treated: DataFrame with 'patent_id' and 'acq_date' columns.
+        placebo_periods: List of integers indicating quarters before acquisition (e.g., [5, 4, 3, 2]).
 
-    Returns two arrays: one for e_{t-3} and one for e_{t-2} for all matched pairs.
+    Returns:
+        placebo_matrix: 2D np.array of shape (n_pairs, n_placebo_periods) with difference (treated - control)
+                        in citations per placebo period.
     """
-    # Assert that outcome period immediately follows baseline period
-    assert outcome_begin_period == baseline_end_period - 1, "Outcome period must immediately follow baseline period"
-
-    placebo_effects = []
-
-    # Use the treated DataFrame (assumed to be a Pandas DataFrame with 'patent_id' and 'acq_date')
     treated_dates = treated.set_index('patent_id')['acq_date'].to_dict()
-    for idx, row in matched_df.iterrows():
+    placebo_matrix = []
+
+    for _, row in matched_df.iterrows():
         tid = row['treated_id']
         cid = row['control_id']
         acq_date = treated_dates.get(tid)
+
         if acq_date is None:
-            placebo_effects.append(np.nan)
+            placebo_matrix.append([np.nan] * len(placebo_periods))
             continue
-        # Use the actual acquisition quarter.
+
         acq_period = pd.Period(acq_date, freq='Q')
 
-        # Define the 4 outcome quarters: from Q_actual - 5 to Q_actual - 2.
-        outcome_quarters = [str(acq_period - i) for i in range(outcome_begin_period, outcome_end_period - 1, -1)]
+        diffs = []
+        for p in placebo_periods:
+            q = str(acq_period - p)
+            t_cit = citation_counts_dict.get(tid, {}).get(q, 0)
+            c_cit = citation_counts_dict.get(cid, {}).get(q, 0)
+            diffs.append(t_cit - c_cit)
 
-        treated_outcome = sum(citation_counts_dict.get(tid, {}).get(q, 0) for q in outcome_quarters)
-        control_outcome = sum(citation_counts_dict.get(cid, {}).get(q, 0) for q in outcome_quarters)
+        placebo_matrix.append(diffs)
 
-        e = treated_outcome - control_outcome
-
-        placebo_effects.append(e)
-
-
-    return np.array(placebo_effects)
-
+    return np.array(placebo_matrix)
 
 # -------------------------------
 # 7. Grid Search Over Lambda and Placebo Estimation
@@ -368,72 +362,60 @@ def load_aux_data():
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, delta=0.2, baseline_begin_period = 9, baseline_end_period = 6, outcome_begin_period = 5, outcome_end_period = 2):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, delta=0.2, baseline_begin_period=9):
     """
-    Run the matching routine for different lambda values and compute MSE.
-    """
-    # Define lambda values for grid search
-    lambda_values = np.arange(0, 1 + delta, delta)   # 0, 0.2, ..., 1.0
-    
-    # Lists to store MSE's placebo outcomes.
-    mse_diff_list = []  # Difference-based placebo effect MSE
-    mse_reg_list = []   # Regression-based placebo effect MSE - real MSE
+    Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
+    and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
+    using Mahalanobis (citations) and cosine (embeddings). Placebo effects are computed for each of
+    four pre-treatment quarters, and overall MSE is used to select optimal lambda.
 
-    # Create a dictionary to store matched DataFrames for each lambda.
+    Returns:
+        results_df: DataFrame with lambda, MSE (true), and squared bias (regression-style) metrics.
+        matched_df_dict: Dictionary mapping lambda to the matched DataFrame.
+    """
+    lambda_values = np.arange(0, 1 + delta, delta)
+    mse_diff_list = []
+    mse_reg_list = []
     matched_df_dict = {}
 
-    # Add acquisition and grant periods as Periods with quarterly frequency.
+    # Prepare treated with periods
+    treated = treated.copy()
     treated['acq_period'] = treated['acq_date'].apply(lambda d: pd.Period(d, freq='Q'))
     treated['grant_period'] = treated['grant_date'].apply(lambda d: pd.Period(d, freq='Q'))
-
-    # Compute number of quarters between grant and acquisition.
     treated['quarters_between'] = treated.apply(lambda row: (row['acq_period'] - row['grant_period']).n, axis=1)
-
-    # Filter: only include treated patents with at least 9 quarters between grant and acq.
     filtered_treated = treated[treated['quarters_between'] >= baseline_begin_period]
 
     for lam in lambda_values:
         print(f"Running hybrid matching for lambda = {lam:.2f}")
-
-        # Run matching
         matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated)
-
-        # Save this matched_df for later inspection.
         matched_df_dict[lam] = matched_df.copy()
 
-        # Estimate placebo effects (using the difference-of-differences approach) for t+1 and t+2.
-        e = estimate_placebo_effect(matched_df, citation_counts_dict, treated, baseline_end_period, outcome_begin_period, outcome_end_period)
+        # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
+        placebo_matrix = estimate_placebo_effect(matched_df, citation_counts_dict, treated)
 
-        # Remove any NaN values.
-        placebo_effects_clean = e[~np.isnan(e)]
+        # Remove any rows with NaN
+        valid_rows = ~np.isnan(placebo_matrix).any(axis=1)
+        placebo_matrix_clean = placebo_matrix[valid_rows]
 
-        # Check that no NaN values
-        assert len(placebo_effects_clean) == len(e), "NaN values found in placebo effects"
+        # Compute overall MSE (true MSE): average of all squared differences
+        mse_diff = np.mean(placebo_matrix_clean ** 2)
 
-        # Difference-based MSE: average squared placebo effect.
-        mse_diff = np.mean(placebo_effects_clean ** 2)
-
-        # Regression-based MSE: average squared difference between placebo effect and mean placebo effect.
-        mse_reg = (np.mean(placebo_effects_clean)) ** 2
+        # Compute squared bias (regression-style MSE)
+        mse_reg = np.mean(np.mean(placebo_matrix_clean, axis=0)) ** 2
 
         mse_diff_list.append(mse_diff)
         mse_reg_list.append(mse_reg)
 
-
         print(f"Lambda {lam:.2f}: Difference MSE = {mse_diff:.3f}, Regression MSE = {mse_reg:.3f}")
 
-    # -------------------------------
-    # Combine MSE Results into a DataFrame
-    # -------------------------------
     results_df = pd.DataFrame({
         'lambda': lambda_values,
         'mse_diff': mse_diff_list,
-        'mse_reg': mse_reg_list,
-
+        'mse_reg': mse_reg_list
     })
 
     print("Results of grid search:")
-    print(results_df)   
+    print(results_df)
 
     return results_df, matched_df_dict
 
