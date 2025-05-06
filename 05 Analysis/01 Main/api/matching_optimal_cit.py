@@ -410,7 +410,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 def visualize_mse(results_df):
     """Visualize MSE results using a dual-axis plot."""
     import matplotlib.pyplot as plt
-    
+
     # Create a figure and axis
     fig, ax = plt.subplots(figsize=(10, 6))
 
@@ -451,8 +451,4 @@ def main():
     # Run the matching routine and get results
     results_df, matched_df_dict = run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated)
 
-    # Visualize MSE results
-    visualize_mse(results_df)
-
-    # Save results
-    save_results(results_df, matched_df_dict)
+    return results_df, matched_df_dict
