@@ -82,7 +82,7 @@ def build_citation_counts_dict(quarterly_counts_pd):
 # 3. Treated patents vector preparation
 # ------------------------------
 
-def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_period = 9, baseline_end_period = 6):
+def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_period = 4, baseline_end_period = 1):
     """Compute pre-treatment citation vectors for treated patents."""
     treated['year'] = treated['acq_date'].dt.year
     treated['month'] = treated['acq_date'].dt.month
@@ -132,7 +132,7 @@ def compute_cosine_distances(treated, control):
             cosine_distance_by_treated[tid] = d_e
 
     # Save
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
     return cosine_distance_by_treated
@@ -328,30 +328,30 @@ def prepare():
     cosine_distance_by_treated = compute_cosine_distances(treated, control)
 
     # Save all 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/citation_counts_dict.pkl", "wb") as f:
         pickle.dump(citation_counts_dict, f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated_counts_dict.pkl", "wb") as f:
         pickle.dump(treated_counts_dict, f)
 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
     # Save treated and control DataFrames
-    treated.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated.pkl")
-    control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
+    treated.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated.pkl")
+    control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/control.pkl")
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
 def load_aux_data():
     """Load auxiliary data from pickle files."""
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "rb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/citation_counts_dict.pkl", "rb") as f:
         citation_counts_dict = pickle.load(f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "rb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated_counts_dict.pkl", "rb") as f:
         treated_counts_dict = pickle.load(f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "rb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "rb") as f:
         cosine_distance_by_treated = pickle.load(f)
 
-    treated = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated.pkl")
-    control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
+    treated = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated.pkl")
+    control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/control.pkl")
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
@@ -434,14 +434,14 @@ def visualize_mse(results_df):
 # -------------------------------
 
 def save_results(results_df, matched_df_dict, baseline_begin_period = 9):
-    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/03 Hybrid matching results - {baseline_begin_period}q.pkl")
+    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/03 Hybrid matching results - {baseline_begin_period}q.pkl")
 
     import pickle
-    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/03 Hybrid matches - {baseline_begin_period}q.pkl", "wb") as f:
+    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/03 Hybrid matches - {baseline_begin_period}q.pkl", "wb") as f:
         pickle.dump(matched_df_dict, f)
 
     # Optionally, you can also save results_df as CSV:
-    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/03 Hybrid matching results - {baseline_begin_period}q.csv", index=False)
+    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/03 Hybrid matching results - {baseline_begin_period}q.csv", index=False)
 
 # -------------------------------
 # 10. Main Routine
