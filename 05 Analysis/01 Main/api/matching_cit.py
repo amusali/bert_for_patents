@@ -132,7 +132,7 @@ def compute_cosine_distances(treated, control):
             cosine_distance_by_treated[tid] = d_e
 
     # Save
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
     return cosine_distance_by_treated
@@ -172,7 +172,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 # 5. Matching
 # ------------------------------
 
-def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 9, baseline_end_period = 6):
+def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 4, baseline_end_period = 6):
     """Perform hybrid matching between treated and control patents for a given lambda."""
 
     # Group control patents by (grant_year, cpc_subclass)
@@ -263,48 +263,6 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
     return pd.DataFrame(matches)
 
 
-# -------------------------------
-# 6. Placebo Effect Estimation Function
-# -------------------------------
-def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_periods=[5, 4, 3, 2]):
-    """
-    Estimate placebo effects for each matched treated-control pair by computing the difference in citations
-    for each placebo period (t-5 to t-2). Assumes no treatment effect before acquisition, so true effect should be 0.
-
-    Args:
-        matched_df: DataFrame with matched treated and control patent pairs.
-        citation_counts_dict: Dictionary with patent_id -> {quarter -> citation count}.
-        treated: DataFrame with 'patent_id' and 'acq_date' columns.
-        placebo_periods: List of integers indicating quarters before acquisition (e.g., [5, 4, 3, 2]).
-
-    Returns:
-        placebo_matrix: 2D np.array of shape (n_pairs, n_placebo_periods) with difference (treated - control)
-                        in citations per placebo period.
-    """
-    treated_dates = treated.set_index('patent_id')['acq_date'].to_dict()
-    placebo_matrix = []
-
-    for _, row in matched_df.iterrows():
-        tid = row['treated_id']
-        cid = row['control_id']
-        acq_date = treated_dates.get(tid)
-
-        if acq_date is None:
-            placebo_matrix.append([np.nan] * len(placebo_periods))
-            continue
-
-        acq_period = pd.Period(acq_date, freq='Q')
-
-        diffs = []
-        for p in placebo_periods:
-            q = str(acq_period - p)
-            t_cit = citation_counts_dict.get(tid, {}).get(q, 0)
-            c_cit = citation_counts_dict.get(cid, {}).get(q, 0)
-            diffs.append(t_cit - c_cit)
-
-        placebo_matrix.append(diffs)
-
-    return np.array(placebo_matrix)
 
 # -------------------------------
 # 7. Grid Search Over Lambda and Placebo Estimation
@@ -328,34 +286,34 @@ def prepare():
     cosine_distance_by_treated = compute_cosine_distances(treated, control)
 
     # Save all 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/citation_counts_dict.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/citation_counts_dict.pkl", "wb") as f:
         pickle.dump(citation_counts_dict, f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated_counts_dict.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/treated_counts_dict.pkl", "wb") as f:
         pickle.dump(treated_counts_dict, f)
 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
     # Save treated and control DataFrames
-    treated.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated.pkl")
-    control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/control.pkl")
+    treated.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/treated.pkl")
+    control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/control.pkl")
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
 def load_aux_data():
     """Load auxiliary data from pickle files."""
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/citation_counts_dict.pkl", "rb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/citation_counts_dict.pkl", "rb") as f:
         citation_counts_dict = pickle.load(f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated_counts_dict.pkl", "rb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/treated_counts_dict.pkl", "rb") as f:
         treated_counts_dict = pickle.load(f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/_aux/cosine_distance_by_treated.pkl", "rb") as f:
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/cosine_distance_by_treated.pkl", "rb") as f:
         cosine_distance_by_treated = pickle.load(f)
 
-    treated = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/treated.pkl")
-    control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/_aux/control.pkl")
+    treated = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/treated.pkl")
+    control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/_aux/control.pkl")
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=4):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -382,66 +340,22 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
         matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated)
         matched_df_dict[lam] = matched_df.copy()
 
-        # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
-        placebo_matrix = estimate_placebo_effect(matched_df, citation_counts_dict, treated)
-
-        # Remove any rows with NaN
-        valid_rows = ~np.isnan(placebo_matrix).any(axis=1)
-        placebo_matrix_clean = placebo_matrix[valid_rows]
-
-        # Compute overall MSE (true MSE): average of all squared differences
-        mse_diff = np.mean(placebo_matrix_clean ** 2)
-        mse_diff_list.append(mse_diff)
-
-        print(f"Lambda {lam:.2f}: MSE = {mse_diff:.3f}")
-
-    results_df = pd.DataFrame({
-        'lambda': lambda_values,
-        'mse_diff': mse_diff_list,
-    })
-
-    print("Results of grid search:")
-    print(results_df)
-
-    return results_df, matched_df_dict
-
-# -------------------------------
-# 8. Visualize MSE's 
-# -------------------------------
-
-def visualize_mse(results_df):
-    """Visualize MSE results"""
-    import matplotlib.pyplot as plt
-
-    fig, ax1 = plt.subplots(figsize=(10, 6))
-
-    # Plot MSE (Diff) on the left y-axis
-    color1 = 'tab:blue'
-    ax1.set_xlabel('Lambda')
-    ax1.set_ylabel('MSE (Diff)', color=color1)
-    ax1.plot(results_df['lambda'], results_df['mse_diff'], marker='o', color=color1, label='MSE (Diff)')
-    ax1.tick_params(axis='y', labelcolor=color1)
-
-    # Title and grid
-    fig.suptitle('MSE across Lambda')
-    fig.tight_layout()
-    plt.grid(True)
-    plt.show()
+    return matched_df_dict
 
 
 # -------------------------------
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, baseline_begin_period = 9):
-    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/03 Hybrid matching results - {baseline_begin_period}q.pkl")
+def save_results(results_df, matched_df_dict, baseline_begin_period = 4):
+    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/03 Hybrid matching results - {baseline_begin_period}q.pkl")
 
     import pickle
-    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/03 Hybrid matches - {baseline_begin_period}q.pkl", "wb") as f:
+    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/03 Hybrid matches - {baseline_begin_period}q.pkl", "wb") as f:
         pickle.dump(matched_df_dict, f)
 
     # Optionally, you can also save results_df as CSV:
-    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/03 Hybrid matching results - {baseline_begin_period}q.csv", index=False)
+    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/03 Hybrid matching results - {baseline_begin_period}q.csv", index=False)
 
 # -------------------------------
 # 10. Main Routine
@@ -452,6 +366,6 @@ def main():
     treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated = prepare()
 
     # Run the matching routine and get results
-    results_df, matched_df_dict = run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated)
+    matched_df_dict = run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated)
 
-    return results_df, matched_df_dict
+    return matched_df_dict
