@@ -138,13 +138,6 @@ def compute_cosine_distances(treated, control):
     return cosine_distance_by_treated
 
 
-def compute_hybrid_distance_alpha(d_c, d_e, lam, alpha):
-    """Compute the hybrid distance matrix using Mahalanobis and cosine distances."""
-    d_c_scaled = 1 - np.exp(-alpha * d_c)
-    d_e_scaled = d_e / 2
-    d_h = lam * d_c_scaled + (1 - lam) * d_e_scaled
-    return d_h
-
 def compute_hybrid_distance(d_mah, d_cos, lam):
     """Compute the hybrid distance matrix using Min-Max scaled Mahalanobis and normalized cosine distances."""
 
@@ -370,12 +363,11 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     four pre-treatment quarters, and overall MSE is used to select optimal lambda.
 
     Returns:
-        results_df: DataFrame with lambda, MSE (true), and squared bias (regression-style) metrics.
+        results_df: DataFrame with lambda, MSE (true).
         matched_df_dict: Dictionary mapping lambda to the matched DataFrame.
     """
     lambda_values = np.arange(lambda_start, lambda_end + delta, delta)
     mse_diff_list = []
-    mse_reg_list = []
     matched_df_dict = {}
 
     # Prepare treated with periods
@@ -399,19 +391,13 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
         # Compute overall MSE (true MSE): average of all squared differences
         mse_diff = np.mean(placebo_matrix_clean ** 2)
-
-        # Compute squared bias (regression-style MSE)
-        mse_reg = np.mean(np.mean(placebo_matrix_clean, axis=0)) ** 2
-
         mse_diff_list.append(mse_diff)
-        mse_reg_list.append(mse_reg)
 
-        print(f"Lambda {lam:.2f}: Difference MSE = {mse_diff:.3f}, Regression MSE = {mse_reg:.3f}")
+        print(f"Lambda {lam:.2f}: MSE = {mse_diff:.3f}")
 
     results_df = pd.DataFrame({
         'lambda': lambda_values,
         'mse_diff': mse_diff_list,
-        'mse_reg': mse_reg_list
     })
 
     print("Results of grid search:")
@@ -424,7 +410,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 # -------------------------------
 
 def visualize_mse(results_df):
-    """Visualize MSE results using a dual-axis plot."""
+    """Visualize MSE results"""
     import matplotlib.pyplot as plt
 
     fig, ax1 = plt.subplots(figsize=(10, 6))
@@ -436,15 +422,8 @@ def visualize_mse(results_df):
     ax1.plot(results_df['lambda'], results_df['mse_diff'], marker='o', color=color1, label='MSE (Diff)')
     ax1.tick_params(axis='y', labelcolor=color1)
 
-    # Create a second y-axis for MSE (Reg)
-    ax2 = ax1.twinx()
-    color2 = 'tab:red'
-    ax2.set_ylabel('MSE (Reg)', color=color2)
-    ax2.plot(results_df['lambda'], results_df['mse_reg'], marker='s', color=color2, label='MSE (Reg)')
-    ax2.tick_params(axis='y', labelcolor=color2)
-
     # Title and grid
-    fig.suptitle('MSE Comparison: Diff vs. Reg across Lambda')
+    fig.suptitle('MSE across Lambda')
     fig.tight_layout()
     plt.grid(True)
     plt.show()
