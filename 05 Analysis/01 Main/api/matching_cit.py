@@ -197,6 +197,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
 
         # Build citation vectors for each candidate control patent
         candidate_ids = candidates['patent_id'].tolist()
+        print(f"Processing group: {group_key}, Number of candidates: {len(candidate_ids)}")
         candidate_vectors = [
             [citation_counts_dict.get(cid, {}).get(q, 0) for q in pre_quarters]
             for cid in candidate_ids
@@ -232,6 +233,10 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
         # Convert treated vectors to CuPy and compute Mahalanobis distance matrix
         print(treated_vectors[3])
         T = cp.array(treated_vectors, dtype=cp.float64)
+
+        # Report size
+        print(f"Candidate matrix shape: {candidate_matrix.shape}, Treated matrix shape: {T.shape}")
+
         diff = candidate_matrix[None, :, :] - T[:, None, :]
         d_c_sq = cp.sum((diff @ inv_cov) * diff, axis=2)
         d_c = cp.sqrt(d_c_sq)
