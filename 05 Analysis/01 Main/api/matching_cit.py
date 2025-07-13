@@ -353,15 +353,11 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, baseline_begin_period = 4):
-    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/03 Hybrid matching results - {baseline_begin_period}q.pkl")
+def save_results( matched_df_dict, baseline_begin_period = 4):
 
     import pickle
     with open(f"/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/03 Hybrid matches - {baseline_begin_period}q.pkl", "wb") as f:
         pickle.dump(matched_df_dict, f)
-
-    # Optionally, you can also save results_df as CSV:
-    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/03 Hybrid matching results - {baseline_begin_period}q.csv", index=False)
 
 # -------------------------------
 # 10. Main Routine
