@@ -197,7 +197,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
 
         # Build citation vectors for each candidate control patent
         candidate_ids = candidates['patent_id'].tolist()
-        print(f"Processing group: {group_key}, Number of candidates: {len(candidate_ids)}")
+        #print(f"Processing group: {group_key}, Number of candidates: {len(candidate_ids)}")
         candidate_vectors = [
             [citation_counts_dict.get(cid, {}).get(q, 0) for q in pre_quarters]
             for cid in candidate_ids
