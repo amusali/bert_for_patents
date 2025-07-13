@@ -343,7 +343,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
     for lam in lambda_values:
         print(f"Running hybrid matching for lambda = {lam:.2f}")
-        matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated)
+        matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period=baseline_begin_period)
         matched_df_dict[lam] = matched_df.copy()
 
     return matched_df_dict
