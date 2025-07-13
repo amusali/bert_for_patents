@@ -172,7 +172,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 # 5. Matching
 # ------------------------------
 
-def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 4, baseline_end_period = 6):
+def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 4, baseline_end_period = 1):
     """Perform hybrid matching between treated and control patents for a given lambda."""
 
     # Group control patents by (grant_year, cpc_subclass)
@@ -231,7 +231,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
             continue
 
         # Convert treated vectors to CuPy and compute Mahalanobis distance matrix
-        print(treated_vectors[3])
+        print(treated_vectors[1])
         T = cp.array(treated_vectors, dtype=cp.float64)
 
         # Report size
