@@ -231,11 +231,11 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
             continue
 
         # Convert treated vectors to CuPy and compute Mahalanobis distance matrix
-        print(treated_vectors[1])
+        #print(treated_vectors[1])
         T = cp.array(treated_vectors, dtype=cp.float64)
 
         # Report size
-        print(f"Candidate matrix shape: {candidate_matrix.shape}, Treated matrix shape: {T.shape}")
+        #print(f"Candidate matrix shape: {candidate_matrix.shape}, Treated matrix shape: {T.shape}")
 
         diff = candidate_matrix[None, :, :] - T[:, None, :]
         d_c_sq = cp.sum((diff @ inv_cov) * diff, axis=2)
