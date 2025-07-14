@@ -418,7 +418,7 @@ def load_aux_data(acq_type, top_tech = False, top_tech_threshold=90):
         
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, acq_type, top_tech, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -496,15 +496,21 @@ def visualize_mse(results_df):
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, baseline_begin_period = 9):
-    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/03 Hybrid matching results - {baseline_begin_period}q.pkl")
+def save_results(results_df, matched_df_dict, acq_type, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 9):
+    if top_tech:
+        results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q.pkl")
+        results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q.csv", index=False)
 
-    import pickle
-    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/03 Hybrid matches - {baseline_begin_period}q.pkl", "wb") as f:
-        pickle.dump(matched_df_dict, f)
+        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matches - {acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q.pkl", "wb") as f:
+            pickle.dump(matched_df_dict, f)
 
-    # Optionally, you can also save results_df as CSV:
-    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/03 Hybrid matching results - {baseline_begin_period}q.csv", index=False)
+    else:
+        results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {acq_type}, baseline, {baseline_begin_period}q.pkl")
+        results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {acq_type}, baseline, {baseline_begin_period}q.csv", index=False)
+
+        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matches - {acq_type}, baseline, {baseline_begin_period}q.pkl", "wb") as f:
+            pickle.dump(matched_df_dict, f)
+
 
 # -------------------------------
 # 10. Main Routine
