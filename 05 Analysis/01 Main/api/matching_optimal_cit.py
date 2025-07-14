@@ -350,7 +350,7 @@ def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_p
 # 7. Grid Search Over Lambda and Placebo Estimation
 # -------------------------------
 
-def prepare(acq_type, top_tech = False, top_tech_threshold=90):
+def prepare():
     # Load data
     citations, treated, control, clean_ids = load_data()
 
