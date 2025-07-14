@@ -17,15 +17,55 @@ import dill as pickle
 def load_data(citations_path = "/content/drive/MyDrive/PhD Data/08 Citations/03 Patent citations - raw, filing.pickle", 
               treated_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/acquired_patents.pkl", 
               control_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/potential_controls.pkl", 
-              clean_ids_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/clean_potential_control_ids.csv"):
-    """Load citations, treated, control data, and clean ids."""
-    citations, treated, control, clean_ids = (
-        pd.read_pickle(citations_path),
-        pd.read_pickle(treated_path),
-        pd.read_pickle(control_path),
-        pd.read_csv(clean_ids_path)
-    )
+              clean_ids_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/clean_potential_control_ids.csv",
+              acq_type_path = "/content/drive/MyDrive/PhD Data/09 Acquired patents/04 All patents.dta",
+              ):
+    
+    """Load citations, treated, control data, clean ids, and acquistion type data."""
+
+    # Always reload treated, as it's the only one that must be reloaded
+    treated = pd.read_pickle(treated_path)
+    treated['patent_id'] = treated['patent_id'].astype(str)
+    
+    # Check if the other data is already loaded, if not, load it
+    if 'citations' not in locals():
+        citations = pd.read_pickle(citations_path)
+
+    if 'control' not in locals():
+        control = pd.read_pickle(control_path)
+        control['patent_id'] = control['patent_id'].astype(str)
+
+    if 'clean_ids' not in locals():
+        clean_ids = pd.read_csv(clean_ids_path)
+        clean_ids['patent_id'] = clean_ids['patent_id'].astype(str)
+
+    if 'acq_types' not in locals():
+        acq_types = pd.read_stata(acq_type_path)
+        acq_types['patent_id'] = acq_types['patent_id'].astype(str)
+
+    # Merge treated with acq_types to get acquisition type
+    treated = treated.merge(acq_types[['patent_id', 'acq_type', 'deal_id']], on='patent_id', how='left')
+
     return citations, treated, control, clean_ids
+
+## Adjust treated sample based on type and whether it is top tech or not
+def adjust_treated_sample(treated, acq_type, treated_counts_dict, top_tech=False, top_tech_threshold = 90):
+    """Adjust treated sample based on acquisition type and top tech status."""
+    # Filter treated patents based on acquisition type and top tech status
+    if acq_type == 'M&A' or acq_type == 'Off deal':
+        treated_sample = treated[treated['acq_type'] == acq_type].copy()
+    else:
+        raise ValueError("Invalid acquisition type. Choose 'M&A' or 'Off deal'.")
+
+    # Further filter based on top tech status, keep if total pretreatment citations are in the top 10% of treated patents in the last 4 quarters
+    if top_tech:
+        treated_sample['pre_treatment_total'] = treated_sample['patent_id'].apply(
+            lambda pid: treated_counts_dict[pid]['vector'].sum() if pid in treated_counts_dict else 0
+        )
+        threshold = np.percentile(treated_sample['pre_treatment_total'], top_tech_threshold)
+        treated_sample = treated_sample[treated_sample['pre_treatment_total'] >= threshold]
+    
+    return treated_sample
 
 
 # ------------------------------
@@ -310,7 +350,7 @@ def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_p
 # 7. Grid Search Over Lambda and Placebo Estimation
 # -------------------------------
 
-def prepare():
+def prepare(acq_type, top_tech = False, top_tech_threshold=90):
     # Load data
     citations, treated, control, clean_ids = load_data()
 
@@ -332,30 +372,53 @@ def prepare():
         pickle.dump(citation_counts_dict, f)
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "wb") as f:
         pickle.dump(treated_counts_dict, f)
-
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
-    # Save treated and control DataFrames
-    treated.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated.pkl")
+
+    # Save control DataFrame
     control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def load_aux_data():
+def prepare_sample(treated, acq_type, treated_counts_dict,  top_tech = False, top_tech_threshold=90):
+
+    # Adjust treated sample based on acquisition type and top tech status
+    treated_sample = adjust_treated_sample(treated, acq_type, treated_counts_dict, top_tech, top_tech_threshold)
+
+    # Save treated and control DataFrames
+    if top_tech:
+        treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}.pkl")
+    else:
+        treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_bl.pkl")
+
+    return treated_sample
+
+def load_aux_data(acq_type, top_tech = False, top_tech_threshold=90):
+
     """Load auxiliary data from pickle files."""
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "rb") as f:
-        citation_counts_dict = pickle.load(f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "rb") as f:
-        treated_counts_dict = pickle.load(f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "rb") as f:
-        cosine_distance_by_treated = pickle.load(f)
 
-    treated = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated.pkl")
-    control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
+    ## Check if already loaded
+    if 'citation_counts_dict' not in locals():
+        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "rb") as f:
+            citation_counts_dict = pickle.load(f)
+    if 'treated_counts_dict' not in locals():
+        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "rb") as f:
+            treated_counts_dict = pickle.load(f)
+    if 'cosine_distance_by_treated' not in locals():
+        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "rb") as f:
+            cosine_distance_by_treated = pickle.load(f)
+    if 'control' not in locals():
+        control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
 
+    ## Load treated based on type and top tech status
+    if top_tech:
+        treated = pd.read_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}.pkl")
+    else:
+        treated = pd.read_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_bl.pkl")
+        
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, acq_type, top_tech, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
