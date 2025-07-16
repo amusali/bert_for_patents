@@ -188,13 +188,8 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 
     # Min-Max scale cosine distances to [0, 1]
     d_cos_min = np.min(d_cos, axis=1, keepdims=True)
-    print(f"Size of d_cos: {d_cos.shape}, d_mah: {d_mah.shape}")
-    print(f"Min cosine distances: {d_cos_min}")
     d_cos_max = np.max(d_cos, axis=1, keepdims=True)
-    print(f"Max cosine distances: {d_cos_max}")
-    print(f"Cosine distances: {d_cos}")
     d_cos_scaled = (d_cos - d_cos_min) / (d_cos_max - d_cos_min + 1e-16)  # Add epsilon to avoid divide-by-zero
-    print(f"Scaled cosine distances: {d_cos_scaled}")
 
     # --- Explicit checks ---
     if not (0 <= d_mah_scaled.min() <= d_mah_scaled.max() <= 1):
@@ -217,7 +212,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 # 5. Matching
 # ------------------------------
 
-def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 13, baseline_end_period = 8):
+def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, caliper = 0.05, baseline_begin_period = 13, baseline_end_period = 8):
     """Perform hybrid matching between treated and control patents for a given lambda."""
 
     # Group control patents by (grant_year, cpc_subclass)
@@ -291,6 +286,14 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
         # Store match information
         for i, tid in enumerate(treated_ids):
             best_idx = best_indices[i]
+            best_dist = d_h[i, best_idx]
+
+            dropped_patents_count = 0
+            # Check if the best distance is within the caliper and drop if not
+            if best_dist > caliper:
+                dropped_patents_count += 1
+                continue
+
             matches.append({
                 'treated_id': tid,
                 'control_id': candidate_ids[best_idx],
@@ -303,6 +306,8 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
                 'hybrid_distance': float(d_h[i, best_idx]),
                 'pre_quarters': pre_quarters
             })
+
+        print(f"Dropped {dropped_patents_count} patents for {group} due to caliper restriction.")
 
     # Return all matches as a DataFrame
     return pd.DataFrame(matches)
@@ -423,7 +428,7 @@ def load_aux_data(acq_type, top_tech = False, top_tech_threshold=90):
         
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=13):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, caliper = 0.05, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=13):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -447,7 +452,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
     for lam in lambda_values:
         print(f"Running hybrid matching for lambda = {lam:.2f}")
-        matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated)
+        matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, caliper)
         matched_df_dict[lam] = matched_df.copy()
 
         # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
