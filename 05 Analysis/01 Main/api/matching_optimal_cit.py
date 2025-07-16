@@ -210,6 +210,7 @@ import time
 def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated_counts_dict, baseline_begin_period=13, baseline_end_period=8):
     grouped = treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass'])
     precomputed = []
+    control_group_dict = {key: group for key, group in control_df.groupby(['grant_year', 'cpc_subclass'])}
 
     for group_key, group in tqdm(grouped, total=len(grouped), desc="Precomputing Mahalanobis"):
         t0 = time.time()
@@ -222,12 +223,10 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
         t1 = time.time()
 
         # --- Get controls and candidate vectors ---
-        candidates = control_df[
-            (control_df['grant_year'] == grant_year) &
-            (control_df['cpc_subclass'] == cpc_subclass)
-        ]
+        candidates = control_group_dict.get((grant_year, cpc_subclass), pd.DataFrame())
         if candidates.empty:
             continue
+
 
         candidate_ids = candidates['patent_id'].tolist()
 
