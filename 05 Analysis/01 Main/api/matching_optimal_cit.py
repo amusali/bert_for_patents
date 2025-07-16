@@ -188,8 +188,13 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 
     # Min-Max scale cosine distances to [0, 1]
     d_cos_min = np.min(d_cos, axis=1, keepdims=True)
+    print(f"Size of d_cos: {d_cos.shape}, d_mah: {d_mah.shape}")
+    print(f"Min cosine distances: {d_cos_min}")
     d_cos_max = np.max(d_cos, axis=1, keepdims=True)
+    print(f"Max cosine distances: {d_cos_max}")
+    print(f"Cosine distances: {d_cos}")
     d_cos_scaled = (d_cos - d_cos_min) / (d_cos_max - d_cos_min + 1e-16)  # Add epsilon to avoid divide-by-zero
+    print(f"Scaled cosine distances: {d_cos_scaled}")
 
     # --- Explicit checks ---
     if not (0 <= d_mah_scaled.min() <= d_mah_scaled.max() <= 1):
@@ -278,10 +283,6 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
         d_c_np = cp.asnumpy(d_c)
 
         # Compute hybrid distance using min-max scaled Mahalanobis and cosine distances
-        cos_mat = np.stack(cosine_list, axis=0)
-        print("Raw cosine distance matrix (λ = 0):")
-        print(cos_mat)
-        print("Min:", np.min(cos_mat), "Max:", np.max(cos_mat))
         d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, np.stack(cosine_list, axis=0), lam)
 
         # Identify best match (lowest hybrid distance) for each treated patent
