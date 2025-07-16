@@ -429,7 +429,9 @@ def load_aux_data(acq_type, top_tech = False, top_tech_threshold=90):
         
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, caliper = 0.05, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=13):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated,
+                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.2, baseline_begin_period=13,
+                precomputed_mahalanobis=None):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -451,7 +453,8 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     treated['quarters_between'] = treated.apply(lambda row: (row['acq_period'] - row['grant_period']).n, axis=1)
     filtered_treated = treated[treated['quarters_between'] >= baseline_begin_period]
 
-    precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
+    if precomputed_mahalanobis is None:
+        precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
 
     for lam in lambda_values:
         print(f"Running hybrid matching for lambda = {lam:.2f}")
