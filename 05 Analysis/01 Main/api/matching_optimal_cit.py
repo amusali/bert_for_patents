@@ -261,7 +261,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
             if d_e is None:
                 continue
             treated_ids.append(tid)
-            treated_info = treated_counts_dict.get(tid, {'pre_quarters': pre_quarters, 'vector': np.zeros(4)})
+            treated_info = treated_counts_dict.get(tid, {'pre_quarters': pre_quarters, 'vector': np.zeros(len(pre_quarters))})
             treated_vectors.append(treated_info['vector'])
             cosine_list.append(d_e)
 
