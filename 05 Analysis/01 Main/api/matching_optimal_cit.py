@@ -307,7 +307,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
                 'pre_quarters': pre_quarters
             })
 
-        print(f"Dropped {dropped_patents_count} patents for {group} due to caliper restriction.")
+        print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
 
     # Return all matches as a DataFrame
     return pd.DataFrame(matches)
