@@ -306,8 +306,9 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
                 'hybrid_distance': float(d_h[i, best_idx]),
                 'pre_quarters': pre_quarters
             })
-
-        print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
+        if dropped_patents_count >0:
+            # Print the number of patents dropped due to caliper restriction
+            print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
 
     # Return all matches as a DataFrame
     return pd.DataFrame(matches)
