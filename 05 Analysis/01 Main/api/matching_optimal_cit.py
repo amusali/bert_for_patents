@@ -122,7 +122,7 @@ def build_citation_counts_dict(quarterly_counts_pd):
 # 3. Treated patents vector preparation
 # ------------------------------
 
-def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_period = 9, baseline_end_period = 6):
+def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_period = 13, baseline_end_period = 8):
     """Compute pre-treatment citation vectors for treated patents."""
     treated['year'] = treated['acq_date'].dt.year
     treated['month'] = treated['acq_date'].dt.month
@@ -212,7 +212,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 # 5. Matching
 # ------------------------------
 
-def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 9, baseline_end_period = 6):
+def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, baseline_begin_period = 13, baseline_end_period = 8):
     """Perform hybrid matching between treated and control patents for a given lambda."""
 
     # Group control patents by (grant_year, cpc_subclass)
@@ -306,7 +306,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
 # -------------------------------
 # 6. Placebo Effect Estimation Function
 # -------------------------------
-def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_periods=[5, 4, 3, 2]):
+def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_periods=[7, 6, 5, 4, 3, 2]):
     """
     Estimate placebo effects for each matched treated-control pair by computing the difference in citations
     for each placebo period (t-5 to t-2). Assumes no treatment effect before acquisition, so true effect should be 0.
@@ -418,7 +418,7 @@ def load_aux_data(acq_type, top_tech = False, top_tech_threshold=90):
         
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=9):
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, lambda_start = 0, lambda_end = 1, delta=0.2, baseline_begin_period=13):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -496,7 +496,7 @@ def visualize_mse(results_df):
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, acq_type, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 9):
+def save_results(results_df, matched_df_dict, acq_type, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 13):
     if top_tech:
         results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q.pkl")
         results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q.csv", index=False)
