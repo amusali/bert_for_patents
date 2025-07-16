@@ -207,91 +207,90 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
     return d_h, d_mah_scaled, d_cos_scaled
 
 
+def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated_counts_dict, baseline_begin_period=13, baseline_end_period=8):
+    grouped = treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass'])
+    precomputed = []
 
-# ------------------------------
-# 5. Matching
-# ------------------------------
-
-def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, caliper = 0.05, baseline_begin_period = 13, baseline_end_period = 8):
-    """Perform hybrid matching between treated and control patents for a given lambda."""
-
-    # Group control patents by (grant_year, cpc_subclass)
-    control_group_dict = {key: group for key, group in control_df.groupby(['grant_year', 'cpc_subclass'])}
-    matches = []
-
-    # Group treated patents by (acq_quarter, grant_year, cpc_subclass)
-    treated_groups = list(treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass']))
-
-    dropped_patents_count = 0
-
-    # Iterate over each treated group
-    for group_key, group in tqdm(treated_groups, total=len(treated_groups), desc="Hybrid Matching Groups"):
+    for group_key, group in tqdm(grouped, total=len(grouped), desc="Precomputing Mahalanobis"):
         acq_quarter, grant_year, cpc_subclass = group_key
         acq_period = pd.Period(acq_quarter, freq='Q')
-
-        # Select pre-treatment quarters (5th to 8th quarters before acquisition)
         pre_quarters = [str(acq_period - i) for i in range(baseline_begin_period, baseline_end_period - 1, -1)]
 
-        # Get candidate control patents with matching (grant_year, cpc_subclass)
-        candidates = control_group_dict.get((grant_year, cpc_subclass), pd.DataFrame())
+        candidates = control_df[(control_df['grant_year'] == grant_year) & (control_df['cpc_subclass'] == cpc_subclass)]
         if candidates.empty:
             continue
 
-        # Build citation vectors for each candidate control patent
         candidate_ids = candidates['patent_id'].tolist()
         candidate_vectors = [
             [citation_counts_dict.get(cid, {}).get(q, 0) for q in pre_quarters]
             for cid in candidate_ids
         ]
 
-        # Convert to CuPy array and compute inverse covariance matrix
+        if not candidate_vectors:
+            continue
+
         candidate_matrix = cp.array(candidate_vectors, dtype=cp.float64)
         if candidate_matrix.shape[0] > 1:
             cov_matrix = cp.cov(candidate_matrix, rowvar=False)
         else:
-            cov_matrix = cp.eye(4, dtype=cp.float64)
+            cov_matrix = cp.eye(len(pre_quarters), dtype=cp.float64)
         inv_cov = cp.linalg.pinv(cov_matrix)
 
         treated_ids = []
         treated_vectors = []
-        cosine_list = []
 
-        # Collect treated patent IDs, their citation vectors, and cosine distances
         for _, row in group.iterrows():
             tid = row['patent_id']
-            d_e = cosine_distance_by_treated.get(tid)
-            if d_e is None:
-                continue
+            vec = treated_counts_dict.get(tid, {'vector': np.zeros(len(pre_quarters))})['vector']
             treated_ids.append(tid)
-            treated_info = treated_counts_dict.get(tid, {'pre_quarters': pre_quarters, 'vector': np.zeros(len(pre_quarters))})
-            treated_vectors.append(treated_info['vector'])
-            cosine_list.append(d_e)
+            treated_vectors.append(vec)
 
-        # Skip if no valid treated vectors
-        if len(treated_vectors) == 0:
+        if not treated_vectors:
             continue
 
-        # Convert treated vectors to CuPy and compute Mahalanobis distance matrix
         T = cp.array(treated_vectors, dtype=cp.float64)
         diff = candidate_matrix[None, :, :] - T[:, None, :]
         d_c_sq = cp.sum((diff @ inv_cov) * diff, axis=2)
         d_c = cp.sqrt(d_c_sq)
         cp.cuda.Stream.null.synchronize()
-        d_c_np = cp.asnumpy(d_c)
 
-        # Compute hybrid distance using min-max scaled Mahalanobis and cosine distances
-        d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, np.stack(cosine_list, axis=0), lam)
+        precomputed.append({
+            'treated_ids': treated_ids,
+            'candidate_ids': candidate_ids,
+            'treated_vectors': treated_vectors,
+            'candidate_vectors': candidate_vectors,
+            'd_c_np': cp.asnumpy(d_c),
+            'pre_quarters': pre_quarters,
+            'group_key': group_key
+        })
 
-        # Identify best match (lowest hybrid distance) for each treated patent
+    return precomputed
+
+# ------------------------------
+# 5. Matching
+# ------------------------------
+def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05):
+    matches = []
+    dropped_patents_count = 0
+
+    for group in tqdm(precomputed_mahalanobis, desc="Hybrid Matching with Precomputed Distances"):
+        treated_ids = group['treated_ids']
+        candidate_ids = group['candidate_ids']
+        d_c_np = group['d_c_np']
+        pre_quarters = group['pre_quarters']
+
+        cosine_matrix = np.stack(
+            [cosine_distance_by_treated[tid] for tid in treated_ids if tid in cosine_distance_by_treated],
+            axis=0
+        )
+
+        d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, cosine_matrix, lam)
         best_indices = np.argmin(d_h, axis=1)
 
-        # Store match information
         for i, tid in enumerate(treated_ids):
             best_idx = best_indices[i]
             best_dist = d_h[i, best_idx]
 
-            
-            # Check if the best distance is within the caliper and drop if not
             if best_dist > caliper:
                 dropped_patents_count += 1
                 continue
@@ -299,20 +298,19 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
             matches.append({
                 'treated_id': tid,
                 'control_id': candidate_ids[best_idx],
-                'treated_vector': treated_vectors[i],
-                'control_vector': candidate_vectors[best_idx],
+                'treated_vector': group['treated_vectors'][i],
+                'control_vector': group['candidate_vectors'][best_idx],
                 'mahalanobis_distance': float(d_c_np[i, best_idx]),
                 'mahalanobis_distance_scaled': float(d_mah_scaled[i, best_idx]),
-                'cosine_distance': float(cosine_list[i][best_idx]),
+                'cosine_distance': float(cosine_matrix[i, best_idx]),
                 'cosine_distance_scaled': float(d_cos_scaled[i, best_idx]),
-                'hybrid_distance': float(d_h[i, best_idx]),
+                'hybrid_distance': float(best_dist),
                 'pre_quarters': pre_quarters
             })
-    if dropped_patents_count >0:
-        # Print the number of patents dropped due to caliper restriction
+
+    if dropped_patents_count > 0:
         print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
 
-    # Return all matches as a DataFrame
     return pd.DataFrame(matches)
 
 
@@ -453,9 +451,11 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     treated['quarters_between'] = treated.apply(lambda row: (row['acq_period'] - row['grant_period']).n, axis=1)
     filtered_treated = treated[treated['quarters_between'] >= baseline_begin_period]
 
+    precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
+
     for lam in lambda_values:
         print(f"Running hybrid matching for lambda = {lam:.2f}")
-        matched_df = hybrid_matching_for_lambda(lam, filtered_treated, control, treated_counts_dict, citation_counts_dict, cosine_distance_by_treated, caliper)
+        matched_df = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper)
         matched_df_dict[lam] = matched_df.copy()
 
         # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
