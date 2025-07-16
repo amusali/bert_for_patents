@@ -206,7 +206,6 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
     d_h = lam * d_mah_scaled + (1 - lam) * d_cos_scaled
     return d_h, d_mah_scaled, d_cos_scaled
 
-
 def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated_counts_dict, baseline_begin_period=13, baseline_end_period=8):
     grouped = treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass'])
     precomputed = []
@@ -216,46 +215,45 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
         acq_period = pd.Period(acq_quarter, freq='Q')
         pre_quarters = [str(acq_period - i) for i in range(baseline_begin_period, baseline_end_period - 1, -1)]
 
-        candidates = control_df[(control_df['grant_year'] == grant_year) & (control_df['cpc_subclass'] == cpc_subclass)]
+        candidates = control_df[
+            (control_df['grant_year'] == grant_year) &
+            (control_df['cpc_subclass'] == cpc_subclass)
+        ]
         if candidates.empty:
             continue
 
         candidate_ids = candidates['patent_id'].tolist()
-        candidate_vectors = [
+        candidate_vectors = np.array([
             [citation_counts_dict.get(cid, {}).get(q, 0) for q in pre_quarters]
             for cid in candidate_ids
-        ]
+        ], dtype=np.float64)
 
-        if not candidate_vectors:
-            continue
+        if len(candidate_vectors) < 3:
+            continue  # Skip small groups
 
-        candidate_matrix = cp.array(candidate_vectors, dtype=cp.float64)
-        if candidate_matrix.shape[0] > 1:
-            cov_matrix = cp.cov(candidate_matrix, rowvar=False)
-        else:
-            cov_matrix = cp.eye(len(pre_quarters), dtype=cp.float64)
+        candidate_matrix = cp.asarray(candidate_vectors)
+
+        # Robust inverse covariance
+        cov_matrix = cp.cov(candidate_matrix, rowvar=False)
         inv_cov = cp.linalg.pinv(cov_matrix)
 
-        treated_ids = []
-        treated_vectors = []
+        # Treated
+        treated_vectors = np.array([
+            treated_counts_dict.get(row['patent_id'], {'vector': np.zeros(len(pre_quarters))})['vector']
+            for _, row in group.iterrows()
+        ], dtype=np.float64)
 
-        for _, row in group.iterrows():
-            tid = row['patent_id']
-            vec = treated_counts_dict.get(tid, {'vector': np.zeros(len(pre_quarters))})['vector']
-            treated_ids.append(tid)
-            treated_vectors.append(vec)
-
-        if not treated_vectors:
+        if treated_vectors.size == 0:
             continue
 
-        T = cp.array(treated_vectors, dtype=cp.float64)
+        T = cp.asarray(treated_vectors)
         diff = candidate_matrix[None, :, :] - T[:, None, :]
         d_c_sq = cp.sum((diff @ inv_cov) * diff, axis=2)
         d_c = cp.sqrt(d_c_sq)
         cp.cuda.Stream.null.synchronize()
 
         precomputed.append({
-            'treated_ids': treated_ids,
+            'treated_ids': group['patent_id'].tolist(),
             'candidate_ids': candidate_ids,
             'treated_vectors': treated_vectors,
             'candidate_vectors': candidate_vectors,
@@ -265,6 +263,7 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
         })
 
     return precomputed
+
 
 # ------------------------------
 # 5. Matching
