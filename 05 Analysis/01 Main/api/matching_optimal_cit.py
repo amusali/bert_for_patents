@@ -213,40 +213,29 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
     control_group_dict = {key: group for key, group in control_df.groupby(['grant_year', 'cpc_subclass'])}
 
     for group_key, group in tqdm(grouped, total=len(grouped), desc="Precomputing Mahalanobis"):
-        t0 = time.time()
 
         # --- Group prep ---
         acq_quarter, grant_year, cpc_subclass = group_key
         acq_period = pd.Period(acq_quarter, freq='Q')
         pre_quarters = [str(acq_period - i) for i in range(baseline_begin_period, baseline_end_period - 1, -1)]
 
-        t1 = time.time()
 
         # --- Get controls and candidate vectors ---
         candidates = control_group_dict.get((grant_year, cpc_subclass), pd.DataFrame())
         if candidates.empty:
             continue
 
-
         candidate_ids = candidates['patent_id'].tolist()
-
-        t2 = time.time()
 
         candidate_vectors = np.array([
             [citation_counts_dict.get(cid, {}).get(q, 0) for q in pre_quarters]
             for cid in candidate_ids
         ], dtype=np.float64)
 
-        if len(candidate_vectors) < 3:
-            continue
-
-        t3 = time.time()
-
         candidate_matrix = cp.asarray(candidate_vectors)
         cov_matrix = cp.cov(candidate_matrix, rowvar=False)
         inv_cov = cp.linalg.pinv(cov_matrix)
 
-        t4 = time.time()
 
         treated_vectors = np.array([
             treated_counts_dict.get(row['patent_id'], {'vector': np.zeros(len(pre_quarters))})['vector']
@@ -256,15 +245,11 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
         if treated_vectors.size == 0:
             continue
 
-        t5 = time.time()
-
         T = cp.asarray(treated_vectors)
         diff = candidate_matrix[None, :, :] - T[:, None, :]
         d_c_sq = cp.sum((diff @ inv_cov) * diff, axis=2)
         d_c = cp.sqrt(d_c_sq)
         cp.cuda.Stream.null.synchronize()
-
-        t6 = time.time()
 
         # --- Append results ---
         precomputed.append({
@@ -277,18 +262,7 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
             'group_key': group_key
         })
 
-        t7 = time.time()
-
-        # --- Print per-group timing ---
-        print(f"[{group_key}]")
-        print(f"  Group setup:      {t1 - t0:.3f} s")
-        print(f"  Filter controls:  {t2 - t1:.3f} s")
-        print(f"  Build control vec:{t3 - t2:.3f} s")
-        print(f"  Cov + inv:        {t4 - t3:.3f} s")
-        print(f"  Build treated vec:{t5 - t4:.3f} s")
-        print(f"  Mahalanobis calc: {t6 - t5:.3f} s")
-        print(f"  Append + convert: {t7 - t6:.3f} s")
-        print(f"  TOTAL per group:  {t7 - t0:.3f} s\n")
+    
 
     return precomputed
 
