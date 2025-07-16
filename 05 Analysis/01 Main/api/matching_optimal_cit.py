@@ -222,6 +222,8 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
     # Group treated patents by (acq_quarter, grant_year, cpc_subclass)
     treated_groups = list(treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass']))
 
+    dropped_patents_count = 0
+
     # Iterate over each treated group
     for group_key, group in tqdm(treated_groups, total=len(treated_groups), desc="Hybrid Matching Groups"):
         acq_quarter, grant_year, cpc_subclass = group_key
@@ -288,7 +290,7 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
             best_idx = best_indices[i]
             best_dist = d_h[i, best_idx]
 
-            dropped_patents_count = 0
+            
             # Check if the best distance is within the caliper and drop if not
             if best_dist > caliper:
                 dropped_patents_count += 1
@@ -306,9 +308,9 @@ def hybrid_matching_for_lambda(lam, treated_df, control_df, treated_counts_dict,
                 'hybrid_distance': float(d_h[i, best_idx]),
                 'pre_quarters': pre_quarters
             })
-        if dropped_patents_count >0:
-            # Print the number of patents dropped due to caliper restriction
-            print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
+    if dropped_patents_count >0:
+        # Print the number of patents dropped due to caliper restriction
+        print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
 
     # Return all matches as a DataFrame
     return pd.DataFrame(matches)
