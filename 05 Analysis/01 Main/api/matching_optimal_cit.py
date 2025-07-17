@@ -792,8 +792,8 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
         precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
 
-    for lam in tqdm(lambda_values, desc="Grid Search over Lambda", total=len(lambda_values)):
-        print(f"Running hybrid matching for lambda = {lam:.2f}")
+    for lam in tqdm(lambda_values, total=len(lambda_values), desc="Grid Search over Lambda"):
+        #print(f"Running hybrid matching for lambda = {lam:.2f}")
         matched_df, dropped_count  = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper)
         matched_df_dict[lam] = matched_df.copy()
 
@@ -811,7 +811,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
         patents_counts.append(len(filtered_treated))
         dropped_counts.append(dropped_count)
 
-        print(f"Lambda {lam:.2f}: MSE = {mse_diff:.3f}")
+        #print(f"Lambda {lam:.2f}: MSE = {mse_diff:.3f}")
 
     results_df = pd.DataFrame({
         'lambda': lambda_values,
@@ -822,6 +822,9 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
     print("Results of grid search:")
     print(results_df)
+
+    # Visualize 
+    visualize_mse(results_df)
 
     return results_df, matched_df_dict
 
