@@ -688,11 +688,8 @@ def run_grid_point(args):
         treated_counts_dict,
         cosine_distance_by_treated,
         caliper=caliper,
-        lambda_start=0,
-        lambda_end=1,
         delta=0.05,
         baseline_begin_period=baseline_begin_period,
-        placebo_periods=[i for i in range(baseline_begin_period - 1, 1, -1)],
         precomputed_mahalanobis=precomputed_mahalanobis
     )
 
