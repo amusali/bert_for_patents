@@ -122,8 +122,15 @@ def build_citation_counts_dict(quarterly_counts_pd):
 # 3. Treated patents vector preparation
 # ------------------------------
 
-def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_period = 13, baseline_end_period = 8):
+def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_period = 13):
+
+
     """Compute pre-treatment citation vectors for treated patents."""
+
+    # Calculate baseline end period
+    baseline_end_period = (baseline_begin_period - 1) / 2 + 2
+
+    # Ensure treated DataFrame has the necessary columns
     treated['year'] = treated['acq_date'].dt.year
     treated['month'] = treated['acq_date'].dt.month
     treated['qtr'] = ((treated['month'] - 1) // 3 + 1).astype(str)
@@ -205,9 +212,13 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
     # Compute hybrid distance as convex combination
     d_h = lam * d_mah_scaled + (1 - lam) * d_cos_scaled
     return d_h, d_mah_scaled, d_cos_scaled
-import time
 
-def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated_counts_dict, baseline_begin_period=13, baseline_end_period=8):
+def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated_counts_dict, baseline_begin_period=13):
+
+    # Calculate baseline end period
+    baseline_end_period = (baseline_begin_period - 1) / 2 + 2
+
+    # Ensure treated_df has the necessary columns
     grouped = treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass'])
     precomputed = []
     control_group_dict = {key: group for key, group in control_df.groupby(['grant_year', 'cpc_subclass'])}
@@ -266,6 +277,37 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
 
     return precomputed
 
+def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_counts_dict,
+                      baseline_begin_period, acq_type, threshold=None, top_tech=True):
+    import dill as pickle
+    import os
+
+    suffix = f"{baseline_begin_period}q"
+    threshold_str = f"_top_tech_{threshold}" if top_tech and threshold is not None else "_bl"
+    filename = f"precomputed_mahalanobis_{acq_type}{threshold_str}_{suffix}.pkl"
+    path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/{filename}"
+
+    if os.path.exists(path):
+        print(f"✔️ Mahalanobis already saved: {filename}")
+        return
+
+    print(f"⚙️ Computing Mahalanobis: {filename}")
+
+    # Filter treated sample for valid vectors (if needed)
+    treated_sample = treated_sample.copy()
+    treated_sample['acq_period'] = treated_sample['acq_date'].apply(lambda d: pd.Period(d, freq='Q'))
+    treated_sample['grant_period'] = treated_sample['grant_date'].apply(lambda d: pd.Period(d, freq='Q'))
+    treated_sample['quarters_between'] = treated_sample.apply(lambda row: (row['acq_period'] - row['grant_period']).n, axis=1)
+    filtered_treated = treated_sample[treated_sample['quarters_between'] >= baseline_begin_period]
+
+    # Precompute
+    precomputed = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
+
+    # Save
+    with open(path, 'wb') as f:
+        pickle.dump(precomputed, f)
+
+    print(f"✅ Saved: {filename}")
 
 
 # ------------------------------
@@ -275,7 +317,7 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
     matches = []
     dropped_patents_count = 0
 
-    for group in tqdm(precomputed_mahalanobis, desc="Hybrid Matching with Precomputed Distances"):
+    for group in precomputed_mahalanobis:
         treated_ids = group['treated_ids']
         candidate_ids = group['candidate_ids']
         d_c_np = group['d_c_np']
@@ -313,7 +355,7 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
     if dropped_patents_count > 0:
         print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
 
-    return pd.DataFrame(matches)
+    return pd.DataFrame(matches), dropped_patents_count
 
 
 # -------------------------------
@@ -363,77 +405,351 @@ def estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_p
 # 7. Grid Search Over Lambda and Placebo Estimation
 # -------------------------------
 
-def prepare():
-    # Load data
-    citations, treated, control, clean_ids = load_data()
+def prepare(
+    placebo_periods=[4, 6, 8],
+    acq_types=["M&A", "Off deal"],
+    top_tech_flags=[False, True],
+    top_tech_thresholds=[80, 90]
+):
+    import dill as pickle
+    import os
 
-    # Preprocess citation data
+    # Load and preprocess once
+    citations, treated, control, clean_ids = load_data()
     citations, treated, control = preprocess_citations(citations, treated, control, clean_ids)
 
-    # Compute quarterly citation counts
+    # Save static components
     quarterly_counts_pd = compute_quarterly_citation_counts(citations)
     citation_counts_dict = build_citation_counts_dict(quarterly_counts_pd)
 
-    # Compute treated vectors
-    treated_counts_dict = compute_treated_vectors(treated, citation_counts_dict)
-
-    # Compute cosine distances
     cosine_distance_by_treated = compute_cosine_distances(treated, control)
 
-    # Save all 
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "wb") as f:
         pickle.dump(citation_counts_dict, f)
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "wb") as f:
-        pickle.dump(treated_counts_dict, f)
-    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
-    # Save control DataFrame
-    control.to_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
+    control_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl"
+    control.to_pickle(control_path)
 
-    return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
+    for placebo_p in placebo_periods:
+        baseline_begin_period = placebo_p * 2 + 1
+        suffix = f"{baseline_begin_period}q"
 
-def prepare_sample(treated, acq_type, treated_counts_dict,  top_tech = False, top_tech_threshold=90):
+        # Compute treated_vectors
+        treated_counts_dict = compute_treated_vectors(treated, citation_counts_dict, baseline_begin_period)
+        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict_{suffix}.pkl", "wb") as f:
+            pickle.dump(treated_counts_dict, f)
+
+        for acq_type in acq_types:
+            for top_tech_flag in top_tech_flags:
+                if top_tech_flag:
+                    for threshold in top_tech_thresholds:
+                        treated_sample = prepare_sample(
+                            treated,
+                            acq_type,
+                            treated_counts_dict,
+                            top_tech=True,
+                            top_tech_threshold=threshold,
+                            baseline_begin_period=baseline_begin_period
+                        )
+                        # Precompute and save mahalanobis
+                        _save_mahalanobis(
+                            treated_sample,
+                            control,
+                            citation_counts_dict,
+                            treated_counts_dict,
+                            baseline_begin_period,
+                            acq_type,
+                            threshold,
+                            top_tech=True
+                        )
+                else:
+                    treated_sample = prepare_sample(
+                        treated,
+                        acq_type,
+                        treated_counts_dict,
+                        top_tech=False,
+                        baseline_begin_period=baseline_begin_period
+                    )
+                    _save_mahalanobis(
+                        treated_sample,
+                        control,
+                        citation_counts_dict,
+                        treated_counts_dict,
+                        baseline_begin_period,
+                        acq_type,
+                        threshold=None,
+                        top_tech=False
+                    )
+
+
+def prepare_sample(treated, acq_type, treated_counts_dict,  top_tech = False, top_tech_threshold=90, baseline_begin_period = 13):
+
+    """Prepare treated sample based on acquisition type and top tech status."""
+    import os 
+
+    # If the file exists, just load it
+    treated_path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl" if top_tech else f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_bl.pkl"
+    if os.path.exists(treated_path): return pd.read_pickle(treated_path)
 
     # Adjust treated sample based on acquisition type and top tech status
     treated_sample = adjust_treated_sample(treated, acq_type, treated_counts_dict, top_tech, top_tech_threshold)
 
     # Save treated and control DataFrames
     if top_tech:
-        treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}.pkl")
+        treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl")
     else:
         treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_bl.pkl")
 
     return treated_sample
 
-def load_aux_data(acq_type, top_tech = False, top_tech_threshold=90):
+def load_aux_data(acq_type, top_tech=False, top_tech_threshold=90, baseline_begin_period=13):
 
-    """Load auxiliary data from pickle files."""
+    # Suffix
+    suffix = f"{baseline_begin_period}q"
 
-    ## Check if already loaded
+    # Check if already the variable exists and skip loading if True
     if 'citation_counts_dict' not in locals():
-        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "rb") as f:
+        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "rb") as f:
             citation_counts_dict = pickle.load(f)
-    if 'treated_counts_dict' not in locals():
-        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict.pkl", "rb") as f:
-            treated_counts_dict = pickle.load(f)
+
     if 'cosine_distance_by_treated' not in locals():
-        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "rb") as f:
+        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "rb") as f:
             cosine_distance_by_treated = pickle.load(f)
+    
     if 'control' not in locals():
         control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl")
 
-    ## Load treated based on type and top tech status
+    # Load treated counts dictionary anyways
+    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict_{suffix}.pkl", "rb") as f:
+        treated_counts_dict = pickle.load(f)
+
+    # Load treated sample
     if top_tech:
-        treated = pd.read_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}.pkl")
+        treated = pd.read_pickle(
+            f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl"
+        )
     else:
-        treated = pd.read_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_bl.pkl")
-        
+        treated = pd.read_pickle(
+            f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_{acq_type}_bl.pkl"
+        )
+
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
 
+def load_precomputed_mahalanobis(acq_type, top_tech, baseline_begin_period, top_tech_threshold=None):
+    suffix = f"{baseline_begin_period}q"
+    threshold_str = f"_top_tech_{top_tech_threshold}" if top_tech and top_tech_threshold is not None else "_bl"
+    filename = f"precomputed_mahalanobis_{acq_type}{threshold_str}_{suffix}.pkl"
+    path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/{filename}"
+
+    import dill as pickle
+    with open(path, "rb") as f:
+        return pickle.load(f)
+
+import os
+import pandas as pd
+import csv
+
+def log_grid_result(
+    result_df,
+    acq_type,
+    top_tech,
+    top_tech_threshold,
+    baseline_begin_period,
+    caliper,
+    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/grid_results_log.csv"
+):
+    # Add identifying info
+    result_df['acq_type'] = acq_type
+    result_df['top_tech'] = top_tech
+    result_df['top_tech_threshold'] = top_tech_threshold if top_tech else None
+    result_df['baseline_begin_period'] = baseline_begin_period
+    result_df['caliper'] = caliper
+
+    # Reorder
+    cols = [
+        'acq_type', 'top_tech', 'top_tech_threshold',
+        'baseline_begin_period', 'caliper',
+        'lambda', 'mse_diff', 'total_num_patents', 'num_dropped'
+    ]
+    result_df = result_df[cols]
+
+    # Append
+    file_exists = os.path.isfile(log_path)
+    result_df.to_csv(log_path, mode='a', header=not file_exists, index=False)
+
+
+
+def grid_runner(
+    placebo_periods=[4, 6, 8],
+    calipers=[0.025, 0.05, 0.075, 0.1],
+    acq_types=["M&A", "Off deal"],
+    top_tech_flags=[False, True],
+    top_tech_thresholds=[80, 90]
+):
+    for placebo_p in placebo_periods:
+        baseline_begin_period = placebo_p * 2 + 1
+        print(f"\nRunning grid for baseline_begin_period = {baseline_begin_period} quarters")
+        for acq_type in acq_types:
+            for top_tech_flag in top_tech_flags:
+                thresholds = top_tech_thresholds if top_tech_flag else [None]
+
+                for threshold in thresholds:
+                    print(f"\nRunning grid for acq_type={acq_type}, top_tech={top_tech_flag}, "
+                          f"threshold={threshold}, baseline={baseline_begin_period}q")
+
+                    # Load all data
+                    treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated = load_aux_data(
+                        acq_type=acq_type,
+                        top_tech=top_tech_flag,
+                        top_tech_threshold=threshold if top_tech_flag else 90,
+                        baseline_begin_period=baseline_begin_period
+                    )
+
+                    precomputed_mahalanobis = load_precomputed_mahalanobis(
+                        acq_type=acq_type,
+                        top_tech=top_tech_flag,
+                        baseline_begin_period=baseline_begin_period,
+                        top_tech_threshold=threshold
+                    )
+
+                    for caliper in calipers:
+                        print(f"Matching for caliper = {caliper:.3f}")
+                        results_df, matched_df_dict = run_routine(
+                            treated,
+                            control,
+                            citation_counts_dict,
+                            treated_counts_dict,
+                            cosine_distance_by_treated,
+                            caliper=caliper,
+                            lambda_start=0,
+                            lambda_end=1,
+                            delta=0.05,
+                            baseline_begin_period=baseline_begin_period,
+                            placebo_periods=[i for i in range(baseline_begin_period - 1, 1, -1)],
+                            precomputed_mahalanobis=precomputed_mahalanobis
+                        )
+
+                        save_results(
+                            results_df,
+                            matched_df_dict,
+                            acq_type=acq_type,
+                            caliper=caliper,
+                            top_tech=top_tech_flag,
+                            top_tech_threshold=threshold or 90,                            
+                            baseline_begin_period=baseline_begin_period
+                        )
+
+                        log_grid_result(
+                            results_df,
+                            acq_type=acq_type,
+                            top_tech=top_tech_flag,
+                            top_tech_threshold=threshold if top_tech_flag else None,
+                            baseline_begin_period=baseline_begin_period,
+                            caliper=caliper
+                        )
+
+                        # Visualize
+                        visualize_mse(results_df)
+
+def run_grid_point(args):
+    (placebo_p, acq_type, top_tech_flag, threshold, caliper) = args
+    baseline_begin_period = placebo_p * 2 + 1
+
+    print(f"[{acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q]")
+
+    # Load precomputed data
+    treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated = load_aux_data(
+        acq_type=acq_type,
+        top_tech=top_tech_flag,
+        top_tech_threshold=threshold if top_tech_flag else 90,
+        baseline_begin_period=baseline_begin_period
+    )
+
+    precomputed_mahalanobis = load_precomputed_mahalanobis(
+        acq_type=acq_type,
+        top_tech=top_tech_flag,
+        baseline_begin_period=baseline_begin_period,
+        top_tech_threshold=threshold
+    )
+
+    results_df, matched_df_dict = run_routine(
+        treated,
+        control,
+        citation_counts_dict,
+        treated_counts_dict,
+        cosine_distance_by_treated,
+        caliper=caliper,
+        lambda_start=0,
+        lambda_end=1,
+        delta=0.05,
+        baseline_begin_period=baseline_begin_period,
+        placebo_periods=[i for i in range(baseline_begin_period - 1, 1, -1)],
+        precomputed_mahalanobis=precomputed_mahalanobis
+    )
+
+    save_results(
+        results_df,
+        matched_df_dict,
+        acq_type=acq_type,
+        caliper=caliper,
+        top_tech=top_tech_flag,
+        top_tech_threshold=threshold if top_tech_flag else 90,
+        baseline_begin_period=baseline_begin_period
+    )
+
+    log_grid_result(
+        results_df,
+        acq_type=acq_type,
+        top_tech=top_tech_flag,
+        top_tech_threshold=threshold if top_tech_flag else None,
+        baseline_begin_period=baseline_begin_period,
+        caliper=caliper
+    )
+
+    return f"✅ Done: {acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q"
+
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+def grid_runner_parallel(
+    placebo_periods=[4, 6, 8],
+    calipers=[0.025, 0.05, 0.075, 0.1],
+    acq_types=["M&A", "Off deal"],
+    top_tech_flags=[False, True],
+    top_tech_thresholds=[80, 90],
+    max_workers=4  # Adjust based on Colab RAM/GPU load
+):
+    tasks = []
+
+    for placebo_p in placebo_periods:
+        for acq_type in acq_types:
+            for top_tech_flag in top_tech_flags:
+                thresholds = top_tech_thresholds if top_tech_flag else [None]
+                for threshold in thresholds:
+                    for caliper in calipers:
+                        tasks.append((placebo_p, acq_type, top_tech_flag, threshold, caliper))
+
+    print(f"\n🔁 Launching {len(tasks)} grid runs in parallel with {max_workers} workers...\n")
+
+    results = []
+    with ProcessPoolExecutor(max_workers=max_workers) as executor:
+        futures = [executor.submit(run_grid_point, t) for t in tasks]
+        for f in as_completed(futures):
+            try:
+                result = f.result()
+                print(result)
+                results.append(result)
+            except Exception as e:
+                print(f"❌ Error in a task: {e}")
+
+    print("\n🎉 All grid points completed.")
+    return results
+
+
 def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated,
-                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=13,
-                precomputed_mahalanobis=None):
+                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=13):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -446,7 +762,12 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     """
     lambda_values = np.arange(lambda_start, lambda_end + delta, delta)
     mse_diff_list = []
+    patents_counts = []
+    dropped_counts = []
     matched_df_dict = {}
+
+    # Calculate baseline end period - we force equal number of estimation and placebo periods
+    baseline_end_period = (baseline_begin_period - 1)/2 + 2
 
     # Prepare treated with periods
     treated = treated.copy()
@@ -455,16 +776,16 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     treated['quarters_between'] = treated.apply(lambda row: (row['acq_period'] - row['grant_period']).n, axis=1)
     filtered_treated = treated[treated['quarters_between'] >= baseline_begin_period]
 
-    if precomputed_mahalanobis is None:
-        precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
+    precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
 
-    for lam in lambda_values:
+    for lam in tqdm(lambda_values, desc="Grid Search over Lambda", total=len(lambda_values)):
         print(f"Running hybrid matching for lambda = {lam:.2f}")
-        matched_df = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper)
+        matched_df, dropped_count  = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper)
         matched_df_dict[lam] = matched_df.copy()
 
         # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
-        placebo_matrix = estimate_placebo_effect(matched_df, citation_counts_dict, treated)
+        placebo_periods = [i for i in range(baseline_end_period - 1, 1, -1)]
+        placebo_matrix = estimate_placebo_effect(matched_df, citation_counts_dict, treated, placebo_periods)
 
         # Remove any rows with NaN
         valid_rows = ~np.isnan(placebo_matrix).any(axis=1)
@@ -473,18 +794,23 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
         # Compute overall MSE (true MSE): average of all squared differences
         mse_diff = np.mean(placebo_matrix_clean ** 2)
         mse_diff_list.append(mse_diff)
+        patents_counts.append(len(filtered_treated))
+        dropped_counts.append(dropped_count)
 
         print(f"Lambda {lam:.2f}: MSE = {mse_diff:.3f}")
 
     results_df = pd.DataFrame({
         'lambda': lambda_values,
         'mse_diff': mse_diff_list,
+        'total_num_patents': patents_counts,
+        'num_dropped': dropped_counts
     })
 
     print("Results of grid search:")
     print(results_df)
 
     return results_df, matched_df_dict
+
 
 # -------------------------------
 # 8. Visualize MSE's 
@@ -499,8 +825,8 @@ def visualize_mse(results_df):
     # Plot MSE (Diff) on the left y-axis
     color1 = 'tab:blue'
     ax1.set_xlabel('Lambda')
-    ax1.set_ylabel('MSE (Diff)', color=color1)
-    ax1.plot(results_df['lambda'], results_df['mse_diff'], marker='o', color=color1, label='MSE (Diff)')
+    ax1.set_ylabel('MSE', color=color1)
+    ax1.plot(results_df['lambda'], results_df['mse_diff'], marker='o', color=color1, label='MSE')
     ax1.tick_params(axis='y', labelcolor=color1)
 
     # Title and grid
@@ -515,11 +841,27 @@ def visualize_mse(results_df):
 # -------------------------------
 
 def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 13):
-    suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, cal{caliper:.2f}" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, cal{caliper:.2f}"
-    results_df.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {suffix}.pkl")
-    results_df.to_csv(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matching results - {suffix}.csv", index=False)
-    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/01 Hybrid matches - {suffix}.pkl", "wb") as f:
+
+    # Define suffix and prefix
+    suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.2f}" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.2f}"
+    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/"
+    
+    # Save matching results
+    results_df.to_pickle(f"{prefix}01 Hybrid matching results - {suffix}.pkl")
+    results_df.to_csv(f"{prefix}01 Hybrid matching results - {suffix}.csv", index=False)
+
+    # Save matched dictionary where keys are lambdas and values are matched DFs
+    with open(f"{prefix}01 Hybrid matches - {suffix}.pkl", "wb") as f:
             pickle.dump(matched_df_dict, f)
+
+    # Convert into Pandas DF and save as CSV
+    import pandas as pd
+
+    combined_df = pd.concat(
+        [df.assign(lambda_val=lam) for lam, df in matched_df_dict.items()],
+        ignore_index=True
+    )
+    combined_df.to_csv(f"{prefix}01 Hybrid matches - {suffix}.csv", index=False)
 
 
 # -------------------------------
