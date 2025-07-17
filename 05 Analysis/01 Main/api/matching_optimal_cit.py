@@ -674,12 +674,16 @@ def run_grid_point(args):
         baseline_begin_period=baseline_begin_period
     )
 
+    print(f"Loaded data: {len(treated)} treated patents, {len(control)} control patents, {len(citation_counts_dict)} citation counts.")
+
     precomputed_mahalanobis = load_precomputed_mahalanobis(
         acq_type=acq_type,
         top_tech=top_tech_flag,
         baseline_begin_period=baseline_begin_period,
         top_tech_threshold=threshold
     )
+
+    print(f"Loaded precomputed Mahalanobis distances for {len(precomputed_mahalanobis)} groups.")
 
     results_df, matched_df_dict = run_routine(
         treated,
@@ -693,6 +697,9 @@ def run_grid_point(args):
         precomputed_mahalanobis=precomputed_mahalanobis
     )
 
+    print(f"Finished running routine for [{acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q].")
+    # Save results
+
     save_results(
         results_df,
         matched_df_dict,
@@ -702,6 +709,8 @@ def run_grid_point(args):
         top_tech_threshold=threshold if top_tech_flag else 90,
         baseline_begin_period=baseline_begin_period
     )
+
+    print(f"Saving results for [{acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q].")
 
     log_grid_result(
         results_df,
