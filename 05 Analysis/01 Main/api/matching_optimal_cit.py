@@ -128,7 +128,7 @@ def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_perio
     """Compute pre-treatment citation vectors for treated patents."""
 
     # Calculate baseline end period
-    baseline_end_period = (baseline_begin_period - 1) / 2 + 2
+    baseline_end_period = int((baseline_begin_period - 1) / 2 + 2)
 
     # Ensure treated DataFrame has the necessary columns
     treated['year'] = treated['acq_date'].dt.year
@@ -216,7 +216,7 @@ def compute_hybrid_distance(d_mah, d_cos, lam):
 def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated_counts_dict, baseline_begin_period=13):
 
     # Calculate baseline end period
-    baseline_end_period = (baseline_begin_period - 1) / 2 + 2
+    baseline_end_period = int((baseline_begin_period - 1) / 2 + 2)
 
     # Ensure treated_df has the necessary columns
     grouped = treated_df.groupby(['acq_quarter', 'grant_year', 'cpc_subclass'])
@@ -410,9 +410,8 @@ def prepare(
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
     top_tech_thresholds=[80, 90]
-):
+    ):
     import dill as pickle
-    import os
 
     # Load and preprocess once
     citations, treated, control, clean_ids = load_data()
@@ -424,19 +423,17 @@ def prepare(
     # Save static components
     quarterly_counts_pd = compute_quarterly_citation_counts(citations)
     citation_counts_dict = build_citation_counts_dict(quarterly_counts_pd)
-    cosine_distance_by_treated = compute_cosine_distances(treated, control)
+    compute_cosine_distances(treated, control)
 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "wb") as f:
-        pickle.dump(citation_counts_dict, f)
-    print("Saved citation_counts_dict.")
+    if not os.path.exists("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl"):
+        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "wb") as f:
+            pickle.dump(citation_counts_dict, f)
+        print("Saved citation_counts_dict.")
 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
-        pickle.dump(cosine_distance_by_treated, f)
-    print("Saved cosine_distance_by_treated.")
-
-    control_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl"
-    control.to_pickle(control_path)
-    print(f"Saved control DataFrame.")
+    if not os.path.exists("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl"):
+        control_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl"
+        control.to_pickle(control_path)
+        print(f"Saved control DataFrame.")
 
     for placebo_p in placebo_periods:
         baseline_begin_period = placebo_p * 2 + 1
@@ -758,7 +755,7 @@ def grid_runner_parallel(
 
 
 def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated,
-                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=13):
+                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=13, precomputed_mahalanobis=None):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -776,7 +773,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     matched_df_dict = {}
 
     # Calculate baseline end period - we force equal number of estimation and placebo periods
-    baseline_end_period = (baseline_begin_period - 1)/2 + 2
+    baseline_end_period = int((baseline_begin_period - 1)/2 + 2)
 
     # Prepare treated with periods
     treated = treated.copy()
@@ -785,7 +782,9 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
     treated['quarters_between'] = treated.apply(lambda row: (row['acq_period'] - row['grant_period']).n, axis=1)
     filtered_treated = treated[treated['quarters_between'] >= baseline_begin_period]
 
-    precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
+    if precomputed_mahalanobis is None:
+
+        precomputed_mahalanobis = precompute_mahalanobis(filtered_treated, control, citation_counts_dict, treated_counts_dict, baseline_begin_period)
 
     for lam in tqdm(lambda_values, desc="Grid Search over Lambda", total=len(lambda_values)):
         print(f"Running hybrid matching for lambda = {lam:.2f}")
