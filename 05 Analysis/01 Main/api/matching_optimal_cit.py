@@ -416,22 +416,27 @@ def prepare(
 
     # Load and preprocess once
     citations, treated, control, clean_ids = load_data()
+    print(f"Loaded data: {len(citations)} citations, {len(treated)} treated patents, {len(control)} control patents, {len(clean_ids)} clean ids.")
+    # Preprocess citations and ensure treated and control are in the clean set
     citations, treated, control = preprocess_citations(citations, treated, control, clean_ids)
+    print(f"Preprocessed data: {len(citations)} citations, {len(treated)} treated patents, {len(control)} control patents.")
 
     # Save static components
     quarterly_counts_pd = compute_quarterly_citation_counts(citations)
     citation_counts_dict = build_citation_counts_dict(quarterly_counts_pd)
-
     cosine_distance_by_treated = compute_cosine_distances(treated, control)
 
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/citation_counts_dict.pkl", "wb") as f:
         pickle.dump(citation_counts_dict, f)
+    print("Saved citation_counts_dict.")
 
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
+    print("Saved cosine_distance_by_treated.")
 
     control_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/control.pkl"
     control.to_pickle(control_path)
+    print(f"Saved control DataFrame.")
 
     for placebo_p in placebo_periods:
         baseline_begin_period = placebo_p * 2 + 1
@@ -441,6 +446,7 @@ def prepare(
         treated_counts_dict = compute_treated_vectors(treated, citation_counts_dict, baseline_begin_period)
         with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/_aux/treated_counts_dict_{suffix}.pkl", "wb") as f:
             pickle.dump(treated_counts_dict, f)
+        print(f"Saved treated_counts_dict for baseline_begin_period={baseline_begin_period} quarters.")
 
         for acq_type in acq_types:
             for top_tech_flag in top_tech_flags:
@@ -483,6 +489,9 @@ def prepare(
                         threshold=None,
                         top_tech=False
                     )
+                # report progress
+                print(f"Prepared and saved treated sample for acq_type={acq_type}, top_tech={top_tech_flag}, "
+                      f"baseline_begin_period={baseline_begin_period} quarters, threshold={threshold if top_tech_flag else None}.")
 
 
 def prepare_sample(treated, acq_type, treated_counts_dict,  top_tech = False, top_tech_threshold=90, baseline_begin_period = 13):
