@@ -313,7 +313,7 @@ def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_cou
 # ------------------------------
 # 5. Matching
 # ------------------------------
-def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05):
+def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 1):
     matches = []
     dropped_patents_count = 0
 
@@ -329,31 +329,32 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         )
 
         d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, cosine_matrix, lam)
-        best_indices = np.argmin(d_h, axis=1)
 
         for i, tid in enumerate(treated_ids):
-            best_idx = best_indices[i]
-            best_dist = d_h[i, best_idx]
+            distances = d_h[i]
+            sorted_indices = np.argsort(distances)
+            
+            count = 0
+            for idx in sorted_indices:
+                if distances[idx] <= caliper and count < K:
+                    matches.append({
+                        'treated_id': tid,
+                        'control_id': candidate_ids[idx],
+                        'treated_vector': group['treated_vectors'][i],
+                        'control_vector': group['candidate_vectors'][idx],
+                        'mahalanobis_distance': float(d_c_np[i, idx]),
+                        'mahalanobis_distance_scaled': float(d_mah_scaled[i, idx]),
+                        'cosine_distance': float(cosine_matrix[i, idx]),
+                        'cosine_distance_scaled': float(d_cos_scaled[i, idx]),
+                        'hybrid_distance': float(distances[idx]),
+                        'pre_quarters': pre_quarters
+                    })
+                    count += 1
+                elif count >= K:
+                    break
 
-            if best_dist > caliper:
+            if count == 0:
                 dropped_patents_count += 1
-                continue
-
-            matches.append({
-                'treated_id': tid,
-                'control_id': candidate_ids[best_idx],
-                'treated_vector': group['treated_vectors'][i],
-                'control_vector': group['candidate_vectors'][best_idx],
-                'mahalanobis_distance': float(d_c_np[i, best_idx]),
-                'mahalanobis_distance_scaled': float(d_mah_scaled[i, best_idx]),
-                'cosine_distance': float(cosine_matrix[i, best_idx]),
-                'cosine_distance_scaled': float(d_cos_scaled[i, best_idx]),
-                'hybrid_distance': float(best_dist),
-                'pre_quarters': pre_quarters
-            })
-
-    if dropped_patents_count > 0:
-        print(f"Dropped {dropped_patents_count} patents due to caliper restriction.")
 
     return pd.DataFrame(matches), dropped_patents_count
 
@@ -565,7 +566,8 @@ def log_grid_result(
     top_tech_threshold,
     baseline_begin_period,
     caliper,
-    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/grid_results_log.csv"
+    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/grid_results_log.csv", 
+    K = 1
 ):
     # Add identifying info
     result_df['acq_type'] = acq_type
@@ -573,11 +575,12 @@ def log_grid_result(
     result_df['top_tech_threshold'] = top_tech_threshold if top_tech else None
     result_df['baseline_begin_period'] = baseline_begin_period
     result_df['caliper'] = caliper
+    result_df['number_of_matches'] = K
 
     # Reorder
     cols = [
         'acq_type', 'top_tech', 'top_tech_threshold',
-        'baseline_begin_period', 'caliper',
+        'baseline_begin_period', 'caliper', 'number_of_matches',
         'lambda', 'mse_diff', 'total_num_patents', 'num_dropped'
     ]
     result_df = result_df[cols]
@@ -589,11 +592,13 @@ def log_grid_result(
 
 
 def grid_runner(
+    ## Not used
     placebo_periods=[4, 6, 8],
     calipers=[0.025, 0.05, 0.075, 0.1],
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
-    top_tech_thresholds=[80, 90]
+    top_tech_thresholds=[80, 90],
+    K = 1
 ):
     for placebo_p in placebo_periods:
         baseline_begin_period = placebo_p * 2 + 1
@@ -635,7 +640,8 @@ def grid_runner(
                             delta=0.05,
                             baseline_begin_period=baseline_begin_period,
                             placebo_periods=[i for i in range(baseline_begin_period - 1, 1, -1)],
-                            precomputed_mahalanobis=precomputed_mahalanobis
+                            precomputed_mahalanobis=precomputed_mahalanobis,
+                            K = K  # Number of matches per treated patent
                         )
 
                         save_results(
@@ -660,13 +666,13 @@ def grid_runner(
                         # Visualize
                         visualize_mse(results_df)
 
-def run_grid_point(args):
-    (placebo_p, acq_type, top_tech_flag, threshold, caliper) = args
+
+def run_grid_point_K(args):
+    (placebo_p, acq_type, top_tech_flag, threshold, caliper, K) = args
     baseline_begin_period = placebo_p * 2 + 1
 
-    print(f"[{acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q]")
+    print(f"[K={K} | {acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q]")
 
-    # Load precomputed data
     treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated = load_aux_data(
         acq_type=acq_type,
         top_tech=top_tech_flag,
@@ -674,16 +680,12 @@ def run_grid_point(args):
         baseline_begin_period=baseline_begin_period
     )
 
-    print(f"Loaded data: {len(treated)} treated patents, {len(control)} control patents, {len(citation_counts_dict)} citation counts.")
-
     precomputed_mahalanobis = load_precomputed_mahalanobis(
         acq_type=acq_type,
         top_tech=top_tech_flag,
         baseline_begin_period=baseline_begin_period,
         top_tech_threshold=threshold
     )
-
-    print(f"Loaded precomputed Mahalanobis distances for {len(precomputed_mahalanobis)} groups.")
 
     results_df, matched_df_dict = run_routine(
         treated,
@@ -694,11 +696,9 @@ def run_grid_point(args):
         caliper=caliper,
         delta=0.05,
         baseline_begin_period=baseline_begin_period,
-        precomputed_mahalanobis=precomputed_mahalanobis
+        precomputed_mahalanobis=precomputed_mahalanobis,
+        K=K
     )
-
-    print(f"Finished running routine for [{acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q].")
-    # Save results
 
     save_results(
         results_df,
@@ -707,10 +707,9 @@ def run_grid_point(args):
         caliper=caliper,
         top_tech=top_tech_flag,
         top_tech_threshold=threshold if top_tech_flag else 90,
-        baseline_begin_period=baseline_begin_period
+        baseline_begin_period=baseline_begin_period,
+        K=K
     )
-
-    print(f"Saving results for [{acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q].")
 
     log_grid_result(
         results_df,
@@ -718,36 +717,40 @@ def run_grid_point(args):
         top_tech=top_tech_flag,
         top_tech_threshold=threshold if top_tech_flag else None,
         baseline_begin_period=baseline_begin_period,
-        caliper=caliper
+        caliper=caliper,
+        K=K
     )
 
-    return f"✅ Done: {acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q"
+    return f"✅ Done: K={K}, {acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q"
 
-from concurrent.futures import ProcessPoolExecutor, as_completed
 
-def grid_runner_parallel(
+
+def grid_runner_parallel_K(
     placebo_periods=[4, 6, 8],
     calipers=[0.025, 0.05, 0.075, 0.1],
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
     top_tech_thresholds=[80, 90],
-    max_workers=4  # Adjust based on Colab RAM/GPU load
+    Ks=[1, 3, 5, 10],
+    max_workers=4
 ):
-    tasks = []
+    from concurrent.futures import ProcessPoolExecutor, as_completed
 
+    tasks = []
     for placebo_p in placebo_periods:
         for acq_type in acq_types:
             for top_tech_flag in top_tech_flags:
                 thresholds = top_tech_thresholds if top_tech_flag else [None]
                 for threshold in thresholds:
                     for caliper in calipers:
-                        tasks.append((placebo_p, acq_type, top_tech_flag, threshold, caliper))
+                        for K in Ks:
+                            tasks.append((placebo_p, acq_type, top_tech_flag, threshold, caliper, K))
 
     print(f"\n🔁 Launching {len(tasks)} grid runs in parallel with {max_workers} workers...\n")
 
     results = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
-        futures = [executor.submit(run_grid_point, t) for t in tasks]
+        futures = [executor.submit(run_grid_point_K, t) for t in tasks]
         for f in as_completed(futures):
             try:
                 result = f.result()
@@ -760,8 +763,9 @@ def grid_runner_parallel(
     return results
 
 
+
 def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated,
-                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=13, precomputed_mahalanobis=None):
+                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=13, precomputed_mahalanobis=None, K = 1):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -794,7 +798,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
     for lam in tqdm(lambda_values, total=len(lambda_values), desc="Grid Search over Lambda"):
         #print(f"Running hybrid matching for lambda = {lam:.2f}")
-        matched_df, dropped_count  = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper)
+        matched_df, dropped_count  = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper, K)
         matched_df_dict[lam] = matched_df.copy()
 
         # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
@@ -857,10 +861,10 @@ def visualize_mse(results_df):
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 13):
+def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 13, K = 1):
 
     # Define suffix and prefix
-    suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.2f}" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.2f}"
+    suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
     prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/"
     
     # Save matching results
