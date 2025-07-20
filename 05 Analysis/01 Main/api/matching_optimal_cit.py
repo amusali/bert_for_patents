@@ -737,14 +737,38 @@ def grid_runner_parallel_K(
     from concurrent.futures import ProcessPoolExecutor, as_completed
 
     tasks = []
+    import os
+
+    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation/"
+
     for placebo_p in placebo_periods:
+        baseline_begin_period = placebo_p * 2 + 1
         for acq_type in acq_types:
             for top_tech_flag in top_tech_flags:
                 thresholds = top_tech_thresholds if top_tech_flag else [None]
                 for threshold in thresholds:
                     for caliper in calipers:
                         for K in Ks:
+                            # Generate the file suffix
+                            if top_tech_flag:
+                                suffix = f"{acq_type}, top-tech, {threshold}, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
+                            else:
+                                suffix = f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
+
+                            # Define the 4 expected files
+                            files_to_check = [
+                                f"{prefix}01 Hybrid matching results - {suffix}.pkl",
+                                f"{prefix}01 Hybrid matching results - {suffix}.csv",
+                                f"{prefix}01 Hybrid matches - {suffix}.pkl",
+                                f"{prefix}01 Hybrid matches - {suffix}.csv"
+                            ]
+
+                            if all(os.path.exists(f) for f in files_to_check):
+                                print(f"⏭️ Skipping: {suffix} (results already exist)")
+                                continue
+
                             tasks.append((placebo_p, acq_type, top_tech_flag, threshold, caliper, K))
+
 
     print(f"\n🔁 Launching {len(tasks)} grid runs in parallel with {max_workers} workers...\n")
 
