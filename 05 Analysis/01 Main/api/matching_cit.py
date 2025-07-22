@@ -313,7 +313,7 @@ def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_cou
 # ------------------------------
 # 5. Matching
 # ------------------------------
-def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 1):
+def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 10):
     matches = []
     dropped_patents_count = 0
 
@@ -523,7 +523,7 @@ def log_grid_result(
     baseline_begin_period,
     caliper,
     log_path="/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/grid_results_log.csv", 
-    K = 1
+    K = 10
 ):
     # Add identifying info
     result_df['acq_type'] = acq_type
@@ -612,7 +612,7 @@ def grid_runner_parallel_K(
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
     top_tech_thresholds=[80, 90],
-    Ks=[1, 3, 5, 10],
+    Ks=[10],
     max_workers=3
 ):
     from concurrent.futures import ProcessPoolExecutor, as_completed
@@ -669,7 +669,7 @@ def grid_runner_parallel_K(
 
 
 def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated,
-                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=6, precomputed_mahalanobis=None, K = 1):
+                caliper=0.05, lambda_start=0, lambda_end=1, delta=0.05, baseline_begin_period=6, precomputed_mahalanobis=None, K = 10):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
     and return MSE results. Matching is done on grant year and CPC, and then based on hybrid distance
@@ -720,7 +720,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 6, K = 1):
+def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 6, K = 10):
 
     # Define suffix and prefix
     suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
