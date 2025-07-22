@@ -313,9 +313,19 @@ def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_cou
 # ------------------------------
 # 5. Matching
 # ------------------------------
-def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 10):
+import time
+import numpy as np
+import pandas as pd
+
+def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K=10):
+    start_all = time.time()
+
     matches = []
     dropped_patents_count = 0
+
+    time_cosine = 0
+    time_hybrid = 0
+    time_loop = 0
 
     for group in precomputed_mahalanobis:
         treated_ids = group['treated_ids']
@@ -323,17 +333,25 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         d_c_np = group['d_c_np']
         pre_quarters = group['pre_quarters']
 
+        # --- Time cosine matrix construction ---
+        t0 = time.time()
         cosine_matrix = np.stack(
             [cosine_distance_by_treated[tid] for tid in treated_ids if tid in cosine_distance_by_treated],
             axis=0
         )
+        time_cosine += time.time() - t0
 
+        # --- Time hybrid distance computation ---
+        t0 = time.time()
         d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, cosine_matrix, lam)
+        time_hybrid += time.time() - t0
 
+        # --- Time matching loop ---
+        t0 = time.time()
         for i, tid in enumerate(treated_ids):
             distances = d_h[i]
             sorted_indices = np.argsort(distances)
-            
+
             count = 0
             for idx in sorted_indices:
                 if distances[idx] <= caliper and count < K:
@@ -355,8 +373,19 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
 
             if count == 0:
                 dropped_patents_count += 1
+        time_loop += time.time() - t0
+
+    total_time = time.time() - start_all
+
+    print(f"\n--- Timing for lambda = {lam:.2f} ---")
+    print(f"Total time:            {total_time:.2f} s")
+    print(f"Cosine matrix time:    {time_cosine:.2f} s")
+    print(f"Hybrid dist time:      {time_hybrid:.2f} s")
+    print(f"Matching loop time:    {time_loop:.2f} s")
+    print("-------------------------------\n")
 
     return pd.DataFrame(matches), dropped_patents_count
+
 
 
 # -------------------------------
