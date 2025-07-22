@@ -655,7 +655,7 @@ def grid_runner_parallel_K(
     results = []
     with ProcessPoolExecutor(max_workers=max_workers) as executor:
         futures = [executor.submit(run_grid_point_K, t) for t in tasks]
-        for f in as_completed(futures):
+        for f in tqdm(as_completed(futures), total=len(futures), desc="Grid Jobs"):            
             try:
                 result = f.result()
                 print(result)
