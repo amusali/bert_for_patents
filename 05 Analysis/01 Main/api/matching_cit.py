@@ -317,6 +317,10 @@ import time
 import numpy as np
 import pandas as pd
 
+import time
+import numpy as np
+import pandas as pd
+
 def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K=10):
     start_all = time.time()
 
@@ -325,7 +329,10 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
 
     time_cosine = 0
     time_hybrid = 0
-    time_loop = 0
+    time_loop_total = 0
+    time_sorting = 0
+    time_filtering = 0
+    time_appending = 0
 
     for group in precomputed_mahalanobis:
         treated_ids = group['treated_ids']
@@ -346,15 +353,20 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, cosine_matrix, lam)
         time_hybrid += time.time() - t0
 
-        # --- Time matching loop ---
-        t0 = time.time()
+        # --- Matching loop ---
+        t0_loop = time.time()
         for i, tid in enumerate(treated_ids):
+            t0_sort = time.time()
             distances = d_h[i]
             sorted_indices = np.argsort(distances)
+            time_sorting += time.time() - t0_sort
 
             count = 0
+            t0_filter = time.time()
             for idx in sorted_indices:
                 if distances[idx] <= caliper and count < K:
+                    time_filtering += time.time() - t0_filter  # only first part
+                    t0_append = time.time()
                     matches.append({
                         'treated_id': tid,
                         'control_id': candidate_ids[idx],
@@ -367,24 +379,33 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
                         'hybrid_distance': float(distances[idx]),
                         'pre_quarters': pre_quarters
                     })
+                    time_appending += time.time() - t0_append
                     count += 1
+                    t0_filter = time.time()  # restart timer for next filtering pass
                 elif count >= K:
                     break
+                else:
+                    t0_filter = time.time()  # continue timing filtering
 
             if count == 0:
                 dropped_patents_count += 1
-        time_loop += time.time() - t0
+
+        time_loop_total += time.time() - t0_loop
 
     total_time = time.time() - start_all
 
     print(f"\n--- Timing for lambda = {lam:.2f} ---")
-    print(f"Total time:            {total_time:.2f} s")
-    print(f"Cosine matrix time:    {time_cosine:.2f} s")
-    print(f"Hybrid dist time:      {time_hybrid:.2f} s")
-    print(f"Matching loop time:    {time_loop:.2f} s")
+    print(f"Total time:              {total_time:.2f} s")
+    print(f"Cosine matrix time:      {time_cosine:.2f} s")
+    print(f"Hybrid dist time:        {time_hybrid:.2f} s")
+    print(f"Matching loop total:     {time_loop_total:.2f} s")
+    print(f"  ├─ Sorting time:        {time_sorting:.2f} s")
+    print(f"  ├─ Filtering time:      {time_filtering:.2f} s")
+    print(f"  └─ Appending time:      {time_appending:.2f} s")
     print("-------------------------------\n")
 
     return pd.DataFrame(matches), dropped_patents_count
+
 
 
 
