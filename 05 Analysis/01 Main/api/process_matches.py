@@ -89,6 +89,10 @@ def collapse_citations() -> pd.DataFrame:
     # Load citations
     citations = load_pickle(CITATIONS_FILE)
 
+    citations.rename(columns={'patent_id':'citedby_patent_id',
+                         'citation_patent_id':'patent_id',
+                         'filing_date':'citation_date'}, inplace=True)
+
     # Trim citations
     citations = trim_citations(citations)
 
@@ -105,8 +109,15 @@ def collapse_citations() -> pd.DataFrame:
     citations['citation_quarter'] = citations['year'].astype(str) + 'Q' + citations['qtr']
 
     # Group by patent_id and citation_quarter, counting citations
-    collapsed_citations = citations.groupby(['patent_id','citation_quarter']).size()
+    collapsed_citations = citations.groupby(['patent_id','citation_quarter']).size().reset_index(name='citation_count')
     return collapsed_citations
+
+def save_collapsed_citations(citations: pd.DataFrame):
+    """Save the collapsed citations DataFrame to a pickle file."""
+
+    output_path = os.path.join(OUTPUT_DIR, 'collapsed_citations.pkl')
+    with open(output_path, 'wb') as f:
+        pickle.dump(citations, f)
 
 def combine_with_citations(sample: dict,
                            periods_before: int = -4, periods_after: int = 20) -> dict:
