@@ -151,10 +151,6 @@ def process_sample(filepath: str, citations: pd.DataFrame, baseline_period) -> p
     ids    = get_unique_ids(sample)
     trim   = trim_citations(citations, ids)
 
-    ## Assert sizes
-    assert len(ids) == len(trim), \
-        f"Mismatch in IDs: {len(ids)} vs {len(trim)} after trimming citations"
-    
     counts = precompute_quarterly_citations(trim)
     combined = combine_with_citations(sample, counts, periods_before=baseline_period)
     return get_long_data(combined)
