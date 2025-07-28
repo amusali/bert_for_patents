@@ -143,26 +143,25 @@ def get_long_data(sample: dict) -> pd.DataFrame:
 
 # ---- Process one file ----
 def process_sample(filepath: str, citations: pd.DataFrame, baseline_period) -> pd.DataFrame:
+
+    # Make baseline period negative
+    baseline_period = -baseline_period if baseline_period > 0 else baseline_period
+    # Load sample and trim citations
     sample = load_pickle(filepath)
     ids    = get_unique_ids(sample)
     trim   = trim_citations(citations, ids)
+
+    ## Assert sizes
+    assert len(ids) == len(trim), \
+        f"Mismatch in IDs: {len(ids)} vs {len(trim)} after trimming citations"
+    
     counts = precompute_quarterly_citations(trim)
     combined = combine_with_citations(sample, counts, periods_before=baseline_period)
     return get_long_data(combined)
 
 # ---- Main pipeline ----
-def finalize_all(input_dir: str = INPUT_DIR,
-                 output_dir: str = OUTPUT_DIR,
-                 citations_file: str = CITATIONS_FILE,
-                 patents_file: str = PATENTS_FILE):
-    # load and rename citations
-    cite = pd.read_pickle(citations_file)
-    cite.rename(columns={'patent_id':'citedby_patent_id',
-                         'citation_patent_id':'patent_id',
-                         'filing_date':'citation_date'}, inplace=True)
-    # load patents metadata
-    patents = pd.read_stata(patents_file)
-    patents['patent_id'] = patents['patent_id'].astype(str)
+def finalize_all(citations, patents, input_dir: str = INPUT_DIR,
+                 output_dir: str = OUTPUT_DIR):
 
     os.makedirs(output_dir, exist_ok=True)
     pattern = os.path.join(input_dir, INPUT_PATTERN)
@@ -177,11 +176,17 @@ def finalize_all(input_dir: str = INPUT_DIR,
         if not base.endswith('.pkl'): continue
         suffix = base[len("01 Hybrid matches - "):-4]
         params = parse_suffix(suffix)
-        df_long = process_sample(filepath, cite, params['baseline_period'])
+        df_long = process_sample(filepath, citations, params['baseline_period'])
+
         # drop any nan citations
+        df_long_nans = df_long[df_long['citations_treated'].isna() | df_long['citations_control'].isna()]
+        assert df_long_nans.empty, \
+            f"Found NaN citations in {filepath}:\n{df_long_nans[['treated_id', 'control_id', 'quarter', 'citations_treated', 'citations_control']].head(10)}"
+        
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
         assert df_long['citations_treated'].notna().all()
         assert df_long['citations_control'].notna().all()
+        
         # merge with patents info
         merged = pd.merge(df_long, patents,
                           left_on='treated_id', right_on='patent_id', how='inner')
