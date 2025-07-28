@@ -78,7 +78,7 @@ def trim_citations(citations: pd.DataFrame) -> pd.DataFrame:
 def retrieve_IDs(input_dir: str = INPUT_DIR):
     """Retrieve unique IDs from all matched samples in the input directory."""
     all_ids = set()
-    for filepath in tqdm(glob.glob(os.path.join(input_dir, INPUT_PATTERN), desc = "Loading samples")):
+    for filepath in tqdm(glob.glob(os.path.join(input_dir, INPUT_PATTERN)), desc = "Loading samples"):
         sample = load_pickle(filepath)
         ids = get_unique_ids(sample)
         all_ids.update(ids)
