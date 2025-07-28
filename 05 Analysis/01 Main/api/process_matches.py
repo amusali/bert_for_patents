@@ -97,7 +97,7 @@ def combine_with_citations(sample: dict, citation_counts: dict,
             pre_q = row['pre_quarters']
             treat_period = pd.Period(pre_q[-1], freq='Q') + 1
             # build quarters t-4 ... t+20
-            quarters = ([str(treat_period - i) for i in range(periods_before,0,-1)] +
+            quarters = ([str(treat_period - i) for i in range(abs(periods_before),0,-1)] +
                         [str(treat_period)] +
                         [str(treat_period + i) for i in range(1, periods_after+1)])
             tvec, cvec = [], []
@@ -141,19 +141,51 @@ def get_long_data(sample: dict) -> pd.DataFrame:
         all_dfs.append(merged)
     return pd.concat(all_dfs, ignore_index=True).sort_values(['treated_id','lambda','quarter'])
 
+import time
 # ---- Process one file ----
-def process_sample(filepath: str, citations: pd.DataFrame, baseline_period) -> pd.DataFrame:
+def process_sample(filepath: str, citations: pd.DataFrame, baseline_period: int) -> pd.DataFrame:
+    print(f"\nProcessing {os.path.basename(filepath)}")
+    start_total = time.perf_counter()
 
-    # Make baseline period negative
-    baseline_period = -baseline_period if baseline_period > 0 else baseline_period
-    # Load sample and trim citations
+    # Normalize baseline period to negative
+    bp = -baseline_period if baseline_period > 0 else baseline_period
+
+    # 1) Load sample
+    t0 = time.perf_counter()
     sample = load_pickle(filepath)
+    t1 = time.perf_counter()
+    print(f" - Loaded sample in {t1-t0:.3f}s")
+
+    # 2) Extract IDs & trim citations
+    t2 = time.perf_counter()
     ids    = get_unique_ids(sample)
     trim   = trim_citations(citations, ids)
+    t3 = time.perf_counter()
+    print(f" - Trimmed citations in {t3-t2:.3f}s")
 
+    # 3) Precompute quarterly counts
+    t4 = time.perf_counter()
     counts = precompute_quarterly_citations(trim)
-    combined = combine_with_citations(sample, counts, periods_before=baseline_period)
-    return get_long_data(combined)
+    t5 = time.perf_counter()
+    print(f" - Computed quarterly citations in {t5-t4:.3f}s")
+
+    # 4) Combine matches with citations
+    t6 = time.perf_counter()
+    combined = combine_with_citations(sample, counts, periods_before=bp)
+    t7 = time.perf_counter()
+    print(f" - Combined with citations in {t7-t6:.3f}s")
+
+    # 5) Reshape to long format
+    t8 = time.perf_counter()
+    long_data = get_long_data(combined)
+    t9 = time.perf_counter()
+    print(f" - Reshaped to long data in {t9-t8:.3f}s")
+
+    total = time.perf_counter() - start_total
+    print(f" -> Total process_sample time: {total:.3f}s")
+
+    return long_data
+
 
 # ---- Main pipeline ----
 def finalize_all(citations, patents, input_dir: str = INPUT_DIR,
