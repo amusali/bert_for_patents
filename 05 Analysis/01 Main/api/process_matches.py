@@ -65,36 +65,53 @@ def get_unique_ids(sample: dict) -> np.ndarray:
         ids.extend(df['control_id'].unique())
     return np.unique(ids)
 
-def trim_citations(citations: pd.DataFrame, patent_ids: np.ndarray) -> pd.DataFrame:
+def trim_citations(citations: pd.DataFrame) -> pd.DataFrame:
+
+    # Unique IDs
+    patent_ids = retrieve_IDs()
+
     citations['patent_id'] = citations['patent_id'].astype(str)
     return citations[citations['patent_id'].isin(patent_ids)]
 
-def precompute_quarterly_citations(cite_df: pd.DataFrame) -> dict:
-    cite_df['citation_date'] = pd.to_datetime(cite_df['citation_date'])
-    cite_df['year']  = cite_df['citation_date'].dt.year
-    cite_df['month'] = cite_df['citation_date'].dt.month
-    cite_df['qtr']   = ((cite_df['month'] - 1)//3 + 1).astype(str)
-    cite_df['citation_quarter'] = cite_df['year'].astype(str) + 'Q' + cite_df['qtr']
-    grp = cite_df.groupby(['patent_id','citation_quarter']).size().unstack(fill_value=0)
-    return { pid: row.to_dict() for pid, row in grp.iterrows() }
 
-# ---- Merge matched samples with citations (vectorized) ----
-import pandas as pd
+# Find all relevant IDs and trim citation file accordingly
+def retrieve_IDs(input_dir: str = INPUT_DIR):
+    """Retrieve unique IDs from all matched samples in the input directory."""
+    all_ids = set()
+    for filepath in tqdm(glob.glob(os.path.join(input_dir, INPUT_PATTERN), desc = "Loading samples")):
+        sample = load_pickle(filepath)
+        ids = get_unique_ids(sample)
+        all_ids.update(ids)
+    return np.array(list(all_ids))
 
-def build_citation_long(citation_counts: dict) -> pd.DataFrame:
-    """Flatten citation_counts dict into a DataFrame"""
-    records = [
-        {'patent_id': pid, 'quarter': q, 'count': cnt}
-        for pid, sub in citation_counts.items()
-        for q, cnt in sub.items()
-    ]
-    return pd.DataFrame(records)
+def collapse_citations() -> pd.DataFrame:
+    """Collapse citation DataFrame to unique patent_id and citation_quarter."""
+    # Load citations
+    citations = load_pickle(CITATIONS_FILE)
 
+    # Trim citations
+    citations = trim_citations(citations)
 
-def combine_with_citations(sample: dict, citation_counts: dict,
+    # Ensure 'patent_id' is string
+    citations['patent_id'] = citations['patent_id'].astype(str)
+    
+    # Ensure 'citation_date' is datetime
+    citations['citation_date'] = pd.to_datetime(citations['citation_date'])
+
+    # Extract year, month, and quarter
+    citations['year']  = citations['citation_date'].dt.year
+    citations['month'] = citations['citation_date'].dt.month
+    citations['qtr']   = ((citations['month'] - 1)//3 + 1).astype(str)
+    citations['citation_quarter'] = citations['year'].astype(str) + 'Q' + citations['qtr']
+
+    # Group by patent_id and citation_quarter, counting citations
+    collapsed_citations = citations.groupby(['patent_id','citation_quarter']).size()
+    return collapsed_citations
+
+def combine_with_citations(sample: dict,
                            periods_before: int = -4, periods_after: int = 20) -> dict:
+    
     # Flatten citation counts once
-    cc_long = build_citation_long(citation_counts)
     n_pre = abs(periods_before)
     output = {}
 
