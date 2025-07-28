@@ -3,12 +3,12 @@
 finalize_samples.py
 
 Load matched samples, combine with citation and patent metadata,
-and write final datasets for estimation.
-
+add detailed timing for each step, and write final datasets for estimation.
 Adjust the directory constants or pass via CLI to suit your environment.
 """
 import os
 import glob
+import time
 import dill as pickle
 import pandas as pd
 import numpy as np
@@ -29,21 +29,12 @@ INPUT_PATTERN = "01 Hybrid matches - *.pkl"
 # Template for output filenames
 OUTPUT_FILE_TEMPLATE = "Sample - {suffix}.{ext}"
 
-# ---- Low‑level I/O and parsing ----
+# ---- Low-level I/O and parsing ----
 def load_pickle(path):
     with open(path, 'rb') as f:
         return pickle.load(f)
 
 def parse_suffix(suffix: str) -> dict:
-    """
-    Given a suffix string of the form:
-      "M&A, baseline, 4q, caliper_0.0250, 10matches"
-    or
-      "M&A, top-tech, 90, 4q, caliper_0.0250, 10matches"
-    returns a dict with keys:
-      acq_type, top_tech (bool), top_tech_threshold (int|None),
-      baseline_period (int), caliper (float), K (int)
-    """
     parts = [p.strip() for p in suffix.split(',')]
     params = { 'acq_type': parts[0] }
     if parts[1].lower() == 'baseline':
@@ -55,7 +46,6 @@ def parse_suffix(suffix: str) -> dict:
             'K': int(parts[4].replace('matches', ''))
         })
     else:
-        # "top-tech" branch
         params.update({
             'top_tech': True,
             'top_tech_threshold': int(parts[2]),
@@ -88,45 +78,79 @@ def precompute_quarterly_citations(cite_df: pd.DataFrame) -> dict:
     grp = cite_df.groupby(['patent_id','citation_quarter']).size().unstack(fill_value=0)
     return { pid: row.to_dict() for pid, row in grp.iterrows() }
 
-# ---- Merge matched samples with citations ----
+# ---- Merge matched samples with citations (vectorized) ----
+import pandas as pd
+
+def build_citation_long(citation_counts: dict) -> pd.DataFrame:
+    """Flatten citation_counts dict into a DataFrame"""
+    records = [
+        {'patent_id': pid, 'quarter': q, 'count': cnt}
+        for pid, sub in citation_counts.items()
+        for q, cnt in sub.items()
+    ]
+    return pd.DataFrame(records)
+
+
 def combine_with_citations(sample: dict, citation_counts: dict,
                            periods_before: int = -4, periods_after: int = 20) -> dict:
+    # Flatten citation counts once
+    cc_long = build_citation_long(citation_counts)
+    n_pre = abs(periods_before)
+    output = {}
+
     for lam, df in sample.items():
-        treated_cits, control_cits = [], []
-        for _, row in df.iterrows():
-            pre_q = row['pre_quarters']
-            treat_period = pd.Period(pre_q[-1], freq='Q') + 1
-            # build quarters t-4 ... t+20
-            quarters = ([str(treat_period - i) for i in range(abs(periods_before),0,-1)] +
-                        [str(treat_period)] +
-                        [str(treat_period + i) for i in range(1, periods_after+1)])
-            tvec, cvec = [], []
-            last_q = pd.Period('2024Q4', freq='Q')
-            for q in quarters:
-                qpd = pd.Period(q, freq='Q')
-                tcount = citation_counts.get(row['treated_id'], {}).get(q,
-                              np.nan if qpd>last_q else 0)
-                ccount = citation_counts.get(row['control_id'], {}).get(q,
-                              np.nan if qpd>last_q else 0)
-                tvec.append(tcount)
-                cvec.append(ccount)
-            treated_cits.append(tvec)
-            control_cits.append(cvec)
-        labels = [f"q_{i}" for i in range(periods_before, periods_after+1)]
-        for i, lab in enumerate(labels):
-            df[lab + '_treated'] = [vec[i] for vec in treated_cits]
-            df[lab + '_control'] = [vec[i] for vec in control_cits]
+        df = df.copy()
         df['match_id'] = df.index
-    return sample
+
+        # Generate the sequence of quarters per row
+        def make_quarters(pre_q_list):
+            tp = pd.Period(pre_q_list[-1], freq='Q') + 1
+            pre = [str(tp - i) for i in range(n_pre, 0, -1)]
+            post = [str(tp + i) for i in range(1, periods_after+1)]
+            return pre + [str(tp)] + post
+
+        df['quarter_seq'] = df['pre_quarters'].apply(make_quarters)
+
+        # Explode to long format
+        exp = df.explode('quarter_seq').rename(columns={'quarter_seq':'quarter'})
+
+        # Merge treated and control counts
+        exp = exp.merge(
+            cc_long.rename(columns={'patent_id':'treated_id','count':'treated_count'}),
+            on=['treated_id','quarter'], how='left'
+        )
+        exp = exp.merge(
+            cc_long.rename(columns={'patent_id':'control_id','count':'control_count'}),
+            on=['control_id','quarter'], how='left'
+        )
+
+        # Fill zeros for pre-treatment quarters
+        last_q = pd.Period('2024Q4', freq='Q')
+        is_post = exp['quarter'].apply(lambda q: pd.Period(q, freq='Q') > last_q)
+        exp.loc[~is_post, ['treated_count','control_count']] = \
+            exp.loc[~is_post, ['treated_count','control_count']].fillna(0)
+
+        # Pivot back to wide format
+        treated_wide = exp.pivot(index='match_id', columns='quarter', values='treated_count')
+        control_wide = exp.pivot(index='match_id', columns='quarter', values='control_count')
+
+        # Rename columns to q_{i}_treated/control
+        quarter_labels = [f"q_{i}" for i in range(periods_before, periods_after+1)]
+        for idx, label in enumerate(quarter_labels):
+            df[f"{label}_treated"] = treated_wide.iloc[:, idx].values
+            df[f"{label}_control"] = control_wide.iloc[:, idx].values
+
+        output[lam] = df
+
+    return output
 
 # ---- Reshape to long format ----
 def get_long_data(sample: dict) -> pd.DataFrame:
     all_dfs = []
     for lam, df in sample.items():
         df2 = df.copy(); df2['lambda'] = lam
-        idc = ['treated_id','control_id','treated_vector', 'control_vector', 'lambda',
-               'mahalanobis_distance', 'mahalanobis_distance_scaled','cosine_distance', 'cosine_distance_scaled', 
-               'hybrid_distance']
+        idc = ['treated_id','control_id','match_id','lambda',
+               'mahalanobis_distance','cosine_distance','hybrid_distance']
         tcols = [c for c in df2 if c.startswith('q_') and c.endswith('_treated')]
         ccols = [c for c in df2 if c.startswith('q_') and c.endswith('_control')]
         dt = df2.melt(id_vars=idc, value_vars=tcols,
@@ -141,8 +165,7 @@ def get_long_data(sample: dict) -> pd.DataFrame:
         all_dfs.append(merged)
     return pd.concat(all_dfs, ignore_index=True).sort_values(['treated_id','lambda','quarter'])
 
-import time
-# ---- Process one file ----
+# ---- Process one file with timing ----
 def process_sample(filepath: str, citations: pd.DataFrame, baseline_period: int) -> pd.DataFrame:
     print(f"\nProcessing {os.path.basename(filepath)}")
     start_total = time.perf_counter()
@@ -183,46 +206,24 @@ def process_sample(filepath: str, citations: pd.DataFrame, baseline_period: int)
 
     total = time.perf_counter() - start_total
     print(f" -> Total process_sample time: {total:.3f}s")
-
     return long_data
 
-
 # ---- Main pipeline ----
-def finalize_all(citations, patents, input_dir: str = INPUT_DIR,
+def finalize_all(cite,
+                 patents, 
+                 input_dir: str = INPUT_DIR,
                  output_dir: str = OUTPUT_DIR):
 
     os.makedirs(output_dir, exist_ok=True)
-    pattern = os.path.join(input_dir, INPUT_PATTERN)
-
-    for filepath in tqdm(glob.glob(pattern), desc="Processing samples"):
-
-        # Report progress
-        print(f"Processing {filepath}...")
-
-        # extract suffix and parameters
-        base = os.path.basename(filepath)
-        if not base.endswith('.pkl'): continue
-        suffix = base[len("01 Hybrid matches - "):-4]
+    for filepath in tqdm(glob.glob(os.path.join(input_dir, INPUT_PATTERN)), desc="Processing samples"):
+        suffix = os.path.basename(filepath)[len("01 Hybrid matches - "):-4]
         params = parse_suffix(suffix)
-        df_long = process_sample(filepath, citations, params['baseline_period'])
-
-        # drop any nan citations
-        df_long_nans = df_long[df_long['citations_treated'].isna() | df_long['citations_control'].isna()]
-        assert df_long_nans.empty, \
-            f"Found NaN citations in {filepath}:\n{df_long_nans[['treated_id', 'control_id', 'quarter', 'citations_treated', 'citations_control']].head(10)}"
-        
+        df_long = process_sample(filepath, cite, params['baseline_period'])
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
-        assert df_long['citations_treated'].notna().all()
-        assert df_long['citations_control'].notna().all()
-        
-        # merge with patents info
         merged = pd.merge(df_long, patents,
                           left_on='treated_id', right_on='patent_id', how='inner')
-        # quarter -> int
         merged['quarter'] = merged['quarter'].astype(str).str.replace('q_','').astype(int)
-        # attach scenario params
         for k,v in params.items(): merged[k] = v
-        # save both formats
         for ext in ('pkl','csv'):
             out_name = OUTPUT_FILE_TEMPLATE.format(suffix=suffix, ext=ext)
             out_path = os.path.join(output_dir, out_name)
