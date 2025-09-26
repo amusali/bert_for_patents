@@ -332,12 +332,20 @@ def process_sample(filepath: str, collapsed_counts: pd.DataFrame, baseline_perio
     print(f" - Loaded sample in {t1-t0:.3f}s")
 
     t6 = time.perf_counter()
-    combined = combine_with_citations(sample, periods_before=bp, collapsed_citations=collapsed_counts)
+    combined_dict = combine_with_citations(sample, periods_before=bp, collapsed_citations=collapsed_counts)
     t7 = time.perf_counter()
     print(f" - Combined with citations in {t7-t6:.3f}s")
 
-    print(f" -> Total process_sample time: {time.perf_counter()-start_total:.3f}s")
-    return combined
+    # 4) Concatenate lambdas to a single long DF
+    df_long = pd.concat(
+        [v.assign(lambda_val=k) for k, v in combined_dict.items()],
+        ignore_index=True
+    )
+
+    total = time.perf_counter() - start_total
+    print(f" -> Total process_sample time: {total:.3f}s")
+    return df_long
+
 
 
 # ---- Main pipeline ----
