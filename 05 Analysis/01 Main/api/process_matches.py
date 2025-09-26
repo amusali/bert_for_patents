@@ -25,7 +25,7 @@ CITATIONS_FILE = "/content/drive/MyDrive/PhD Data/08 Citations/03 Patent citatio
 # All patents metadata (Stata .dta)
 PATENTS_FILE = "/content/drive/MyDrive/PhD Data/09 Acquired patents/04 All patents.dta"
 # Glob pattern to find matched samples
-INPUT_PATTERN = "01 Hybrid matches - *.pkl"
+INPUT_PATTERN = "01 Hybrid matches - *10matches.pkl"
 # Template for output filenames
 OUTPUT_FILE_TEMPLATE = "Sample - {suffix}.{ext}"
 
