@@ -218,7 +218,7 @@ def combine_with_citations(matched_dict: dict,
 
         # compute quarter
         t0 = time.perf_counter()
-        exp['quarter'] = (pd.PeriodIndex(exp['t0'], freq='Q') + exp['rel_q']).astype(str)
+        exp['quarter'] = (pd.PeriodIndex(exp['t0'], freq='Q') + exp['rel_q'])
         print(f"compute quarter: {time.perf_counter() - t0:.3f}s")
 
         # join treated
