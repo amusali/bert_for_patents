@@ -420,17 +420,31 @@ def finalize_all(cite,
         print(f"Processed sample {suffix}")
         print(df_long.head(5))
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
+
+        # Load patents metadata
+        t6 = time.perf_counter()
         merged = pd.merge(df_long, patents,
                           left_on='treated_id', right_on='patent_id', how='inner')
-        #merged['quarter'] = merged['quarter'].astype(str).str.replace('q_','').astype(int)
+        
+        t7 = time.perf_counter()
+        print(f" - Merged with patents metadata in {t7-t6:.3f}s")
+
         for k,v in params.items(): merged[k] = v
         for ext in ('pkl','csv'):
             out_name = OUTPUT_FILE_TEMPLATE.format(suffix=suffix, ext=ext)
             out_path = os.path.join(output_dir, out_name)
             if ext == 'pkl':
+                t6 = time.perf_counter()
                 merged.to_pickle(out_path)
+
+                t7 = time.perf_counter()
+                print(f" - Saved Pickle file in {t7-t6:.3f}s")
             else:
+                t6 = time.perf_counter()
                 merged.to_csv(out_path, index=False)
+
+                t7 = time.perf_counter()
+                print(f" - Saved CSV file in {t7-t6:.3f}s")
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description="Finalize matched samples for estimation")
