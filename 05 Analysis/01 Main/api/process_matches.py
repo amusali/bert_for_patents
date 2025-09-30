@@ -234,8 +234,7 @@ def combine_with_citations(matched_dict: dict,
         # cutoff filter
         t0 = time.perf_counter()
         cutoff = pd.Period('2024Q4', freq='Q')
-        q_idx = pd.PeriodIndex(exp['quarter'].astype(str), freq='Q')
-        exp = exp.loc[q_idx <= cutoff].copy()
+        exp = exp.loc[exp['quarter'] <= cutoff]
         print(f"cutoff filter: {time.perf_counter() - t0:.3f}s")
 
         # fillna
