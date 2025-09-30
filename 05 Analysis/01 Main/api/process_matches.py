@@ -430,7 +430,7 @@ def finalize_all(cite,
         print(f" - Merged with patents metadata in {t7-t6:.3f}s")
 
         for k,v in params.items(): merged[k] = v
-        for ext in ('pkl','csv'):
+        for ext in ('pkl'):
             out_name = OUTPUT_FILE_TEMPLATE.format(suffix=suffix, ext=ext)
             out_path = os.path.join(output_dir, out_name)
             if ext == 'pkl':
