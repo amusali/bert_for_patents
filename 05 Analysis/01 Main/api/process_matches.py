@@ -417,7 +417,8 @@ def finalize_all(cite,
         periods_before = params['baseline_period']
 
         df_long = process_sample(filepath, cite, periods_before)
-
+        print(f"Processed sample {suffix}")
+        print(df_long.head(5))
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
 
         # Load patents metadata
@@ -429,7 +430,7 @@ def finalize_all(cite,
         print(f" - Merged with patents metadata in {t7-t6:.3f}s")
 
         for k,v in params.items(): merged[k] = v
-        for ext in ('pkl'):
+        for ext in ('pkl','csv'):
             out_name = OUTPUT_FILE_TEMPLATE.format(suffix=suffix, ext=ext)
             out_path = os.path.join(output_dir, out_name)
             if ext == 'pkl':
