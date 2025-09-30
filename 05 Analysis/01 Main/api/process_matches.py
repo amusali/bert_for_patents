@@ -417,6 +417,7 @@ def finalize_all(cite,
         periods_before = params['baseline_period']
 
         df_long = process_sample(filepath, cite, periods_before)
+        df_long.head(5)
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
         merged = pd.merge(df_long, patents,
                           left_on='treated_id', right_on='patent_id', how='inner')
