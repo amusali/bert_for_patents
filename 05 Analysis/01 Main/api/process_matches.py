@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 # ==== CONFIGURATION (adjust as needed) ====
 # Input directory containing the old matched pickles
-INPUT_DIR = "/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation/"
+INPUT_DIR = "/content/matches/"
 # Output directory for final samples
 OUTPUT_DIR = "/content/drive/MyDrive/PhD Data/12 Sample Final/actual results/citation/"
 # Raw citations pickle (will be trimmed per sample)
@@ -119,61 +119,22 @@ def save_collapsed_citations(citations: pd.DataFrame):
     with open(output_path, 'wb') as f:
         pickle.dump(citations, f)
 
-def combine_with_citations(matched_dict: dict,
-                           periods_before: int,
-                           collapsed_citations: pd.DataFrame) -> dict:
-    # assume periods_before is negative (e.g., -4); use a symmetric window by default
-    n_pre = abs(periods_before)
-    periods_after = n_pre
-
-    out = {}
-    # Prepare lookup frames once
-    cc_t = collapsed_citations.rename(
-        columns={'patent_id':'treated_id','citation_count':'citations_treated','citation_quarter':'quarter'}
-    )
-    cc_c = collapsed_citations.rename(
-        columns={'patent_id':'control_id','citation_count':'citations_control','citation_quarter':'quarter'}
-    )
-
-    for lam, df in matched_dict.items():
-        df = df.copy()
-        df['match_id'] = df.index
-        # t0 = last pre_quarter + 1
-        df['t0'] = df['pre_quarters'].apply(lambda L: pd.Period(L[-1], freq='Q') + 1)
-
-        rel_range = list(range(-n_pre, periods_after + 1))
-        df['rel_q'] = [rel_range] * len(df)
-        exp = df.explode('rel_q', ignore_index=True)
-        exp['quarter'] = (exp['t0'] + exp['rel_q']).astype(str)
-
-        # merge counts
-        exp = exp.merge(cc_t, on=['treated_id','quarter'], how='left')
-        exp = exp.merge(cc_c, on=['control_id','quarter'], how='left')
-
-        # fill zeros only for pre-treatment (rel_q <= 0)
-        pre_mask = exp['rel_q'] <= 0
-        exp.loc[pre_mask, ['citations_treated','citations_control']] = \
-            exp.loc[pre_mask, ['citations_treated','citations_control']].fillna(0)
-
-        out[lam] = exp
-
-    return out
 
 def combine_with_citations(matched_dict: dict,
                            periods_before: int,
                            collapsed_citations: pd.DataFrame) -> dict:
     # assume periods_before is negative (e.g., -4); use a symmetric window by default
     n_pre = abs(periods_before)
-    periods_after = n_pre
+    periods_after = 20
 
     out = {}
     # Prepare lookup frames once
-    cc_t = collapsed_citations.rename(
-        columns={'patent_id':'treated_id','citation_count':'citations_treated','citation_quarter':'quarter'}
-    )
-    cc_c = collapsed_citations.rename(
-        columns={'patent_id':'control_id','citation_count':'citations_control','citation_quarter':'quarter'}
-    )
+   #cc_t = collapsed_citations.rename(
+    #    columns={'patent_id':'treated_id','citation_count':'citations_treated','citation_quarter':'quarter'}
+    #)
+    #cc_c = collapsed_citations.rename(
+    #    columns={'patent_id':'control_id','citation_count':'citations_control','citation_quarter':'quarter'}
+    #)
 
     for lam, df in matched_dict.items():
         df = df.copy()
@@ -189,13 +150,28 @@ def combine_with_citations(matched_dict: dict,
 
 
         # merge counts
-        exp = exp.merge(cc_t, on=['treated_id','quarter'], how='left')
-        exp = exp.merge(cc_c, on=['control_id','quarter'], how='left')
+        #exp = exp.merge(cc_t, on=['treated_id','quarter'], how='left')
+        #exp = exp.merge(cc_c, on=['control_id','quarter'], how='left')
 
-        # fill zeros only for pre-treatment (rel_q <= 0)
-        pre_mask = exp['rel_q'] <= 0
-        exp.loc[pre_mask, ['citations_treated','citations_control']] = \
-            exp.loc[pre_mask, ['citations_treated','citations_control']].fillna(0)
+         # join on MultiIndex – this uses the hash index instead of a full merge
+        exp = exp.join(collapsed_citations.rename('citations_treated'), on=['treated_id','quarter'])
+        exp = exp.join(collapsed_citations.rename('citations_control'), on=['control_id','quarter'])
+
+        
+        # Drop any rows after 2024Q4, then fill missing counts with 0
+        cutoff = pd.Period('2024Q4', freq='Q')
+
+        # ensure 'quarter' is a valid quarterly string
+        q_idx = pd.PeriodIndex(exp['quarter'].astype(str), freq='Q')
+
+        # 1) remove rows beyond cutoff
+        exp = exp.loc[q_idx <= cutoff].copy()
+
+        # 2) fill missing/NA counts with 0 (treated & control)
+        exp[['citations_treated', 'citations_control']] = (
+            exp[['citations_treated', 'citations_control']].fillna(0)
+        )
+
 
         out[lam] = exp
 

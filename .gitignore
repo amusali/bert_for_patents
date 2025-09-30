@@ -21,6 +21,8 @@ __pycache__/
 # Ignore logs
 *.log
 
+.tmp.driveupload/
+
 # Api keys - obviously lol
 05 Analysis/01 Main/api/api_key.txt
 05 Analysis/01 Main/api/google_api_key.txt
