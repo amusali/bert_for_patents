@@ -120,7 +120,7 @@ def save_collapsed_citations(citations: pd.DataFrame):
         pickle.dump(citations, f)
 
 
-def combine_with_citations(matched_dict: dict,
+def combine_with_citations_orig(matched_dict: dict,
                            periods_before: int,
                            collapsed_citations: pd.DataFrame) -> dict:
     # assume periods_before is negative (e.g., -4); use a symmetric window by default
@@ -176,6 +176,82 @@ def combine_with_citations(matched_dict: dict,
         out[lam] = exp
 
     return out
+
+import time
+import pandas as pd
+
+def combine_with_citations(matched_dict: dict,
+                           periods_before: int,
+                           collapsed_citations: pd.DataFrame) -> dict:
+    n_pre = abs(periods_before)
+    periods_after = 20
+    out = {}
+
+    overall_start = time.perf_counter()
+
+    for lam, df in matched_dict.items():
+        print(f"\n--- Processing λ={lam} ---")
+        loop_start = time.perf_counter()
+
+        # copy & setup
+        t0 = time.perf_counter()
+        df = df.copy()
+        df['match_id'] = df.index
+        print(f"copy/setup: {time.perf_counter() - t0:.3f}s")
+
+        # compute t0
+        t0 = time.perf_counter()
+        df['t0'] = df['pre_quarters'].apply(lambda L: pd.Period(L[-1], freq='Q') + 1)
+        print(f"compute t0: {time.perf_counter() - t0:.3f}s")
+
+        # build rel_range
+        t0 = time.perf_counter()
+        rel_range = list(range(-n_pre, periods_after + 1))
+        df['rel_q'] = [rel_range] * len(df)
+        print(f"build rel_range: {time.perf_counter() - t0:.3f}s")
+
+        # explode
+        t0 = time.perf_counter()
+        exp = df.explode('rel_q', ignore_index=True)
+        exp['rel_q'] = exp['rel_q'].astype('int16')
+        print(f"explode: {time.perf_counter() - t0:.3f}s")
+
+        # compute quarter
+        t0 = time.perf_counter()
+        exp['quarter'] = (pd.PeriodIndex(exp['t0'], freq='Q') + exp['rel_q']).astype(str)
+        print(f"compute quarter: {time.perf_counter() - t0:.3f}s")
+
+        # join treated
+        t0 = time.perf_counter()
+        exp = exp.join(collapsed_citations.rename('citations_treated'), on=['treated_id','quarter'])
+        print(f"join treated: {time.perf_counter() - t0:.3f}s")
+
+        # join control
+        t0 = time.perf_counter()
+        exp = exp.join(collapsed_citations.rename('citations_control'), on=['control_id','quarter'])
+        print(f"join control: {time.perf_counter() - t0:.3f}s")
+
+        # cutoff filter
+        t0 = time.perf_counter()
+        cutoff = pd.Period('2024Q4', freq='Q')
+        q_idx = pd.PeriodIndex(exp['quarter'].astype(str), freq='Q')
+        exp = exp.loc[q_idx <= cutoff].copy()
+        print(f"cutoff filter: {time.perf_counter() - t0:.3f}s")
+
+        # fillna
+        t0 = time.perf_counter()
+        exp[['citations_treated', 'citations_control']] = (
+            exp[['citations_treated', 'citations_control']].fillna(0)
+        )
+        print(f"fillna: {time.perf_counter() - t0:.3f}s")
+
+        out[lam] = exp
+
+        print(f"λ={lam} total: {time.perf_counter() - loop_start:.3f}s")
+
+    print(f"\nOverall total: {time.perf_counter() - overall_start:.3f}s")
+    return out
+
 
 ##### FUNCTIONAL UP UNTIL HERE, NEED TO EDIT THE FUNCTIONS BELOW
 """def combine_with_citations(matched_dict: dict,
