@@ -184,7 +184,7 @@ def combine_with_citations(matched_dict: dict,
                            periods_before: int,
                            collapsed_citations: pd.DataFrame) -> dict:
     n_pre = abs(periods_before)
-    periods_after = 20
+    periods_after = 40
     out = {}
 
     #overall_start = time.perf_counter()
