@@ -120,7 +120,7 @@ def save_collapsed_citations(citations: pd.DataFrame):
         pickle.dump(citations, f)
 
 
-def combine_with_citations_orig(matched_dict: dict,
+def combine_with_citations_ori(matched_dict: dict,
                            periods_before: int,
                            collapsed_citations: pd.DataFrame) -> dict:
     # assume periods_before is negative (e.g., -4); use a symmetric window by default
@@ -223,15 +223,12 @@ def combine_with_citations(matched_dict: dict,
 
         # join treated
         t0 = time.perf_counter()
-        #exp = exp.join(collapsed_citations.rename('citations_treated'), on=['treated_id','quarter'])
-        exp['citations_treated'] = exp.set_index(['treated_id','quarter']).index.map(collapsed_citations).values
+        exp = exp.join(collapsed_citations.rename('citations_treated'), on=['treated_id','quarter'])
         print(f"join treated: {time.perf_counter() - t0:.3f}s")
 
         # join control
         t0 = time.perf_counter()
-        #exp = exp.join(collapsed_citations.rename('citations_control'), on=['control_id','quarter'])
-        exp['citations_control'] = exp.set_index(['control_id','quarter']).index.map(collapsed_citations).values
-
+        exp = exp.join(collapsed_citations.rename('citations_control'), on=['control_id','quarter'])
         print(f"join control: {time.perf_counter() - t0:.3f}s")
 
         # cutoff filter
