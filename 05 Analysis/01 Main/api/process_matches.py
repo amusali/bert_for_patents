@@ -439,12 +439,13 @@ def finalize_all(cite,
 
                 t7 = time.perf_counter()
                 print(f" - Saved Pickle file in {t7-t6:.3f}s")
+            """
             else:
                 t6 = time.perf_counter()
                 merged.to_csv(out_path, index=False)
 
                 t7 = time.perf_counter()
-                print(f" - Saved CSV file in {t7-t6:.3f}s")
+                print(f" - Saved CSV file in {t7-t6:.3f}s")"""
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description="Finalize matched samples for estimation")
