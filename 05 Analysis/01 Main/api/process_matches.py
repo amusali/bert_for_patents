@@ -417,8 +417,7 @@ def finalize_all(cite,
         periods_before = params['baseline_period']
 
         df_long = process_sample(filepath, cite, periods_before)
-        print(f"Processed sample {suffix}")
-        print(df_long.head(5))
+
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
 
         # Load patents metadata
