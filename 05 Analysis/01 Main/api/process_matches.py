@@ -417,8 +417,6 @@ def finalize_all(cite,
         periods_before = params['baseline_period']
 
         df_long = process_sample(filepath, cite, periods_before)
-        print(f"Processed sample {suffix}")
-        print(df_long.head(5))
         df_long = df_long.dropna(subset=['citations_treated','citations_control'])
 
         # Load patents metadata
@@ -439,13 +437,15 @@ def finalize_all(cite,
 
                 t7 = time.perf_counter()
                 print(f" - Saved Pickle file in {t7-t6:.3f}s")
-            """
-            else:
-                t6 = time.perf_counter()
-                merged.to_csv(out_path, index=False)
 
-                t7 = time.perf_counter()
-                print(f" - Saved CSV file in {t7-t6:.3f}s")"""
+        print(f"Finalized sample>{suffix} with {len(merged)} rows.")
+        """
+        else:
+            t6 = time.perf_counter()
+            merged.to_csv(out_path, index=False)
+
+            t7 = time.perf_counter()
+            print(f" - Saved CSV file in {t7-t6:.3f}s")"""
 
 if __name__ == '__main__':
     p = argparse.ArgumentParser(description="Finalize matched samples for estimation")
