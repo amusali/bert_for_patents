@@ -190,7 +190,7 @@ def combine_with_citations(matched_dict: dict,
     #overall_start = time.perf_counter()
 
     for lam, df in matched_dict.items():
-        print(f"\n--- Processing λ={lam} ---")
+        #print(f"\n--- Processing λ={lam} ---")
         #loop_start = time.perf_counter()
 
         # copy & setup
