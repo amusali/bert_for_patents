@@ -187,72 +187,72 @@ def combine_with_citations(matched_dict: dict,
     periods_after = 20
     out = {}
 
-    overall_start = time.perf_counter()
+    #overall_start = time.perf_counter()
 
     for lam, df in matched_dict.items():
         print(f"\n--- Processing λ={lam} ---")
-        loop_start = time.perf_counter()
+        #loop_start = time.perf_counter()
 
         # copy & setup
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         df = df.copy()
         df['match_id'] = df.index
-        print(f"copy/setup: {time.perf_counter() - t0:.3f}s")
+        #print(f"copy/setup: {time.perf_counter() - t0:.3f}s")
 
         # compute t0
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         df['t0'] = df['pre_quarters'].apply(lambda L: pd.Period(L[-1], freq='Q') + 1)
-        print(f"compute t0: {time.perf_counter() - t0:.3f}s")
+        #print(f"compute t0: {time.perf_counter() - t0:.3f}s")
 
         # build rel_range
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         rel_range = list(range(-n_pre, periods_after + 1))
         df['rel_q'] = [rel_range] * len(df)
-        print(f"build rel_range: {time.perf_counter() - t0:.3f}s")
+        #print(f"build rel_range: {time.perf_counter() - t0:.3f}s")
 
         # explode
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         exp = df.explode('rel_q', ignore_index=True)
         exp['rel_q'] = exp['rel_q'].astype('int16')
-        print(f"explode: {time.perf_counter() - t0:.3f}s")
+        #print(f"explode: {time.perf_counter() - t0:.3f}s")
 
         # compute quarter
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         exp['quarter'] = (pd.PeriodIndex(exp['t0'], freq='Q') + exp['rel_q'])
-        print(f"compute quarter: {time.perf_counter() - t0:.3f}s")
+        #print(f"compute quarter: {time.perf_counter() - t0:.3f}s")
 
         # join treated
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         treated_idx = pd.MultiIndex.from_frame(exp[['treated_id','quarter']])
-        control_idx = pd.MultiIndex.from_frame(exp[['control_id','quarter']])
 
         exp['citations_treated'] = treated_idx.map(collapsed_citations)
 
-        print(f"join treated: {time.perf_counter() - t0:.3f}s")
+        #print(f"join treated: {time.perf_counter() - t0:.3f}s")
 
         # join control
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
+        control_idx = pd.MultiIndex.from_frame(exp[['control_id','quarter']])
         exp['citations_control'] = control_idx.map(collapsed_citations)
-        print(f"join control: {time.perf_counter() - t0:.3f}s")
+        #print(f"join control: {time.perf_counter() - t0:.3f}s")
 
         # cutoff filter
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         cutoff = pd.Period('2024Q4', freq='Q')
         exp = exp.loc[exp['quarter'] <= cutoff]
-        print(f"cutoff filter: {time.perf_counter() - t0:.3f}s")
+        #print(f"cutoff filter: {time.perf_counter() - t0:.3f}s")
 
         # fillna
-        t0 = time.perf_counter()
+        #t0 = time.perf_counter()
         exp[['citations_treated', 'citations_control']] = (
             exp[['citations_treated', 'citations_control']].fillna(0)
         )
-        print(f"fillna: {time.perf_counter() - t0:.3f}s")
+        #print(f"fillna: {time.perf_counter() - t0:.3f}s")
 
         out[lam] = exp
 
-        print(f"λ={lam} total: {time.perf_counter() - loop_start:.3f}s")
+        #print(f"λ={lam} total: {time.perf_counter() - loop_start:.3f}s")
 
-    print(f"\nOverall total: {time.perf_counter() - overall_start:.3f}s")
+    #print(f"\nOverall total: {time.perf_counter() - overall_start:.3f}s")
     return out
 
 
