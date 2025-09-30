@@ -223,12 +223,16 @@ def combine_with_citations(matched_dict: dict,
 
         # join treated
         t0 = time.perf_counter()
-        exp = exp.join(collapsed_citations.rename('citations_treated'), on=['treated_id','quarter'])
+        treated_idx = pd.MultiIndex.from_frame(exp[['treated_id','quarter']])
+        control_idx = pd.MultiIndex.from_frame(exp[['control_id','quarter']])
+
+        exp['citations_treated'] = treated_idx.map(collapsed_citations)
+
         print(f"join treated: {time.perf_counter() - t0:.3f}s")
 
         # join control
         t0 = time.perf_counter()
-        exp = exp.join(collapsed_citations.rename('citations_control'), on=['control_id','quarter'])
+        exp['citations_control'] = control_idx.map(collapsed_citations)
         print(f"join control: {time.perf_counter() - t0:.3f}s")
 
         # cutoff filter
