@@ -160,7 +160,7 @@ def compute_cosine_distances(treated, control):
     for group_key, group in tqdm(treated_groups, total=len(treated_groups), desc="Precompute Cosine Distances"):
         # Extract group key values
         # and filter control patents based on cpc_subclass only - exact matching
-        cpc_subclass_val = group_key
+        cpc_subclass_val = group_key[0] if isinstance(group_key, tuple) else group_key
         candidates = control[(control['cpc_subclass'] == cpc_subclass_val)]
         
         if candidates.empty:
@@ -408,7 +408,7 @@ def prepare(
     placebo_periods=[4, 6, 8],
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
-    top_tech_thresholds=[80, 90]
+    top_tech_thresholds=[80]
     ):
     import dill as pickle
 
