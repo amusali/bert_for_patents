@@ -150,9 +150,9 @@ def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_perio
 # ------------------------------
 # 4. Distance calculation functions
 # ------------------------------
-
+"""
 def compute_cosine_distances(treated, control):
-    """Compute cosine distances between treated and relevant control embeddings."""
+    # Compute cosine distances between treated and relevant control embeddings.
     cosine_distance_by_treated = {}
     group_cols = ['cpc_subclass']
     treated_groups = treated.groupby(group_cols)
@@ -182,6 +182,76 @@ def compute_cosine_distances(treated, control):
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
+    return cosine_distance_by_treated
+"""
+
+
+import numpy as np
+import torch
+import torch.nn.functional as F
+from tqdm import tqdm
+import dill as pickle
+import os
+
+def compute_cosine_distances(treated, control, batch_size=25000, device='cuda'):
+    """
+    Compute cosine distances between treated and relevant control embeddings,
+    in memory-safe batches (saves one file at the end only).
+    """
+
+    save_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl"
+    cosine_distance_by_treated = {}
+
+    print(f"⚙️ Starting cosine distance computation (batch_size={batch_size}, device={device})")
+
+    # Group by CPC subclass
+    treated_groups = treated.groupby('cpc_subclass')
+    total_groups = treated['cpc_subclass'].nunique()
+
+    for cpc_subclass_val, group in tqdm(treated_groups, total=total_groups, desc="Precompute Cosine Distances"):
+        # Filter control patents with same subclass
+        candidates = control[control['cpc_subclass'] == cpc_subclass_val]
+        if candidates.empty:
+            continue
+
+        candidate_embeddings = np.stack(candidates['embedding'].values)
+        n_candidates = candidate_embeddings.shape[0]
+
+        # Move through control embeddings in smaller GPU batches
+        for _, treated_row in group.iterrows():
+            tid = treated_row['patent_id']
+            t_embed_np = treated_row['embedding']
+            t_embed = torch.tensor(t_embed_np, dtype=torch.float16, device=device).view(1, -1)
+
+            d_e_list = []
+            for start in range(0, n_candidates, batch_size):
+                end = min(start + batch_size, n_candidates)
+                cand_batch = torch.tensor(candidate_embeddings[start:end], dtype=torch.float16, device=device)
+
+                cos_sim = F.cosine_similarity(t_embed, cand_batch, dim=1)
+                d_batch = 1 - cos_sim.cpu().numpy()
+                d_e_list.append(d_batch)
+
+                # free GPU memory
+                del cand_batch, cos_sim
+                torch.cuda.empty_cache()
+
+            # Concatenate all partial distance results
+            d_e = np.concatenate(d_e_list)
+            cosine_distance_by_treated[tid] = d_e
+
+            # free memory for this treated vector
+            del t_embed, d_e_list
+            torch.cuda.empty_cache()
+
+        del candidate_embeddings
+        torch.cuda.empty_cache()
+
+    # Save one final file at the end
+    with open(save_path, "wb") as f:
+        pickle.dump(cosine_distance_by_treated, f)
+
+    print(f"✅ Done. Saved final cosine_distance_by_treated.pkl for {len(cosine_distance_by_treated)} treated patents.")
     return cosine_distance_by_treated
 
 
