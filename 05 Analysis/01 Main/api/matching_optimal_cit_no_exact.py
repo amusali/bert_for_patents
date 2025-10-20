@@ -150,7 +150,7 @@ def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_perio
 # ------------------------------
 # 4. Distance calculation functions
 # ------------------------------
-"""
+
 def compute_cosine_distances(treated, control):
     # Compute cosine distances between treated and relevant control embeddings.
     cosine_distance_by_treated = {}
@@ -183,7 +183,7 @@ def compute_cosine_distances(treated, control):
         pickle.dump(cosine_distance_by_treated, f)
 
     return cosine_distance_by_treated
-"""
+
 
 
 import numpy as np
@@ -193,11 +193,11 @@ from tqdm import tqdm
 import dill as pickle
 import os
 
-def compute_cosine_distances(treated, control, batch_size=25000, device='cuda'):
-    """
+"""def compute_cosine_distances(treated, control, batch_size=25000, device='cuda'):
+   
     Compute cosine distances between treated and relevant control embeddings,
     in memory-safe batches (saves one file at the end only).
-    """
+    
 
     save_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl"
     cosine_distance_by_treated = {}
@@ -252,7 +252,7 @@ def compute_cosine_distances(treated, control, batch_size=25000, device='cuda'):
         pickle.dump(cosine_distance_by_treated, f)
 
     print(f"✅ Done. Saved final cosine_distance_by_treated.pkl for {len(cosine_distance_by_treated)} treated patents.")
-    return cosine_distance_by_treated
+    return cosine_distance_by_treated"""
 
 
 def compute_hybrid_distance(d_mah, d_cos, lam):
