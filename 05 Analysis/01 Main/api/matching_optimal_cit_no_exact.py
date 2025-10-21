@@ -465,8 +465,8 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
 
         cosine_matrix = np.array(cosine_matrix, dtype=np.float64)
 
-        print("Mahalanobis shape:", d_c_np.shape)
-        print("Cosine shape:", cosine_matrix.shape)
+        #print("Mahalanobis shape:", d_c_np.shape)
+        #print("Cosine shape:", cosine_matrix.shape)
 
         d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, cosine_matrix, lam)
 
