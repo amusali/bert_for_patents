@@ -187,33 +187,26 @@ def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_perio
 def compute_cosine_distances(treated, control):
     # Compute cosine distances between treated and relevant control embeddings.
     cosine_distance_by_treated = {}
-    group_cols = ['cpc_subclass']
-    treated_groups = treated.groupby(group_cols)
+    treated_groups = treated.groupby(['cpc_subclass', 'acq_quarter'])
 
     for group_key, group in tqdm(treated_groups, total=len(treated_groups), desc="Precompute Cosine Distances"):
-        # Extract group key values
-        # and filter control patents based on cpc_subclass only - exact matching
-        cpc_subclass_val = group_key[0] if isinstance(group_key, tuple) else group_key
-        candidates_all = control[control['cpc_subclass'] == cpc_subclass_val]
+        cpc_subclass_val, acq_quarter = group_key
+        candidates = control[
+            (control['cpc_subclass'] == cpc_subclass_val) &
+            (control['grant_quarter'] <= (acq_quarter - 4))
+        ]
+
         
-        if candidates_all.empty:
+        if candidates.empty:
             print(f"No candidates found for group {group_key}. Skipping this group.")
             continue
 
         for _, treated_row in group.iterrows():
             tid = treated_row['patent_id']
             t_embed_np = treated_row['embedding']
-            acq_q = treated_row['acq_quarter']
 
-            # ✅ Filter controls with at least 4 quarters of pre-treatment history
-            eligible_controls = candidates_all[candidates_all['grant_quarter'] <= (acq_q - 4)]
-
-            if eligible_controls.empty:
-                print(f"No eligible controls for treated patent {tid} in group {group_key}. Skipping.")
-                continue
-
-            candidate_ids = eligible_controls['patent_id'].tolist()
-            candidate_embeddings = np.stack(eligible_controls['embedding'].values)
+            candidate_ids = candidates['patent_id'].tolist()
+            candidate_embeddings = np.stack(candidates['embedding'].values)
             cand_emb = torch.tensor(candidate_embeddings, dtype=torch.float16, device='cuda')
             t_embed = torch.tensor(t_embed_np, dtype=torch.float16, device='cuda').view(1, -1)
 
@@ -222,9 +215,6 @@ def compute_cosine_distances(treated, control):
 
             # ✅ Store as pandas Series for easy reindexing later
             cosine_distance_by_treated[tid] = pd.Series(data=d_e, index=candidate_ids)
-
-            del cand_emb, t_embed
-            torch.cuda.empty_cache()
 
     # Save to file
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
