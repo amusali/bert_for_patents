@@ -184,33 +184,39 @@ def compute_cosine_distances(treated, control):
         # Extract group key values
         # and filter control patents based on cpc_subclass only - exact matching
         cpc_subclass_val = group_key[0] if isinstance(group_key, tuple) else group_key
-        candidates = control[(control['cpc_subclass'] == cpc_subclass_val)]
+        candidates_all = control[control['cpc_subclass'] == cpc_subclass_val]
         
-        if candidates.empty:
+        if candidates_all.empty:
             print(f"No candidates found for group {group_key}. Skipping this group.")
             continue
-        
-        candidate_ids = candidates['patent_id'].tolist()
-        candidate_embeddings = np.stack(candidates['embedding'].values)
-        cand_emb = torch.tensor(candidate_embeddings, dtype=torch.float16, device='cuda')
 
         for _, treated_row in group.iterrows():
             tid = treated_row['patent_id']
             t_embed_np = treated_row['embedding']
+            acq_q = treated_row['acq_quarter']
+
+            # ✅ Filter controls with at least 4 quarters of pre-treatment history
+            eligible_controls = candidates_all[candidates_all['grant_quarter'] <= (acq_q - 4)]
+
+            if eligible_controls.empty:
+                print(f"No eligible controls for treated patent {tid} in group {group_key}. Skipping.")
+                continue
+
+            candidate_ids = eligible_controls['patent_id'].tolist()
+            candidate_embeddings = np.stack(eligible_controls['embedding'].values)
+            cand_emb = torch.tensor(candidate_embeddings, dtype=torch.float16, device='cuda')
             t_embed = torch.tensor(t_embed_np, dtype=torch.float16, device='cuda').view(1, -1)
-            
+
             cos_sim = F.cosine_similarity(t_embed, cand_emb, dim=1)
             d_e = 1 - cos_sim.cpu().numpy()
-            
-            # ✅ Store both control IDs and distances
+
+            # ✅ Store as pandas Series for easy reindexing later
             cosine_distance_by_treated[tid] = pd.Series(data=d_e, index=candidate_ids)
 
+            del cand_emb, t_embed
+            torch.cuda.empty_cache()
 
-        # clear GPU memory after each subclass
-        del cand_emb
-        torch.cuda.empty_cache()
-
-    # Save
+    # Save to file
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
@@ -581,7 +587,7 @@ def prepare(
                         if os.path.exists(path):
                             print(f"⏭️ Skipping: {filename} (already exists)")
                             continue
-                        
+
                         treated_sample = prepare_sample(
                             treated,
                             acq_type,
