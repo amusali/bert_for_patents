@@ -302,7 +302,8 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
 
 
         # --- Get controls and candidate vectors ---
-        candidates = control_group_dict.get((cpc_subclass), pd.DataFrame())
+        candidates = control_group_dict.get(cpc_subclass, pd.DataFrame())
+
         if candidates.empty:
             continue
 
