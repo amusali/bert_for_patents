@@ -450,13 +450,16 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
             distances = cos_info["distances"]
 
             # Select only distances to valid candidate controls in the same order
+            # ✅ Build fast lookup map for control IDs once per treated patent
+            id_to_idx = {cid: i for i, cid in enumerate(control_ids)}
+
+            # Select only distances to valid candidate controls in the same order
             row = []
             for cid in candidate_ids:
-                if cid in control_ids:
-                    idx = control_ids.index(cid)
+                idx = id_to_idx.get(cid)
+                if idx is not None:
                     row.append(distances[idx])
                 else:
-                    #row.append(np.nan)  # control not in cosine set (filtered out)
                     raise ValueError(f"Control patent {cid} not found in cosine distances for treated patent {tid}.")
             cosine_matrix.append(row)
 
