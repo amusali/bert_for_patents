@@ -203,10 +203,8 @@ def compute_cosine_distances(treated, control):
             d_e = 1 - cos_sim.cpu().numpy()
             
             # ✅ Store both control IDs and distances
-            cosine_distance_by_treated[tid] = {
-                "control_ids": candidate_ids,
-                "distances": d_e
-            }
+            cosine_distance_by_treated[tid] = pd.Series(data=d_e, index=candidate_ids)
+
 
         # clear GPU memory after each subclass
         del cand_emb
@@ -427,43 +425,27 @@ def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_cou
 # ------------------------------
 # 5. Matching
 # ------------------------------
+import time
 def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 1):
     matches = []
     dropped_patents_count = 0
 
-    for group in precomputed_mahalanobis:
+    for group_idx, group in enumerate(precomputed_mahalanobis):
         treated_ids = group['treated_ids']
         candidate_ids = group['candidate_ids']
         d_c_np = group['d_c_np']
         pre_quarters = group['pre_quarters']
 
         # ✅ Build cosine matrix aligned with candidate_ids
-        cosine_matrix = []
-        for tid in treated_ids:
-            if tid not in cosine_distance_by_treated:
-                # If cosine distances not found, skip this treated patent
-                #cosine_matrix.append([np.nan] * len(candidate_ids))
-                raise ValueError(f"Cosine distances not found for treated patent {tid}.")
-                
-            cos_info = cosine_distance_by_treated[tid]
-            control_ids = cos_info["control_ids"]
-            distances = cos_info["distances"]
+        t0 = time.time()
+        cosine_matrix = np.stack([
+            cosine_distance_by_treated[tid].reindex(candidate_ids).to_numpy()
+            for tid in treated_ids
+        ])
+        cosine_matrix = np.nan_to_num(cosine_matrix, nan=1.0)
+        t1 = time.time()
+        print(f"[Group {group_idx}] ⏱ Cosine matrix build time: {t1 - t0:.2f} sec")
 
-            # Select only distances to valid candidate controls in the same order
-            # ✅ Build fast lookup map for control IDs once per treated patent
-            id_to_idx = {cid: i for i, cid in enumerate(control_ids)}
-
-            # Select only distances to valid candidate controls in the same order
-            row = []
-            for cid in candidate_ids:
-                idx = id_to_idx.get(cid)
-                if idx is not None:
-                    row.append(distances[idx])
-                else:
-                    raise ValueError(f"Control patent {cid} not found in cosine distances for treated patent {tid}.")
-            cosine_matrix.append(row)
-
-        cosine_matrix = np.array(cosine_matrix, dtype=np.float64)
 
         #print("Mahalanobis shape:", d_c_np.shape)
         #print("Cosine shape:", cosine_matrix.shape)
@@ -590,6 +572,16 @@ def prepare(
             for top_tech_flag in top_tech_flags:
                 if top_tech_flag:
                     for threshold in top_tech_thresholds:
+                        # ✅ Build expected Mahalanobis filename
+                        threshold_str = f"_top_tech_{threshold}" if top_tech_flag and threshold is not None else "_bl"
+                        filename = f"precomputed_mahalanobis_{acq_type}{threshold_str}_{suffix}.pkl"
+                        path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
+
+                        # ✅ Check if file already exists → skip
+                        if os.path.exists(path):
+                            print(f"⏭️ Skipping: {filename} (already exists)")
+                            continue
+                        
                         treated_sample = prepare_sample(
                             treated,
                             acq_type,
