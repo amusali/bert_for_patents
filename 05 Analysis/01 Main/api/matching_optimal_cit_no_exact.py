@@ -588,6 +588,8 @@ def prepare(
                             print(f"⏭️ Skipping: {filename} (already exists)")
                             continue
 
+                        print(f"⚙️ Preparing treated sample for acq_type={acq_type}, top_tech={top_tech_flag}, ")
+
                         treated_sample = prepare_sample(
                             treated,
                             acq_type,
