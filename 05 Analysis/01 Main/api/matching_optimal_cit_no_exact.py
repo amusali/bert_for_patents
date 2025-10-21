@@ -48,8 +48,16 @@ def load_data(citations_path = "/content/drive/MyDrive/PhD Data/08 Citations/03 
         how='left'
     )
 
-    ## Assert all the controls have patent_date column non-missing
-    assert control['patent_date'].isnull().sum() == 0, "Some control patents are missing patent_date"
+    ## Assert all the controls have patent_date column non-missing, drop the missing ones and report how many droppped
+    missing_dates = control['patent_date'].isnull().sum()
+    if missing_dates > 0:
+        print(f"⚠️ Dropping {missing_dates} controls with missing patent_date")
+        control = control.dropna(subset=['patent_date'])
+
+
+    # ✅ Convert patent_date string → datetime → quarter period
+    control['patent_date'] = pd.to_datetime(control['patent_date'])
+    control['grant_quarter'] = control['patent_date'].apply(lambda d: pd.Period(d, freq='Q') if pd.notnull(d) else pd.NaT)
 
     if 'clean_ids' not in locals():
         clean_ids = pd.read_csv(clean_ids_path)
@@ -321,6 +329,14 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
 
         if candidates.empty:
             print(f"No candidates found for group {group_key}. Skipping this group.")
+            continue
+
+        # ✅ filter out controls granted after pre-treatment window begins
+        pre_window_start = acq_period - baseline_begin_period
+        candidates = candidates[candidates['grant_quarter'] <= pre_window_start]
+
+        if candidates.empty:
+            print(f"No candidates found for group {group_key} where controls have sufficient pretreatment history. Skipping this group.")
             continue
 
         candidate_ids = candidates['patent_id'].tolist()
