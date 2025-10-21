@@ -302,9 +302,10 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
 
 
         # --- Get controls and candidate vectors ---
-        candidates = control_group_dict.get(cpc_subclass, pd.DataFrame())
+        candidates = control_group_dict.get((cpc_subclass,), pd.DataFrame())
 
         if candidates.empty:
+            print(f"No candidates found for group {group_key}. Skipping this group.")
             continue
 
         candidate_ids = candidates['patent_id'].tolist()
@@ -325,6 +326,7 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
         ], dtype=np.float64)
 
         if treated_vectors.size == 0:
+            print(f"No treated vectors found for group {group_key}. Skipping this group.")
             continue
 
         T = cp.asarray(treated_vectors)
