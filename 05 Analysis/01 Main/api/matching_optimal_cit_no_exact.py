@@ -189,7 +189,8 @@ def compute_cosine_distances(treated, control):
         if candidates.empty:
             print(f"No candidates found for group {group_key}. Skipping this group.")
             continue
-
+        
+        candidate_ids = candidates['patent_id'].tolist()
         candidate_embeddings = np.stack(candidates['embedding'].values)
         cand_emb = torch.tensor(candidate_embeddings, dtype=torch.float16, device='cuda')
 
@@ -197,14 +198,25 @@ def compute_cosine_distances(treated, control):
             tid = treated_row['patent_id']
             t_embed_np = treated_row['embedding']
             t_embed = torch.tensor(t_embed_np, dtype=torch.float16, device='cuda').view(1, -1)
+            
             cos_sim = F.cosine_similarity(t_embed, cand_emb, dim=1)
             d_e = 1 - cos_sim.cpu().numpy()
-            cosine_distance_by_treated[tid] = d_e
+            
+            # ✅ Store both control IDs and distances
+            cosine_distance_by_treated[tid] = {
+                "control_ids": candidate_ids,
+                "distances": d_e
+            }
+
+        # clear GPU memory after each subclass
+        del cand_emb
+        torch.cuda.empty_cache()
 
     # Save
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
+    print(f"✅ Saved cosine distances for {len(cosine_distance_by_treated)} treated patents.")
     return cosine_distance_by_treated
 
 
@@ -425,10 +437,33 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         d_c_np = group['d_c_np']
         pre_quarters = group['pre_quarters']
 
-        cosine_matrix = np.stack(
-            [cosine_distance_by_treated[tid] for tid in treated_ids if tid in cosine_distance_by_treated],
-            axis=0
-        )
+        # ✅ Build cosine matrix aligned with candidate_ids
+        cosine_matrix = []
+        for tid in treated_ids:
+            if tid not in cosine_distance_by_treated:
+                # If cosine distances not found, skip this treated patent
+                #cosine_matrix.append([np.nan] * len(candidate_ids))
+                raise ValueError(f"Cosine distances not found for treated patent {tid}.")
+                
+            cos_info = cosine_distance_by_treated[tid]
+            control_ids = cos_info["control_ids"]
+            distances = cos_info["distances"]
+
+            # Select only distances to valid candidate controls in the same order
+            row = []
+            for cid in candidate_ids:
+                if cid in control_ids:
+                    idx = control_ids.index(cid)
+                    row.append(distances[idx])
+                else:
+                    #row.append(np.nan)  # control not in cosine set (filtered out)
+                    raise ValueError(f"Control patent {cid} not found in cosine distances for treated patent {tid}.")
+            cosine_matrix.append(row)
+
+        cosine_matrix = np.array(cosine_matrix, dtype=np.float64)
+
+        print("Mahalanobis shape:", d_c_np.shape)
+        print("Cosine shape:", cosine_matrix.shape)
 
         d_h, d_mah_scaled, d_cos_scaled = compute_hybrid_distance(d_c_np, cosine_matrix, lam)
 
