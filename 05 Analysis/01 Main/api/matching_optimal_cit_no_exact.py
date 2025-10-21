@@ -74,6 +74,11 @@ def load_data(citations_path = "/content/drive/MyDrive/PhD Data/08 Citations/03 
     # ✅ Add acquisition quarter as a pandas Period
     treated['acq_quarter'] = treated['acq_date'].apply(lambda d: pd.Period(d, freq='Q') if pd.notnull(d) else pd.NaT)
 
+    # Check that every patent has an acq_quarter
+    missing_acq_quarters = treated['acq_quarter'].isnull().sum()
+    if missing_acq_quarters > 0:
+        raise ValueError(f"❌ There are {missing_acq_quarters} treated patents with missing acquisition quarter.")
+
 
     return citations, treated, control, clean_ids
 
