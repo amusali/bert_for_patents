@@ -69,7 +69,7 @@ def load_data(citations_path = "/content/drive/MyDrive/PhD Data/08 Citations/03 
 
     # Merge treated with acq_types to get acquisition type
     # Merge treated with acq_types to get acquisition date and type
-    treated = treated.merge(acq_types[['patent_id', 'acq_type', 'deal_id', 'acq_date']], on='patent_id', how='left')
+    treated = treated.merge(acq_types[['patent_id', 'acq_type', 'deal_id']], on='patent_id', how='left')
 
     # ✅ Add acquisition quarter as a pandas Period
     treated['acq_quarter'] = treated['acq_date'].apply(lambda d: pd.Period(d, freq='Q') if pd.notnull(d) else pd.NaT)
