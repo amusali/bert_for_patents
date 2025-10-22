@@ -557,9 +557,9 @@ def prepare(
     # Save static components
     quarterly_counts_pd = compute_quarterly_citation_counts(citations)
     citation_counts_dict = build_citation_counts_dict(quarterly_counts_pd)
-    compute_cosine_distances(treated, control)
+    #compute_cosine_distances(treated, control)
 
-    if not os.path.exists("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl"):
+    """ if not os.path.exists("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl"):
         with open("/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl", "wb") as f:
             pickle.dump(citation_counts_dict, f)
         print("Saved citation_counts_dict.")
@@ -568,7 +568,7 @@ def prepare(
         control_path = "/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/_aux/control.pkl"
         control.to_pickle(control_path)
         print(f"Saved control DataFrame.")
-
+    """
     for baseline_begin_period in baseline_periods:
         suffix = f"{baseline_begin_period}q"
 
