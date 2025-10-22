@@ -187,6 +187,7 @@ def compute_treated_vectors(treated, citation_counts_dict,  baseline_begin_perio
 def compute_cosine_distances(treated, control):
     # Compute cosine distances between treated and relevant control embeddings.
     cosine_distance_by_treated = {}
+    group_to_candidate_ids = {}
     treated_groups = treated.groupby(['cpc_subclass', 'acq_quarter'])
 
     for group_key, group in tqdm(treated_groups, total=len(treated_groups), desc="Precompute Cosine Distances"):
@@ -201,26 +202,39 @@ def compute_cosine_distances(treated, control):
             print(f"No candidates found for group {group_key}. Skipping this group.")
             continue
 
+        # Save control-id order ONCE per group (used to align the cosine arrays)
+        candidate_ids = candidates['patent_id'].tolist()
+        group_to_candidate_ids[group_key] = candidate_ids
+
+        # Tensor for this group (reused across treated in the group)
+        candidate_embeddings = np.stack(candidates['embedding'].values)
+        cand_emb = torch.tensor(candidate_embeddings, dtype=torch.float16, device='cuda')
+
+
+
         for _, treated_row in group.iterrows():
             tid = treated_row['patent_id']
-            t_embed_np = treated_row['embedding']
-
-            candidate_ids = candidates['patent_id'].tolist()
-            candidate_embeddings = np.stack(candidates['embedding'].values)
-            cand_emb = torch.tensor(candidate_embeddings, dtype=torch.float16, device='cuda')
-            t_embed = torch.tensor(t_embed_np, dtype=torch.float16, device='cuda').view(1, -1)
+            t_embed = torch.tensor(treated_row['embedding'], dtype=torch.float16, device='cuda').view(1, -1)
 
             cos_sim = F.cosine_similarity(t_embed, cand_emb, dim=1)
             d_e = 1 - cos_sim.cpu().numpy()
 
             # ✅ Store as pandas Series for easy reindexing later
-            cosine_distance_by_treated[tid] = pd.Series(data=d_e, index=candidate_ids)
+            cosine_distance_by_treated[tid] = d_e.astype(np.float16)
+
+        # free
+        del cand_emb
+        torch.cuda.empty_cache()
 
     # Save to file
     with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
-    print(f"✅ Saved cosine distances for {len(cosine_distance_by_treated)} treated patents.")
+    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/group_to_candidate_ids.pkl", "wb") as f:
+        pickle.dump(group_to_candidate_ids, f)
+
+
+    print(f"✅ Saved cosine for {len(cosine_distance_by_treated)} treated patents and {len(group_to_candidate_ids)} group candidate-id lists.")
     return cosine_distance_by_treated
 
 
@@ -328,14 +342,14 @@ def precompute_mahalanobis(treated_df, control_df, citation_counts_dict, treated
     baseline_end_period = int((baseline_begin_period - 1) / 2 + 2)
 
     # Ensure treated_df has the necessary columns
-    grouped = treated_df.groupby(['acq_quarter', 'cpc_subclass'])
+    grouped = treated_df.groupby(['cpc_subclass', 'acq_quarter'])
     precomputed = []
     control_group_dict = {key: group for key, group in control_df.groupby(['cpc_subclass'])}
 
     for group_key, group in tqdm(grouped, total=len(grouped), desc="Precomputing Mahalanobis"):
 
         # --- Group prep ---
-        acq_quarter, cpc_subclass = group_key
+        cpc_subclass, acq_quarter = group_key
         acq_period = pd.Period(acq_quarter, freq='Q')
         pre_quarters = [str(acq_period - i) for i in range(baseline_begin_period, baseline_end_period - 1, -1)]
 
@@ -432,7 +446,10 @@ def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_cou
 # 5. Matching
 # ------------------------------
 import time
-def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 1):
+def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper=0.05, K = 1, group_to_candidate_ids=None):
+    
+    assert group_to_candidate_ids is not None, "group_to_candidate_ids is required."
+
     matches = []
     dropped_patents_count = 0
 
@@ -441,14 +458,42 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         candidate_ids = group['candidate_ids']
         d_c_np = group['d_c_np']
         pre_quarters = group['pre_quarters']
+        group_key    = group['group_key']               # (cpc_subclass, acq_quarter)
+        
+        # Base order used when cosine arrays were computed/saved
+        base_ids = group_to_candidate_ids.get(group_key)
+        if base_ids is None:
+            raise KeyError(f"No base candidate list for group_key={group_key}")
+        # map base_id -> position
+        pos = {cid: i for i, cid in enumerate(base_ids)}
 
-        # ✅ Build cosine matrix aligned with candidate_ids
         t0 = time.time()
-        cosine_matrix = np.stack([
-            cosine_distance_by_treated[tid].reindex(candidate_ids).to_numpy()
-            for tid in treated_ids
-        ])
-        cosine_matrix = np.nan_to_num(cosine_matrix, nan=1.0)
+        # build index array into the base order for the Mahalanobis candidates
+        take_idx = np.empty(len(candidate_ids), dtype=np.int64)
+        missing = 0
+        for j, cid in enumerate(candidate_ids):
+            idx = pos.get(cid, -1)
+            if idx < 0:
+                missing += 1
+                take_idx[j] = -1  # placeholder
+            else:
+                take_idx[j] = idx
+        if missing:
+            print(f"⚠️ {missing} Mahalanobis controls missing from cosine base list for group {group_key}.")
+
+        # stack cosine rows by slicing each treated's base array
+        # (fill missing with 1.0, which is max distance)
+        rows = []
+        for tid in treated_ids:
+            base_arr = cosine_distance_by_treated[tid]  # float16 array aligned to base_ids
+            row = np.where(take_idx >= 0, base_arr[take_idx.clip(min=0)], 1.0)
+            rows.append(row)
+        cosine_matrix = np.vstack(rows).astype(np.float32)  # shape matches d_c_np
+
+        # shapes must match
+        if cosine_matrix.shape != d_c_np.shape:
+            raise ValueError(f"Cosine shape {cosine_matrix.shape} != Mahalanobis shape {d_c_np.shape}")
+ 
         t1 = time.time()
         print(f"[Group {group_idx}] ⏱ Cosine matrix build time: {t1 - t0:.2f} sec")
 
@@ -683,7 +728,11 @@ def load_aux_data(acq_type, top_tech=False, top_tech_threshold=90, baseline_begi
             f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl"
         )
 
-    return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated
+    if 'group_to_candidate_ids' not in locals():
+        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/group_to_candidate_ids.pkl", "rb") as f:
+            group_to_candidate_ids = pickle.load(f)
+
+    return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, group_to_candidate_ids
 
 def load_precomputed_mahalanobis(acq_type, top_tech, baseline_begin_period, top_tech_threshold=None):
     suffix = f"{baseline_begin_period}q"
@@ -752,7 +801,7 @@ def grid_runner(
                           f"threshold={threshold}, baseline={baseline_begin_period}q")
 
                     # Load all data
-                    treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated = load_aux_data(
+                    treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, group_to_candidate_ids = load_aux_data(
                         acq_type=acq_type,
                         top_tech=top_tech_flag,
                         top_tech_threshold=threshold if top_tech_flag else 90,
@@ -774,6 +823,7 @@ def grid_runner(
                             citation_counts_dict,
                             treated_counts_dict,
                             cosine_distance_by_treated,
+                            group_to_candidate_ids,
                             caliper=caliper,
                             lambda_start=0,
                             lambda_end=1,
@@ -813,7 +863,7 @@ def run_grid_point_K(args):
 
     print(f"[K={K} | {acq_type}, top_tech={top_tech_flag}, threshold={threshold}, caliper={caliper}, baseline={baseline_begin_period}q]")
 
-    treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated = load_aux_data(
+    treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, group_to_candidate_ids = load_aux_data(
         acq_type=acq_type,
         top_tech=top_tech_flag,
         top_tech_threshold=threshold if top_tech_flag else 90,
@@ -833,6 +883,7 @@ def run_grid_point_K(args):
         citation_counts_dict,
         treated_counts_dict,
         cosine_distance_by_treated,
+        group_to_candidate_ids,
         caliper=caliper,
         delta=0.25,
         baseline_begin_period=baseline_begin_period,
@@ -928,7 +979,7 @@ def grid_runner_parallel_K(
 
 
 
-def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated,
+def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, group_to_candidate_ids,
                 caliper=0.05, lambda_start=0, lambda_end=1, delta=0.25, baseline_begin_period=13, precomputed_mahalanobis=None, K = 1):
     """
     Run hybrid matching over a grid of lambda values, compute placebo effects for t-5 to t-2,
@@ -962,7 +1013,7 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 
     for lam in tqdm(lambda_values, total=len(lambda_values), desc="Grid Search over Lambda"):
         #print(f"Running hybrid matching for lambda = {lam:.2f}")
-        matched_df, dropped_count  = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper, K)
+        matched_df, dropped_count  = hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_treated, caliper, K, group_to_candidate_ids)
         matched_df_dict[lam] = matched_df.copy()
 
         # Estimate placebo effects for each period (returns shape: [n_pairs, 4])
