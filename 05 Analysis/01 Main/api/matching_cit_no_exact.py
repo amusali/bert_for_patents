@@ -473,7 +473,6 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         # map base_id -> position
         pos = {cid: i for i, cid in enumerate(base_ids)}
 
-        t0 = time.time()
         # build index array into the base order for the Mahalanobis candidates
         take_idx = np.empty(len(candidate_ids), dtype=np.int64)
         missing = 0
@@ -499,9 +498,6 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         # shapes must match
         if cosine_matrix.shape != d_c_np.shape:
             raise ValueError(f"Cosine shape {cosine_matrix.shape} != Mahalanobis shape {d_c_np.shape}")
- 
-        t1 = time.time()
-        print(f"[Group {group_idx}] ⏱ Cosine matrix build time: {t1 - t0:.2f} sec")
 
 
         #print("Mahalanobis shape:", d_c_np.shape)
