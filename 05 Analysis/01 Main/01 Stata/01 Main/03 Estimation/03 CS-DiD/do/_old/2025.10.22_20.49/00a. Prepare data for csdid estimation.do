@@ -21,7 +21,7 @@
         gl raw "${csdid}/raw"
         gl temp "${csdid}/temp"
 
-    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation_noexactmatch_on_grantyear"
+    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation"
 
     ** Locals
     local list_of_maximum_periods 12 16 20 40 // quarters (i.e. 3, 4, 5, 10 years)
@@ -103,4 +103,4 @@
     compress 
     gisid lambda_val patent_id config
 
-    save "${dta}\00 Sample - without citations - no exact matching on grant year.dta", replace
+    save "${dta}\00 Sample - without citations.dta", replace
