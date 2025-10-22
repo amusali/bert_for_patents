@@ -460,8 +460,14 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
         pre_quarters = group['pre_quarters']
         group_key    = group['group_key']               # (cpc_subclass, acq_quarter)
         
+        # normalize to (cpc_subclass, Period('YYYYQx', freq='Q')) for the lookup
+        key_norm = (
+            group_key[0],
+            pd.Period(group_key[1], freq='Q') if isinstance(group_key[1], str) else group_key[1]
+        )
+
         # Base order used when cosine arrays were computed/saved
-        base_ids = group_to_candidate_ids.get(group_key)
+        base_ids = group_to_candidate_ids.get(key_norm)
         if base_ids is None:
             raise KeyError(f"No base candidate list for group_key={group_key}")
         # map base_id -> position
