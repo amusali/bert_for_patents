@@ -501,7 +501,7 @@ def hybrid_matching_for_lambda(lam, precomputed_mahalanobis, cosine_distance_by_
             raise ValueError(f"Cosine shape {cosine_matrix.shape} != Mahalanobis shape {d_c_np.shape}")
  
         t1 = time.time()
-        print(f"[Group {group_idx}] ⏱ Cosine matrix build time: {t1 - t0:.2f} sec")
+        #print(f"[Group {group_idx}] ⏱ Cosine matrix build time: {t1 - t0:.2f} sec")
 
 
         #print("Mahalanobis shape:", d_c_np.shape)
