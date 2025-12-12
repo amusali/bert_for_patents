@@ -22,7 +22,7 @@
         gl temp "${csdid}/temp"
         gl log "${csdid}/log"
 
-    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation"
+    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation_noexactmatch_on_grantyear"
 
     ** Locals
     local list_of_maximum_periods 12 16 20 40 // quarters (i.e. 3, 4, 5, 10 years)
@@ -40,14 +40,14 @@
     mkf citations
     cwf citations 
 
-    import delimited using "${raw_drive}/collapsed_citations_old.csv", clear // it is the only version despite its name
+    import delimited using "${raw_drive}/collapsed_citations.csv", clear // it is the only version despite its name
 
     ** Quarter variable
     gen quarter = quarterly(citation_quarter, "YQ")
     format quarter %tq
     drop citation_quarter
 
-    rename citation_count citation // to avoid confusion with treated_count and control_count
+    rename citation_count citation
 
     ** Checks and save
     assert !mi(patent_id) & !mi(quarter) & !mi(citation)
@@ -65,7 +65,7 @@
     cwf matched
 
     ** Load
-    u "${dta}/00 Sample - without citations.dta", clear
+    u "${dta}/00 Sample - without citations - no exact matching on grant year.dta", clear
 
     ** ID check
     gisid config lambda patent_id
@@ -123,7 +123,7 @@
             local config = subinstr("`config'", ", 10matches.pkl", "", .)
             local config = subinstr("`config'", "_", "", .)
 
-            save "${dta}/01 Sample - `config' - all patents, for csdid.dta", replace
+            save "${dta}/01 Sample - `config' - all patents, for csdid - no exact matching on grant year.dta", replace
         }
 
         ** Drop the frame

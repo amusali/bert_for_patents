@@ -28,11 +28,11 @@
     gl pca_drive "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings"
 
     ** Config
-    local pre_treatment_periods 4 6 8 // 4, 6, 8, 10, 12 quarters
+    local pre_treatment_periods 8  // 4, 6, 8, 10, 12 quarters
     local seed = 1709 // seed: periska hbd
     local acq_types = `" "Off deal" "' // Acquistion type: M&A or Off deal
     local calipers  `" "0.1000" "0.0500"  "'  //  "0.1000" "0.0500" 2.5%, 5%, 7.5%, 10%
-    local base_tt = "top-tech" // baseline or top-tech
+    local base_tt = "baseline" // baseline or top-tech
     local base_tt_threshold = 80 // only used if base_tt is "top-tech"
 
     local lambdas 0 0.25 0.5 0.75 1 // numlist(0.0(0.05)1.0) 
@@ -42,7 +42,7 @@
     local pca_dimension = 10 // PCA dimensions to load
 
     ** Start log
-    log using "${log}/05. Estimate - no PCA for lambda 1 & tt80.log", replace
+    log using "${log}/07a. Estimate - no PCA for lambda 1 & tt80.log", replace
     timer clear 1
     timer on 1
 
@@ -122,7 +122,7 @@
 
                     ** Skip if already estimated
                     local est_range_str = " -`pre_treatment_period' - `last_post_treatment_period'" // range for plots
-                    local est_filename = subinstr("`filename'", "01 Sample", "05 CSDID Estimates", .)
+                    local est_filename = subinstr("`filename'", "01 Sample", "07 CSDID Estimates", .)
                     local est_filename = subinstr("`est_filename'", "", "", .)
                     local est_filename = subinstr("`est_filename'", " - all patents, for csdid.dta", "", .)
 

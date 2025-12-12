@@ -22,27 +22,10 @@
 * B. Load grid results for citation
 ********************************************************************************
     ** Load CSV
-    import delimited "${raw}/grid_results_log_citation.csv", clear
-
-    ** Partition the data to add K (i.e. number of matches per treated patent)
-    preserve
-        keep if _n > 1533
-
-        ** Rename 
-        rename ( lambda mse_diff total_num_patents num_dropped v10 ) (K lambda mse_diff total_num_patents num_dropped )
-
-        tempfile aux
-        save "`aux'"
-    restore
-
-    drop if _n > 1533
-    dropmiss, force
-
-    gen K = 1 
-    append using `aux'
-
+    import delimited "G:\My Drive\PhD Data\11 Matches\optimization results\citation_no_exact_match_on_grantyear\grid_results_log.csv", clear
+awd
     ** Round lambdas and drop duplicates
-    replace lambda = round(lambda, 0.001)
+    replace lambda = round(lambda, 0.01)
     duplicates drop
 
     ** Generate sample variable
@@ -59,6 +42,7 @@
     ** Place periods
     replace baseline_begin_period = round((baseline_begin_period - 1) / 2)
 
+    rename number_of_matches K
     ** Label
     label var acq_type "Acquisition type"
     label var top_tech "Tech. class"
@@ -94,6 +78,7 @@
     tostring aux, replace
     replace aux = aux + "%" 
 
+
     ** Locals
     levelsof sample, local(samples)
     levelsof K, local(Ks)
@@ -128,7 +113,7 @@
 
                         tab caliper
 
-                        graph export "${out}/`period' periods/MSE, vs. Lambda - `K' matches_Caliper `caliper_helper'.png", replace width(4000) height(3000)
+                        graph export "${out}/`period' periods/MSE vs. Lambda - `K' matches_Caliper `caliper_helper'.png", replace width(4000) height(3000)
 
                     restore
                 }

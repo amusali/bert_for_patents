@@ -22,7 +22,8 @@
         gl temp "${csdid}/temp"
         gl log "${csdid}/log"
 
-    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation"
+    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation_noexactmatch_on_grantyear"
+    gl pca_drive "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings"
 
 * ==============================================================================
 * B. Load matched files
@@ -48,7 +49,7 @@
 
     merge 1:1 patent_id using `matched_ids', assert(1 3) keep(3) nogen
 
-    save "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main\01 Stata\01 Main\01 Data load\00 Patents\dta\01 Patent data - without citations - only matched records.dta", replace
+    save "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main\01 Stata\01 Main\01 Data load\00 Patents\dta\01 Patent data - without citations - only matched records - no exact match on grant year.dta", replace
 
 
     ** PCAs
@@ -60,5 +61,5 @@
     merge 1:1 patent_id using `matched_ids', assert(1 3) keep(3) nogen
     compress 
 
-    save "${pca_drive}\pca_10D - only matched records.dta", replace
+    save "${pca_drive}\pca_10D - only matched records - no exact match on grant year.dta", replace
 

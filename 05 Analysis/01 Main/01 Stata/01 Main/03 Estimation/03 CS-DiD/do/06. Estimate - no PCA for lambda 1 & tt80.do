@@ -30,19 +30,19 @@
     ** Config
     local pre_treatment_periods 4 6 8 // 4, 6, 8, 10, 12 quarters
     local seed = 1709 // seed: periska hbd
-    local acq_types = `" "Off deal" "' // Acquistion type: M&A or Off deal
+    local acq_types = `" "M&A" "' // Acquistion type: M&A or Off deal
     local calipers  `" "0.1000" "0.0500"  "'  //  "0.1000" "0.0500" 2.5%, 5%, 7.5%, 10%
     local base_tt = "top-tech" // baseline or top-tech
     local base_tt_threshold = 80 // only used if base_tt is "top-tech"
 
     local lambdas 0 0.25 0.5 0.75 1 // numlist(0.0(0.05)1.0) 
 
-    local last_post_treatment_period = 12 // last estimation period
+    local last_post_treatment_period = 11 // last estimation period
 
     local pca_dimension = 10 // PCA dimensions to load
 
     ** Start log
-    log using "${log}/05. Estimate - no PCA for lambda 1 & tt80.log", replace
+    log using "${log}/06. Estimate - no PCA for lambda 1 & tt80.log", replace
     timer clear 1
     timer on 1
 
@@ -122,7 +122,7 @@
 
                     ** Skip if already estimated
                     local est_range_str = " -`pre_treatment_period' - `last_post_treatment_period'" // range for plots
-                    local est_filename = subinstr("`filename'", "01 Sample", "05 CSDID Estimates", .)
+                    local est_filename = subinstr("`filename'", "01 Sample", "06 CSDID Estimates", .)
                     local est_filename = subinstr("`est_filename'", "", "", .)
                     local est_filename = subinstr("`est_filename'", " - all patents, for csdid.dta", "", .)
 
@@ -179,7 +179,8 @@
 
                     *** Check that when `num_patents_in_cohort' is a multiple of `num_periods_per_treated'
                     assert mod(num_patents_in_cohort, `num_periods_per_treated') == 0 if treated == 1
-                    drop if num_patents_in_cohort < 10 * `num_periods_per_treated' & treated == 1 // at least 10 patents per cohort
+
+                    drop if num_patents_in_cohort < 20 * `num_periods_per_treated' & treated == 1 // at least 10 patents per cohort
 
                     ** Full sample - wont´do anything but kept for clarity
                     drop if grant_quarter + `last_post_treatment_period' > tq(2024q4) // drop patents that cannot be observed until the end of the last post-treatment period

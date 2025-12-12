@@ -761,8 +761,8 @@ def log_grid_result(
     top_tech_threshold,
     baseline_begin_period,
     caliper,
-    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/grid_results_log.csv", 
-    K = 1
+    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/grid_results_log.csv", 
+    K = 10
 ):
     # Add identifying info
     result_df['acq_type'] = acq_type
@@ -891,7 +891,7 @@ def run_grid_point_K(args):
         cosine_distance_by_treated,
         group_to_candidate_ids,
         caliper=caliper,
-        delta=0.25,
+        delta=0.1,
         baseline_begin_period=baseline_begin_period,
         precomputed_mahalanobis=precomputed_mahalanobis,
         K=K
@@ -924,7 +924,7 @@ def run_grid_point_K(args):
 
 def grid_runner_parallel_K(
     placebo_periods=[4, 6, 8],
-    calipers=[0.05, 0.1],
+    calipers=[0.05],
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
     top_tech_thresholds=[80],
@@ -936,7 +936,7 @@ def grid_runner_parallel_K(
     tasks = []
     import os
 
-    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/"
+    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/"
 
     for placebo_p in placebo_periods:
         baseline_begin_period = placebo_p * 2 + 1
@@ -1086,15 +1086,15 @@ def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech
 
     # Define suffix and prefix
     suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
-    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/"
+    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/"
     
     # Save matching results
     results_df.to_pickle(f"{prefix}01 Hybrid matching results - {suffix}.pkl")
     results_df.to_csv(f"{prefix}01 Hybrid matching results - {suffix}.csv", index=False)
 
     # Save matched dictionary where keys are lambdas and values are matched DFs
-    with open(f"{prefix}01 Hybrid matches - {suffix}.pkl", "wb") as f:
-            pickle.dump(matched_df_dict, f)
+    #with open(f"{prefix}01 Hybrid matches - {suffix}.pkl", "wb") as f:
+    #        pickle.dump(matched_df_dict, f)
 
     # Convert into Pandas DF and save as CSV
     import pandas as pd
