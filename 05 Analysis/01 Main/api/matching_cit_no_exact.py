@@ -890,7 +890,7 @@ def grid_runner_parallel_K(
     tasks = []
     import os
 
-    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/"
+    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/actual results/paper/"
 
     for baseline_begin_period in baseline_periods:
         for acq_type in acq_types:
@@ -907,10 +907,10 @@ def grid_runner_parallel_K(
 
                             # Define the 4 expected files
                             files_to_check = [
-                                f"{prefix}01 Hybrid matching results - {suffix}.pkl",
-                                f"{prefix}01 Hybrid matching results - {suffix}.csv",
-                                f"{prefix}01 Hybrid matches - {suffix}.pkl",
-                                f"{prefix}01 Hybrid matches - {suffix}.csv"
+                                f"{prefix}01 Hybrid matching results (lambda 0.6 and 0.7) - {suffix}.pkl",
+                                f"{prefix}01 Hybrid matching results (lambda 0.6 and 0.7) - {suffix}.csv",
+                                f"{prefix}01 Hybrid matches (lambda 0.6 and 0.7) - {suffix}.pkl",
+                                f"{prefix}01 Hybrid matches (lambda 0.6 and 0.7) - {suffix}.csv"
                             ]
 
                             if all(os.path.exists(f) for f in files_to_check):
