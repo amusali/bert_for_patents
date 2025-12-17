@@ -714,7 +714,7 @@ def log_grid_result(
     top_tech_threshold,
     baseline_begin_period,
     caliper,
-    log_path="/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/grid_results_log.csv", 
+    log_path="/content/drive/MyDrive/PhD Data/11 Matches/actual results/paper/grid_results_log (lambda 0.6 and 0.7).csv", 
     K = 10
 ):
     # Add identifying info
@@ -843,7 +843,9 @@ def run_grid_point_K(args):
         cosine_distance_by_treated,
         group_to_candidate_ids,
         caliper=caliper,
-        delta=0.25,
+        lambda_start=0.6,
+        lambda_end=0.7,
+        delta=0.1,
         baseline_begin_period=baseline_begin_period,
         precomputed_mahalanobis=precomputed_mahalanobis,
         K=K
@@ -991,18 +993,18 @@ def run_routine(treated, control, citation_counts_dict, treated_counts_dict, cos
 # 9. Save Results
 # -------------------------------
 
-def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 90, baseline_begin_period = 8, K = 10):
+def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech = False, top_tech_threshold = 80, baseline_begin_period = 8, K = 10):
 
     # Define suffix and prefix
     suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
-    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/actual results/citation_no_exact_match_on_grantyear/"
+    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/actual results/paper/"
     
     # Save matching results
-    results_df.to_pickle(f"{prefix}01 Hybrid matching results - {suffix}.pkl")
-    results_df.to_csv(f"{prefix}01 Hybrid matching results - {suffix}.csv", index=False)
+    results_df.to_pickle(f"{prefix}01 Hybrid matching results (lambda 0.6 and 0.7) - {suffix}.pkl")
+    results_df.to_csv(f"{prefix}01 Hybrid matching results (lambda 0.6 and 0.7) - {suffix}.csv", index=False)
 
     # Save matched dictionary where keys are lambdas and values are matched DFs
-    with open(f"{prefix}01 Hybrid matches - {suffix}.pkl", "wb") as f:
+    with open(f"{prefix}01 Hybrid matches (lambda 0.6 and 0.7) - {suffix}.pkl", "wb") as f:
             pickle.dump(matched_df_dict, f)
 
     # Convert into Pandas DF and save as CSV
@@ -1012,4 +1014,4 @@ def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech
         [df.assign(lambda_val=lam) for lam, df in matched_df_dict.items()],
         ignore_index=True
     )
-    combined_df.to_csv(f"{prefix}01 Hybrid matches - {suffix}.csv", index=False)
+    combined_df.to_csv(f"{prefix}01 Hybrid matches (lambda 0.6 and 0.7) - {suffix}.csv", index=False)
