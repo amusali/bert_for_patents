@@ -19,13 +19,13 @@ from tqdm import tqdm
 # Input directory containing the old matched pickles
 INPUT_DIR = "/content/matches/"
 # Output directory for final samples
-OUTPUT_DIR = "/content/drive/MyDrive/PhD Data/12 Sample Final/actual results/citation_noexactmatch_on_grantyear/"
+OUTPUT_DIR = "/content/drive/MyDrive/PhD Data/12 Sample Final/actual results/paper/"
 # Raw citations pickle (will be trimmed per sample)
 CITATIONS_FILE = "/content/drive/MyDrive/PhD Data/08 Citations/03 Patent citations - raw, filing.pickle"
 # All patents metadata (Stata .dta)
 PATENTS_FILE = "/content/drive/MyDrive/PhD Data/09 Acquired patents/04 All patents.dta"
 # Glob pattern to find matched samples
-INPUT_PATTERN = "01 Hybrid matches - *10matches.pkl"
+INPUT_PATTERN = "01 Hybrid matches (lambda 0.6 and 0.7) - *10matches.pkl"
 # Template for output filenames
 OUTPUT_FILE_TEMPLATE = "Sample - {suffix}.{ext}"
 
@@ -115,7 +115,7 @@ def collapse_citations() -> pd.DataFrame:
 def save_collapsed_citations(citations: pd.DataFrame):
     """Save the collapsed citations DataFrame to a pickle file."""
 
-    output_path = os.path.join(OUTPUT_DIR, 'collapsed_citations.pkl')
+    output_path = os.path.join(OUTPUT_DIR, 'collapsed_citations - (lambda 0.6 and 0.7) .pkl')
     with open(output_path, 'wb') as f:
         pickle.dump(citations, f)
 
