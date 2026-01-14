@@ -24,25 +24,8 @@
 
     cd "${out}\est"
 
-    gl raw_drive "G:\My Drive\PhD Data\12 Sample Final\actual results\citation_noexactmatch_on_grantyear"
-    gl pca_drive "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings"
-
-    ** Config
-    local pre_treatment_periods 4 6  // 4, 6, 8, 10, 12 quarters
-    local seed = 1709 // seed: periska hbd
-    local acq_types = `" "Off deal" "' // Acquistion type: M&A or Off deal
-    local calipers  `" "0.1000" "0.0500"  "'  //  "0.1000" "0.0500" 2.5%, 5%, 7.5%, 10%
-    local base_tt = "baseline" // baseline or top-tech
-    local base_tt_threshold = 80 // only used if base_tt is "top-tech"
-
-    local lambdas 0.25 0.75 // numlist(0.0(0.05)1.0) 
-
-    local last_post_treatment_period = 12 // last estimation period
-
-    local pca_dimension = 10 // PCA dimensions to load
-
     ** Start log
-    log using "${log}/99. Describe estimates.log", replace
+    log using "${log}/99a. Describe estimates.log", replace
     timer clear 1
     timer on 1
 
@@ -95,6 +78,11 @@
         local filename = subinstr("`filename'", "06 CSDID Estimates - ", "", .)
         local filename = subinstr("`filename'", "06b CSDID Estimates - ", "", .)
         local filename = subinstr("`filename'", "07 CSDID Estimates - ", "", .)
+        local filename = subinstr("`filename'", "08 CSDID Estimates - ", "", .)
+        local filename = subinstr("`filename'", "08a CSDID Estimates - ", "", .)
+        local filename = subinstr("`filename'", "09 CSDID Estimates - ", "", .)
+        local filename = subinstr("`filename'", "09a CSDID Estimates - ", "", .)
+
         local filename = subinstr("`filename'", "- all patents, for csdid - ", ",", .)
         local filename = subinstr("`filename'", ".dta", "", .)
 
@@ -191,7 +179,7 @@
             dropmiss, obs force
 
             local plot_filename = "`=subinstr("`filename'", "no exact matching on grant year,", "", .)'"
-            graph export "${out}\graphs\ES Plot - CSDID - `plot_filename'.png", replace width(3000) height(2000)
+            graph export "${out}\graphs\Paper - ES Plot - CSDID - `plot_filename'.png", replace width(3000) height(2000)
             }
             ** Report progress and update counter
             local i = `i' + 1
@@ -209,4 +197,4 @@
     sort est_config acq_type bl_tt tt_threshold pretreatment_periods posttreatment_periods caliper lambda
 
     ** Save final results
-    save "${dta}\CSDID Estimates Summary.dta", replace
+    save "${dta}\CSDID Estimates Summary (extended).dta", replace
