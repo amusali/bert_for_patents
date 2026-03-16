@@ -6,6 +6,7 @@ bert_repo/
 
 # Ignore any virtual environment folders
 venv/
+.venv/
 .env/
 .gitignore
 

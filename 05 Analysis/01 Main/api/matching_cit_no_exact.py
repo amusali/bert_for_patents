@@ -14,12 +14,12 @@ import dill as pickle
 # 1. Loading functions
 # ------------------------------
 
-def load_data(citations_path = "/content/drive/MyDrive/PhD Data/08 Citations/03 Patent citations - raw, filing.pickle", 
-              treated_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/acquired_patents_noresold.pkl", 
-              control_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/potential_controls_no_exact_match_grantyear_cpc.pkl", 
-              clean_ids_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/clean_potential_control_ids_no_exact_match_grantyear.csv",
-              acq_type_path = "/content/drive/MyDrive/PhD Data/09 Acquired patents/04 All patents.dta",
-              all_patents_metadata = "/content/drive/MyDrive/PhD Data/09 Acquired patents/01 Patent data - without citations.dta"
+def load_data(citations_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/08 Citations/03 Patent citations - raw, filing.pickle", 
+              treated_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/10 Sample - pre final/acquired_patents_noresold.pkl", 
+              control_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/10 Sample - pre final/potential_controls_no_exact_match_grantyear_cpc.pkl", 
+              clean_ids_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/10 Sample - pre final/clean_potential_control_ids_no_exact_match_grantyear.csv",
+              acq_type_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/09 Acquired patents/04 All patents.dta",
+              all_patents_metadata = "/content/drive/MyDrive/uc3m PhD/PhD Data/09 Acquired patents/01 Patent data - without citations.dta"
               ):
     
     """Load citations, treated, control data, clean ids, and acquistion type data."""

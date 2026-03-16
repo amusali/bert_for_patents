@@ -80,7 +80,7 @@
 
                         ** Filter lambdas
                         keep if inlist(lambda, 0, 1)
-                        keep treated* control* lambda
+                        keep treated* control* lambda maha* cosine*
                         duplicates drop 
 
                         ** Config
@@ -117,7 +117,7 @@
 
                         ** Checks
                         assert inlist(lam, 0.6, 0.7)
-                        keep treated* control* lambda
+                        keep treated* control* lambda maha* cosine*
                         duplicates drop 
 
                         ** Config
@@ -151,88 +151,119 @@
     ** Fix threshold
     replace base_tt_threshold = . if bl_tt == "baseline"
 
-    preserve
-        keep treated* lambda acq_type bl_tt pre_treatment_period base_tt_threshold 
+    ** Bring metadata
+    rename   treated_id patent_id
 
-        rename (treated_id treated_vector) (patent_id citations)
-
-        gen treated = 1
-
-        tempfile treated
-        save "`treated'"
-    restore
-    drop treated* 
-    rename (control_id control_vector) (patent_id citations)
-    gen treated = 0
-    append using `treated'
+    tostring patent_id, replace 
+    merge m:1 patent_id using "G:\My Drive\uc3m PhD\PhD Data\09 Acquired patents\04 All patents.dta", assert(2 3) keep(3) nogen
+    rename  patent_id treated_id
+    destring treated_id, replace
 
     ** Save
+    keeporder acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val treated_id treated_vector control_id control_vector ult_parent acq_date deal_id cpc_subclass_current maha* cosine* grant_date num_claims
+    compress 
+    gisid acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val treated_id control_id, m
     save "${temp}/01. Matched patents - by lambda, 4q.dta", replace
+
 * ==============================================================================
 * D. Calculate means
 * ==============================================================================
-    ** get citations
-    replace citations = subinstr(citations, "[", "", .)
-    replace citations = subinstr(citations, "]", "", .)
-    split citations, parse(".")
-    drop citations
-    rename citations* (cit_m4 cit_m3 cit_m2 cit_m1)
-    destring cit*, replace
-    ** Collapse 
-    collapse (mean) cit* (sd) sd_cit_m4 = cit_m4 sd_cit_m3 = cit_m3 sd_cit_m2 = cit_m2 sd_cit_m1 = cit_m1, by( acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val treated)
+    
+    ** Load
+    u "${temp}/01. Matched patents - by lambda, 4q.dta", clear 
 
-    ** Reshape
-    reshape wide *cit*, i(acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val ) j(treated)
+    ** Locals
+    local config "acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val"
 
-    ** Pooled SD
-    foreach v in cit_m1 cit_m2 cit_m3 cit_m4 {
-        gen pooled_`v' = sqrt((sd_`v'1^2 + sd_`v'0^2)/2)
-        gen smd_`v'    = (`v'1 - `v'0) / pooled_`v'
-        gen abs_smd_`v' = abs(smd_`v')
+    ** Grant quarter
+    gen treatment_quarter = qofd(acq_date)
+    format treatment_quarter %tq 
+
+    ** Get citations for treated and control separately 
+    foreach s in treated control{
+        replace `s'_vector = subinstr(`s'_vector, "[", "", .)
+        replace `s'_vector = subinstr(`s'_vector, "]", "", .)
+        split `s'_vector, parse(".")
+        drop `s'_vector
+        rename `s'_vector* (`s'_cit_m4 `s'_cit_m3 `s'_cit_m2 `s'_cit_m1)
+        destring `s'_cit*, replace
     }
 
-    keep acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val *smd*
-    order acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val *smd*
+    ** Get size of each strata 
+    gcollapse (nunique) size = treated_id, by(`config' cpc treatment_quarter) merge replace 
 
-    rename *smd_cit_* *smd_*
+    ** Calculate the weight of each treated id
+    gen weight = 1
+    gcollapse (sum) weight , by(`config' treated_id) merge replace
+    replace weight = 1 / weight
+
+
+    ** Calculate absolute differences per pair
+    forvalues i = 1/4{
+        gen d_m`i' = abs(treated_cit_m`i' - control_cit_m`i')
+    }
+
+    ** Collapse to get average absolute difference per config x strata 
+    gcollapse d*, by(`config' cpc treatment_quarter size)
+
+    ** Get pooled SD pre-matching and standardize differences 
+    preserve
+        ** Load
+        import delimited using "${out}\00 Before SMDs - all, by strata.csv" ,clear
+
+        ** Config
+        gen acq_type = "M&A" if regexm(config, "M&A")
+        replace acq_type = "Off deal" if mi(acq_type)
+
+        gen bl_tt = "baseline" if regexm(config, "bl")
+        replace bl_tt = "top-tech" if mi(bl_tt)
+
+        gen pre_treatment_period = 4 if regexm(config, "4q")
+        replace pre_treatment_period = 6 if regexm(config, "6q")
+        replace pre_treatment_period = 8 if regexm(config, "8q")
+        assert !mi(pre_treatment_period)
+
+        gen base_tt_threshold = 80 if bl_tt == "top-tech"
+
+        ** Treatment quarter - cohort
+        gen treatment_quarter = quarterly(treated_q, "YQ")
+        format treatment_quarter %tq
+
+        ** Filter
+        keep if regexm(covariate, "cit_m")
+        drop if inlist(cov, "cit_m5", "cit_m6", "cit_m7", "cit_m8")
+
+        ** Calculate pooled SD
+        gen pooled_sd_ = sqrt((sd_treated^2 + sd_control^2)/2)
+        drop sd* smd mean*
+
+        ** Reshape
+        reshape wide pooled_sd_, i( acq_type bl_tt pre_treatment_period base_tt_threshold cpc treatment_quarter) j(covar) str
+
+        gisid acq_type bl_tt pre_treatment_period base_tt_threshold cpc treatment_quarter, m 
+
+        tempfile pooled_sd
+        save "`pooled_sd'"
+
+    restore
+
+    ** Merge
+    drop if size < 5
+    rename cpc cpc 
+    merge m:1 acq_type bl_tt pre_treatment_period base_tt_threshold cpc treatment_quarter using `pooled_sd', assert(2 3) keep(3) nogen 
+awd
+    ** Standardize absolute differences
+    forvalues i = 1/4{
+        gen s_abs_d_m`i' = d_m`i' / pooled_sd_cit_m`i'
+    }
+
+    ** WEighted average of standardized absolute differences 
+    gcollapse (mean) s_abs* [fweight = size], by(`config')
 
     ** Save
+    sort acq_type bl_tt pre_treatment_period base_tt_threshold lambda_val
     compress
-    save "${out}\01 After SMDs - citations.dta", replace
+    save "${out}\01 After Standardized absolute differences - citations, by strata.dta", replace
 
-
-/*
-
-
-tempfile base
-save `base'
-levelsof lamb, local(lvals)
-levelsof acq, local(acqs)
-levelsof bl, local(bls)
-foreach acq of local acqs{
-foreach bl of local bls{
- 
- di in red "Acq type: `acq'; bl_tt: `bl'"
-foreach l1 of local lvals {
-    foreach l2 of local lvals {
-    preserve
-        keep if acq_type = "`acq'" & bl_tt == "`bl'"
-        use `base', clear
-        
-        gen in_l1 = (lambda_val == `l1')
-        gen in_l2 = (lambda_val == `l2')
-        
-        collapse (max) in_l1 in_l2, by(control_id)
-        
-        gen both = in_l1 & in_l2
-        
-        quietly summarize both
-        di "Overlap between lambda `l1' and `l2' = " r(sum)
-        restore
-
-}
-}
-}
-}
 
 

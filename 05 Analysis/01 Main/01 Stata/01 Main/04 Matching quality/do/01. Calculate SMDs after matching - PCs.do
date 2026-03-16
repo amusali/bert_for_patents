@@ -50,25 +50,31 @@
 * ==============================================================================
 * B. Load files for all lambdas and combine
 * ==============================================================================
-    use "${temp}/01. Matched patents - by lambda, 4q.dta", clear
-    tostring patent_id, replace
+    use "${temp}/01. Matched patents - by lambda, 4q, all combined.dta", clear
+
+    ** Bring metadata
+    tostring patent_id, replace 
+    merge m:1 patent_id using "G:\My Drive\uc3m PhD\PhD Data\09 Acquired patents\04 All patents.dta", gen(aux)
+    keep if aux == 3 & treated == 1
+   
 
     ** Get PCAs
     preserve
-        *import delimited using "G:\My Drive\uc3m PhD\PhD Data\01 CLS Embeddings\All embeddings - float16\PCA\pca_10D.csv", clear
+        /* *import delimited using "G:\My Drive\uc3m PhD\PhD Data\01 CLS Embeddings\All embeddings - float16\PCA\pca_10D.csv", clear
         u "G:\My Drive\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings\pca_10D - only matched records - no exact match on grant year.dta", clear
         append using "G:\My Drive\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings\pca_10D - only matched records - no exact match on grant year (lam 0.6 and 0.7 version).dta"
-        append using "G:\My Drive\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings\pca_10D - only matched records.dta"
+        append using "G:\My Drive\uc3m PhD\05 Analysis\01 Main\00 Python data\01 CLS embeddings\pca_10D - only matched records.dta" */
 
-        duplicates drop 
+        import delimited using "G:\My Drive\uc3m PhD\PhD Data\01 CLS Embeddings\All embeddings - float16\PCA\pca_30D - matched records, 4q, 80.csv", clear
+
         isid patent_id 
         
         tempfile pcas
         save "`pcas'"
     restore
 
-    merge m:1 patent_id using `pcas', keep(3) nogen 
-
+    merge m:1 patent_id using `pcas', assert(2 3) keep(3) nogen 
+wdad
 * ==============================================================================
 * D. Calculate means
 * ==============================================================================
@@ -95,7 +101,3 @@
     ** Save
     compress
     save "${out}\01 After SMDs - PCAs.dta", replace
-
-
-
-
