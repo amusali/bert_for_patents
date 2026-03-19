@@ -36,7 +36,9 @@ __pycache__/
 # Docs
 03 PhD docs/
 
-
+# Ignore pics and GPH files
+*.gph 
+*.png
 # Legacy codes from TFM
 05 Analysis/00 Master Thesis legacy codes/
 
