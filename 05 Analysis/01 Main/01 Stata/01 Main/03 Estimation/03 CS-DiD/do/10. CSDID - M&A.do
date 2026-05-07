@@ -27,7 +27,12 @@
     cd "${out}\est"
 
     ** Start log
-    log using "${log}/10. CSDID - M&A.log", replace
+    local today = daily("`c(current_date)'","DMY")
+    local ymd : display %tdCCYY-NN-DD `today'
+    local hhmmss = subinstr("`c(current_time)'",":","",.)
+
+    capture log close
+    log using "${log}/10. CSDID - M&A -`ymd'_`hhmmss'.log", replace
     timer clear 1
     timer on 1
 
@@ -38,7 +43,7 @@
     local seed = 1709 // seed: periska hbd
     local acq_types = `" "M&A" "' // Acquistion type: M&A or Off deal
     local calipers  `"  "0.0500"  "'  //  "0.1000" "0.0500" 2.5%, 5%, 7.5%, 10%
-    local sample_types = `" "top-tech" "baseline" "' // baseline or top-tech
+    local sample_types = `" "top-tech"  "' // baseline or top-tech
     local base_tt_threshold = 80 // only used if base_tt is "top-tech"
 
     local lambdas 0 0.6  1 // numlist(0.0(0.05)1.0) 

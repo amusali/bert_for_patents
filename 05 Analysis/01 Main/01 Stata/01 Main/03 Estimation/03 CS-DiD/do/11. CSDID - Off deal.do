@@ -27,7 +27,12 @@
     cd "${out}\est"
 
     ** Start log
-    log using "${log}/11. CSDID - Off deal.log", replace
+    local today = daily("`c(current_date)'","DMY")
+    local ymd : display %tdCCYY-NN-DD `today'
+    local hhmmss = subinstr("`c(current_time)'",":","",.)
+
+    capture log close
+    log using "${log}/11. CSDID - Off deal - `ymd'_`hhmmss'.log", replace
     timer clear 1
     timer on 1
 
@@ -38,7 +43,7 @@
     local seed = 1709 // seed: periska hbd
     local acq_types = `" "Off deal" "' // Acquistion type: M&A or Off deal
     local calipers  `"  "0.0500"  "'  //  "0.1000" "0.0500" 2.5%, 5%, 7.5%, 10%
-    local sample_types = `" "top-tech" "baseline" "' // baseline or top-tech
+    local sample_types = `" "top-tech"  "' // baseline or top-tech
     local base_tt_threshold = 80 // only used if base_tt is "top-tech"
 
     local lambdas 0 0.7  1 // numlist(0.0(0.05)1.0) 
@@ -59,7 +64,7 @@
         append using "${pca_drive}\pca_`pca_dimension'D - only matched records - no exact match on grant year (lam 0.6 and 0.7 version).dta"
 
         duplicates drop 
-
+            
         tempfile pca
         save "`pca'"
 
@@ -72,7 +77,7 @@
         append using "${stata}\01 Main\01 Data load\00 Patents\dta\01 Patent data - without citations - only matched records - no exact match on grant year (lam 0.6 and 0.7 version).dta"
 
         duplicates drop 
-
+esfes
         ** Filter and make Grant date a Stata quarter date
         keep patent_id patent_date cpc_subclass_current
         duplicates drop 

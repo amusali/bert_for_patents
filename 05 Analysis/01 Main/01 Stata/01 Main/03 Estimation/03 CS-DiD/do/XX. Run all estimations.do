@@ -19,4 +19,7 @@
     do "${do}\11. CSDID - Off deal.do"
 
     ** M&A 
+    gl do  "C:\Users\aliwk\OneDrive\Desktop\PhD (repos)\BERT\bert_for_patents\05 Analysis\01 Main\01 Stata\01 Main\03 Estimation\03 CS-DiD\do"
     do "${do}\10. CSDID - M&A.do"
+
+    exit

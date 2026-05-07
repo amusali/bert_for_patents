@@ -35,14 +35,14 @@
     local base_tt = "top-tech" // baseline or top-tech
     local base_tt_threshold = 80 // only used if base_tt is "top-tech"
 
-    local lambdas 0.6 0.7 // numlist(0.0(0.05)1.0) 
+    local lambdas 0.6  // numlist(0.0(0.05)1.0) 
 
     local last_post_treatment_period = 11 // last estimation period
 
     local pca_dimension = 10 // PCA dimensions to load
 
     ** Start log
-    log using "${log}/08a TRY. Estimate - no PCA for lambda 1 & tt80 (MA lam 0.6 and 0.7).log", replace
+    log using "${log}/08a TRY. Estimate - no PCA for lambda 1 & tt80 (MA lam 0.6 and 0.7) dropped cohorts.log", replace
     timer clear 1
     timer on 1
 
@@ -97,11 +97,11 @@
                     ** Get the filename - e.g. "01 Sample - M&A, baseline, 4q, caliper0.1000 - all patents, for csdid.dta" or "01 Sample - Off deal, top-tech, 80, 4q, caliper0.0250 - all patents, for csdid.dta"
                     if "`base_tt'" == "baseline" {
                         ** Adjust filename 
-                        local filename = "01 Sample - `acq_type', `base_tt', `=string(`pre_treatment_period', "%2.0f")'q, caliper`caliper' - all patents, for csdid - no exact matching on grant year (lambda 0.6 and 0.7).dta"
+                        local filename = "01 Sample - `acq_type', `base_tt', `=string(`pre_treatment_period', "%2.0f")'q, caliper`caliper' - all patents, for csdid - nemogy - add lambdas.dta"
                     }
                     else if "`base_tt'" == "top-tech" {
                         ** Adjust filename 
-                        local filename = "01 Sample - `acq_type', `base_tt', `=string(`base_tt_threshold', "%2.0f")', `=string(`pre_treatment_period', "%2.0f")'q, caliper`caliper' - all patents, for csdid - no exact matching on grant year (lambda 0.6 and 0.7).dta"
+                        local filename = "01 Sample - `acq_type', `base_tt', `=string(`base_tt_threshold', "%2.0f")', `=string(`pre_treatment_period', "%2.0f")'q, caliper`caliper' - all patents, for csdid - nemogy - add lambdas.dta"
                     }
                     else {
                         di in red "Error: base_tt must be either 'baseline' or 'top-tech'"
@@ -116,7 +116,7 @@
                     local est_range_str = " -`pre_treatment_period' - `last_post_treatment_period'" // range for plots
                     local est_filename = subinstr("`filename'", "01 Sample", "08a TRY CSDID Estimates", .)
                     local est_filename = subinstr("`est_filename'", "", "", .)
-                    local est_filename = subinstr("`est_filename'", " - all patents, for csdid - no exact matching on grant year (lambda 0.6 and 0.7).dta", "", .)
+                    local est_filename = subinstr("`est_filename'", " - all patents, for csdid - nemogy - add lambdas.dta", "", .)
 
                     di "Will save into ${out}\est\\`est_filename', lambda`lambda', p`est_range_str'.ster"
                     capture confirm file "${out}\est\\`est_filename', lambda`lambda', p`est_range_str'.ster"
@@ -195,6 +195,7 @@
                     di in red "Estimating CS-DiD with `pre_treatment_period' pre-treatment periods"
 
                     ** Run csdid
+                    drop if inlist(cohort, 211, 238)
 
                     if `lambda' == 1 {
                         di in red "Estimating CS-DiD without PCA controls -> lambda 1"
@@ -202,10 +203,11 @@
                     }
                     else {
                         di in red "Estimating CS-DiD with PCA controls"
-                        csdid log_citation age* pc* i.grant_year i.cpc active,  g(cohort) t(quarter) method(reg) seed(`seed') 
+                        csdid log_citation  pc* i.grant_year ,  g(cohort) t(quarter) method(reg) seed(`seed') 
                     }
+                    wr3wr123daw
                     ** Save
-                    estimates save "${out}/est//`est_filename', lambda`lambda', p`est_range_str'", replace
+                    estimates save "${out}/est//`est_filename', lambda`lambda', p`est_range_str'_dropped cohorts", replace
 
                     ** Check pretrend
                     csdid_estat pretrend
@@ -221,3 +223,56 @@
     timer list
 
     log close
+
+/*
+    Event Study:Dynamic effects
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+     Pre_avg |  -.0159543   .0068418    -2.33   0.020    -.0293641   -.0025446
+    Post_avg |  -.1313866    .015196    -8.65   0.000    -.1611703   -.1016029
+         Tm3 |   -.014843   .0206988    -0.72   0.473    -.0554119    .0257259
+         Tm2 |  -.0061618    .020928    -0.29   0.768      -.04718    .0348564
+         Tm1 |  -.0268583   .0206397    -1.30   0.193    -.0673113    .0135948
+         Tp0 |  -.0898586   .0214345    -4.19   0.000    -.1318696   -.0478477
+         Tp1 |  -.0700206   .0220257    -3.18   0.001    -.1131901   -.0268511
+         Tp2 |  -.0966844   .0215197    -4.49   0.000    -.1388623   -.0545065
+         Tp3 |  -.0804458   .0222105    -3.62   0.000    -.1239776   -.0369141
+         Tp4 |  -.1331242   .0201186    -6.62   0.000     -.172556   -.0936924
+         Tp5 |  -.1312692   .0210478    -6.24   0.000    -.1725221   -.0900163
+         Tp6 |  -.1348581   .0211373    -6.38   0.000    -.1762864   -.0934298
+         Tp7 |  -.1308754   .0205387    -6.37   0.000    -.1711305   -.0906203
+         Tp8 |  -.1738313   .0203102    -8.56   0.000    -.2136386   -.1340239
+         Tp9 |   -.159666   .0207805    -7.68   0.000     -.200395    -.118937
+        Tp10 |  -.1783748   .0203257    -8.78   0.000    -.2182123   -.1385372
+        Tp11 |  -.1976311   .0193198   -10.23   0.000    -.2354972   -.1597651
+------------------------------------------------------------------------------
+
+. csdid_estat attgt
+------------------------------------------------------------------------------
+             |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+-------------+----------------------------------------------------------------
+g203         |
+
+
+ Dynamic Effects:
+
+┌────────────┬──────────┬────────────┬────────────────────────────┐
+│ Event time │ Estimate │ Std. Error │ [95% Pointwise Conf. Band] │
+├────────────┼──────────┼────────────┼────────────────────────────┤
+│         -3 │  -0.0214 │     0.0204 │ [-0.0791,  0.0363]         │
+│         -2 │  -0.0088 │     0.0207 │ [-0.0674,  0.0499]         │
+│         -1 │  -0.0325 │     0.0205 │ [-0.0904,  0.0254]         │
+│          0 │  -0.0862 │     0.0212 │ [-0.1461, -0.0262] *       │
+│          1 │  -0.0656 │     0.0217 │ [-0.1270, -0.0041] *       │
+│          2 │  -0.0974 │     0.0213 │ [-0.1577, -0.0371] *       │
+│          3 │  -0.0809 │     0.0220 │ [-0.1430, -0.0187] *       │
+│          4 │  -0.1327 │     0.0199 │ [-0.1889, -0.0765] *       │
+│          5 │  -0.1270 │     0.0208 │ [-0.1858, -0.0682] *       │
+│          6 │  -0.1400 │     0.0209 │ [-0.1992, -0.0809] *       │
+│          7 │  -0.1324 │     0.0202 │ [-0.1895, -0.0752] *       │
+│          8 │  -0.1793 │     0.0201 │ [-0.2362, -0.1225] *       │
+│          9 │  -0.1640 │     0.0205 │ [-0.2220, -0.1060] *       │
+│         10 │  -0.1799 │     0.0200 │ [-0.2364, -0.1235] *       │
+│         11 │  -0.1612 │     0.0212 │ [-0.2212, -0.1012] *       │
+└────────────┴──────────┴────────────┴────────────────────────────┘

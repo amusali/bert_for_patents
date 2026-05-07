@@ -8,7 +8,7 @@
     set excelxlsxlargefile on
 
     ** set path
-    gl analysis "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main"
+    gl analysis "G:\My Drive\uc3m PhD\05 Analysis\01 Main"
     gl python "${analysis}/00 Python data"
     gl stata "${analysis}/01 Stata"
     
@@ -24,23 +24,34 @@
 
 
     ** Start log
-    log using "${log}/99b. Event study plots.log", replace
+   * log using "${log}/99b. Event study plots.log", replace
     timer clear 1
     timer on 1
 
     ** Colours - source: https://lospec.com/palette-list/new-tableau-10
-    global c_blue    "#557ca7"
-    global c_orange  "#e98a2e"
-    global c_red     "#d5525a"
-    global c_teal    "#80b9b2"
-    global c_green   "#66a14f"
+    global c_blue    `=hextorgb("#557ca7")'
+    global c_orange  `=hextorgb("#e98a2e")'
+    global c_red     `=hextorgb("#d5525a")'
+    global c_teal    `=hextorgb("#80b9b2")'
+    global c_green   `=hextorgb("#66a14f")'
 
-    global c_yellow  "#e9c74c"
-    global c_purple  "#aa7aa0"
-    global c_pink    "#f79ba8"
-    global c_brown   "#98745e"
-    global c_gray    "#b9b0ab"
+    global c_yellow  `=hextorgb("#e9c74c")'
+    global c_purple  `=hextorgb("#aa7aa0")'
+    global c_pink    `=hextorgb("#f79ba8")'
+    global c_brown   `=hextorgb("#98745e")'
+    global c_gray    `=hextorgb("#b9b0ab")'
 
+    global c_blue    "85 124 167"
+global c_orange  "233 138 46"
+global c_red     "213 82 90"
+global c_teal    "128 185 178"
+global c_green   "102 161 79"
+
+global c_yellow  "233 199 76"
+global c_purple  "170 122 160"
+global c_pink    "247 155 168"
+global c_brown   "152 116 94"
+global c_gray    "185 176 171"
 
 ********************************************************************************
 * B. Load estimates and parse results
@@ -127,7 +138,7 @@
             ;
             #delimit cr
 
-            
+            dawwad
             graph export "${out}\Paper - Event Study - `sample'.png", replace width(3000) height(2000)
 
         restore
