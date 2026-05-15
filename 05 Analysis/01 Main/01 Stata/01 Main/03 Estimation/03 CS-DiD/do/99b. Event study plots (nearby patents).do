@@ -17,7 +17,7 @@
         gl aux "${csdid}/_aux"
         gl do  "${csdid}/do"
         gl dta "${csdid}/dta"
-        gl out "${csdid}/out/graphs/paper"
+        gl out "${csdid}/out/graphs/paper/nearby patents"
         gl raw "${csdid}/raw"
         gl temp "${csdid}/temp"
         gl log "${csdid}/log"
@@ -63,17 +63,14 @@
 * B. Load estimates and parse results
 ********************************************************************************
     ** Load estimates 
-    u "${dta}\CSDID Estimates Summary (COLAB, Cross Section estimates).dta", clear 
+    u "${dta}\CSDID Estimates Summary - Nearby Patents - (COLAB, Cross Section estimates).dta", clear 
 
     ** Filter here 
     local pre_treatment_periods  4 6 8
     local calipers 0.05 0.10
 
-    keep if inlist(lambda, 0, 1) | (lambda == 0.6 & acq_type == "M&A") | (lambda == 0.7 & acq_type == "Off deal")
-    drop if contains_pcs == 1 & lambda == 1
-
     ** Sample
-    gen sample = acq_type + ", " + bl_tt + ", " + string(pretreatment_periods) + "q, caliper" + string(caliper) + ", " +string(lambda)
+    gen sample = acq_type + ", " + bl_tt + ", " + string(pretreatment_periods) + "q, caliper" + string(caliper) + ", " +string(lambda) + ", " + subinstr(outcome, "log_nearby_patents_", "", .)
 
         
     ** Loop over the configurations and plot
@@ -82,7 +79,7 @@
     *assert _N == 4 * 3  // 4 configurations and 3 lambdas
     sort acq_type bl_tt lambda
     count
-    /* forvalue i = 1/72{
+    /* forvalue i = 1/139{
         di in red "AWDWAD"
         preserve
             ** Filter
@@ -142,7 +139,6 @@
                 ytitle("ATT") 
                 xtitle("Quarters since Treatment") 
                 legend(order(1 "Pre-treatment" 2 "Post-treatment") position(1) col(2) ring(0))
-                legend(region(lcolor(none)))
                 graphregion(color(white)) 
 
                 saving("${out}\Paper - Event Study - `sample'.gph", replace)
@@ -168,30 +164,44 @@
     replace sample = subinstr(sample, "caliper.05", "caliper005", .)
     replace sample = subinstr(sample, "caliper.1", "caliper01", .)
 
+    local outcome_types = `" " all_d150" " all_d200" " gafam_d150" " gafam_d200"  "'
+
+    replace sample = subinstr(sample,  "  all_d100", "", .)
+    replace sample = subinstr(sample,  "  gafam_d100", "", .)
+
+    foreach outcome of local outcome_types{
+        replace sample = subinstr(sample,  "`outcome'", "", .)
+        replace sample = strtrim(sample)
+        replace sample = subinstr(sample,  "caliper005,", "caliper005", .)
+    }
+
     qui levelsof sample, local(samples)
 
     foreach sam of local samples{
-        if regexm("`sam'", "M&A"){
-            local optimal_lam  = "06"
-        }
-        else{
-            local optimal_lam  = "07"
-        }
+        if regexm("`sam'", "8q") continue
+        foreach outcome of local outcome_types{
+            if regexm("`sam'", "M&A"){
+                local optimal_lam  = "06"
+            }
+            else{
+                local optimal_lam  = "07"
+            }
 
-        #delimit ;
-            grc1leg2 
-            "${out}\Paper - Event Study - `sam', 0.gph"  
-            "${out}\Paper - Event Study - `sam', `optimal_lam'.gph"     
-            "${out}\Paper - Event Study - `sam', 1.gph", 
-            ycommon col(3) ytol xtob xsize(9)   ysize(4) 
-            graphregion(color(white)) 
-        ;
-        #delimit cr
+            #delimit ;
+                grc1leg2 
+                "${out}\Paper - Event Study - `sam', 0, `outcome' .gph"  
+                "${out}\Paper - Event Study - `sam', `optimal_lam', `outcome' .gph"     
+                "${out}\Paper - Event Study - `sam', 1, `outcome' .gph", 
+                ycommon col(3) ytol xtob xsize(9) ysize(4)
+            ;
+            #delimit cr
 
-        
-        graph export "${out}\00 Paper - Event Study - `sam' - all lambdas.png", replace width(4500) height(2000)
+            
+            graph export "${out}\Paper - Event Study - `sam' - `outcome' - all lambdas.png", replace width(4500) height(2000)
 
+            }
     }
+        
 /*
     *---------------------------------------------------------*
     * C.1. M&A - baseline

@@ -119,5 +119,46 @@
             }
         }
     }
-    awdaw
+    save "${dta}\04 Overlaps - all.dta", replace
+* ==============================================================================
+* D. Reconcile and finalize overlap figures in %
+* ==============================================================================
+    u "${dta}\04 Overlaps - all.dta", clear
+    rename id count
 
+    ** Drop the mirrored copies of overlaps 
+    drop if lam > lam1
+
+    ** Filter relevant overlaps for paper
+    keep if regexm(config, "4q") & regexm(config, "caliper_0.0500")
+    drop if lam == "6" & lam1 == "7"
+    drop if lam1 == "6" & regexm(config, "Off deal")
+    drop if lam1 == "7" & regexm(config, "M&A")
+
+    ** Sort
+    order config treated lam lam1 count overlap
+    sort config treated lam lam1 overlap
+
+    /* ** Calculate Total Counts
+    bys config treated lam lam1 (overlap): gen tc = count[1] + count[3]
+    bys config treated lam lam1 (overlap): gen tc1 = count[2] + count[3]
+
+    bys config treated lam lam1 (overlap): replace tc = count[1] + count[2] if overlap[1] == 1 & mi(tc)
+    bys config treated lam lam1 (overlap): replace tc1 = count[1] + count[2] if overlap[1] == 2 & mi(tc)
+
+    bys config treated lam lam1 (overlap): replace tc = count[2] if mi(tc)
+    bys config treated lam lam1 (overlap): replace tc1 = count[2] if mi(tc1)
+
+    assert !mi(tc) & !mi(tc1) */
+
+    ** Calculate Jaccard index
+    gcollapse (sum) union = count, by(config treated lam lam1) merge replace
+    preserve
+        keep if overlap == 3
+        gen jaccard = count / union
+
+        tempfile jaccard
+        save "`jaccard'"
+    restore
+
+    merge m:1 config treated lam lam1 using `jaccard', assert(3) nogen
