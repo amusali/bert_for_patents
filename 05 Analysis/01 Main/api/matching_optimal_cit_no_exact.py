@@ -14,12 +14,12 @@ import dill as pickle
 # 1. Loading functions
 # ------------------------------
 
-def load_data(citations_path = "/content/drive/MyDrive/PhD Data/08 Citations/03 Patent citations - raw, filing.pickle", 
-              treated_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/acquired_patents_noresold.pkl", 
-              control_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/potential_controls_no_exact_match_grantyear_cpc.pkl", 
-              clean_ids_path = "/content/drive/MyDrive/PhD Data/10 Sample - pre final/clean_potential_control_ids_no_exact_match_grantyear.csv",
-              acq_type_path = "/content/drive/MyDrive/PhD Data/09 Acquired patents/04 All patents.dta",
-              all_patents_metadata = "/content/drive/MyDrive/PhD Data/09 Acquired patents/01 Patent data - without citations.dta"
+def load_data(citations_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/08 Citations/03 Patent citations - raw, filing.pickle", 
+              treated_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/10 Sample - pre final/acquired_patents_noresold.pkl", 
+              control_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/10 Sample - pre final/potential_controls_no_exact_match_grantyear_cpc.pkl", 
+              clean_ids_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/10 Sample - pre final/clean_potential_control_ids_no_exact_match_grantyear.csv",
+              acq_type_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/09 Acquired patents/04 All patents.dta",
+              all_patents_metadata = "/content/drive/MyDrive/uc3m PhD/PhD Data/09 Acquired patents/01 Patent data - without citations.dta"
               ):
     
     """Load citations, treated, control data, clean ids, and acquistion type data."""
@@ -227,10 +227,10 @@ def compute_cosine_distances(treated, control):
         torch.cuda.empty_cache()
 
     # Save to file
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "wb") as f:
         pickle.dump(cosine_distance_by_treated, f)
 
-    with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/group_to_candidate_ids.pkl", "wb") as f:
+    with open("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/group_to_candidate_ids.pkl", "wb") as f:
         pickle.dump(group_to_candidate_ids, f)
 
 
@@ -252,7 +252,7 @@ import os
     in memory-safe batches (saves one file at the end only).
     
 
-    save_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl"
+    save_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl"
     cosine_distance_by_treated = {}
 
     print(f"⚙️ Starting cosine distance computation (batch_size={batch_size}, device={device})")
@@ -417,7 +417,7 @@ def _save_mahalanobis(treated_sample, control, citation_counts_dict, treated_cou
     suffix = f"{baseline_begin_period}q"
     threshold_str = f"_top_tech_{threshold}" if top_tech and threshold is not None else "_bl"
     filename = f"precomputed_mahalanobis_{acq_type}{threshold_str}_{suffix}.pkl"
-    path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
+    path = f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
 
     if os.path.exists(path):
         print(f"✔️ Mahalanobis already saved: {filename}")
@@ -605,13 +605,13 @@ def prepare(
     citation_counts_dict = build_citation_counts_dict(quarterly_counts_pd)
     compute_cosine_distances(treated, control)
 
-    if not os.path.exists("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl"):
-        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl", "wb") as f:
+    if not os.path.exists("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl"):
+        with open("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl", "wb") as f:
             pickle.dump(citation_counts_dict, f)
         print("Saved citation_counts_dict.")
 
-    if not os.path.exists("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/control.pkl"):
-        control_path = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/control.pkl"
+    if not os.path.exists("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/control.pkl"):
+        control_path = "/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/control.pkl"
         control.to_pickle(control_path)
         print(f"Saved control DataFrame.")
 
@@ -621,7 +621,7 @@ def prepare(
 
         # Compute treated_vectors
         treated_counts_dict = compute_treated_vectors(treated, citation_counts_dict, baseline_begin_period)
-        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_counts_dict_{suffix}.pkl", "wb") as f:
+        with open(f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_counts_dict_{suffix}.pkl", "wb") as f:
             pickle.dump(treated_counts_dict, f)
         print(f"Saved treated_counts_dict for baseline_begin_period={baseline_begin_period} quarters.")
 
@@ -632,7 +632,7 @@ def prepare(
                         # ✅ Build expected Mahalanobis filename
                         threshold_str = f"_top_tech_{threshold}" if top_tech_flag and threshold is not None else "_bl"
                         filename = f"precomputed_mahalanobis_{acq_type}{threshold_str}_{suffix}.pkl"
-                        path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
+                        path = f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
 
                         # ✅ Check if file already exists → skip
                         if os.path.exists(path):
@@ -689,7 +689,7 @@ def prepare_sample(treated, acq_type, treated_counts_dict,  top_tech = False, to
     import os 
 
     # If the file exists, just load it
-    treated_path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl" if top_tech else f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl"
+    treated_path = f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl" if top_tech else f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl"
     if os.path.exists(treated_path): return pd.read_pickle(treated_path)
 
     # Adjust treated sample based on acquisition type and top tech status
@@ -697,9 +697,9 @@ def prepare_sample(treated, acq_type, treated_counts_dict,  top_tech = False, to
 
     # Save treated and control DataFrames
     if top_tech:
-        treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl")
+        treated_sample.to_pickle(f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl")
     else:
-        treated_sample.to_pickle(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl")
+        treated_sample.to_pickle(f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl")
 
     return treated_sample
 
@@ -710,32 +710,32 @@ def load_aux_data(acq_type, top_tech=False, top_tech_threshold=90, baseline_begi
 
     # Check if already the variable exists and skip loading if True
     if 'citation_counts_dict' not in locals():
-        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl", "rb") as f:
+        with open(f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/citation_counts_dict.pkl", "rb") as f:
             citation_counts_dict = pickle.load(f)
 
     if 'cosine_distance_by_treated' not in locals():
-        with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "rb") as f:
+        with open(f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/cosine_distance_by_treated.pkl", "rb") as f:
             cosine_distance_by_treated = pickle.load(f)
     
     if 'control' not in locals():
-        control = pd.read_pickle("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/control.pkl")
+        control = pd.read_pickle("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/control.pkl")
 
     # Load treated counts dictionary anyways
-    with open(f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_counts_dict_{suffix}.pkl", "rb") as f:
+    with open(f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_counts_dict_{suffix}.pkl", "rb") as f:
         treated_counts_dict = pickle.load(f)
 
     # Load treated sample
     if top_tech:
         treated = pd.read_pickle(
-            f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl"
+            f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_top_tech_{top_tech_threshold}_{baseline_begin_period}q.pkl"
         )
     else:
         treated = pd.read_pickle(
-            f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl"
+            f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/treated_{acq_type}_bl.pkl"
         )
 
     if 'group_to_candidate_ids' not in locals():
-        with open("/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/group_to_candidate_ids.pkl", "rb") as f:
+        with open("/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/group_to_candidate_ids.pkl", "rb") as f:
             group_to_candidate_ids = pickle.load(f)
 
     return treated, control, citation_counts_dict, treated_counts_dict, cosine_distance_by_treated, group_to_candidate_ids
@@ -744,7 +744,7 @@ def load_precomputed_mahalanobis(acq_type, top_tech, baseline_begin_period, top_
     suffix = f"{baseline_begin_period}q"
     threshold_str = f"_top_tech_{top_tech_threshold}" if top_tech and top_tech_threshold is not None else "_bl"
     filename = f"precomputed_mahalanobis_{acq_type}{threshold_str}_{suffix}.pkl"
-    path = f"/content/drive/MyDrive/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
+    path = f"/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/citation_no_exact_match_on_grantyear/_aux/{filename}"
 
     import dill as pickle
     with open(path, "rb") as f:
@@ -761,7 +761,7 @@ def log_grid_result(
     top_tech_threshold,
     baseline_begin_period,
     caliper,
-    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/grid_results_log_additional_calipers.csv", 
+    log_path="/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/paper/grid_results_log_additional_calipers.csv", 
     K = 10
 ):
     # Add identifying info
@@ -936,7 +936,7 @@ def grid_runner_parallel_K(
     tasks = []
     import os
 
-    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/"
+    prefix = "/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/paper/"
 
     for placebo_p in placebo_periods:
         baseline_begin_period = placebo_p * 2 + 1
@@ -1086,7 +1086,7 @@ def save_results(results_df, matched_df_dict, acq_type, caliper = 0.05, top_tech
 
     # Define suffix and prefix
     suffix = f"{acq_type}, top-tech, {top_tech_threshold}, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches" if top_tech else f"{acq_type}, baseline, {baseline_begin_period}q, caliper_{caliper:.4f}, {K}matches"
-    prefix = "/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/"
+    prefix = "/content/drive/MyDrive/uc3m PhD/PhD Data/11 Matches/optimization results/paper/"
     
     # Save matching results
     results_df.to_pickle(f"{prefix}01 Hybrid matching results - {suffix}.pkl")
