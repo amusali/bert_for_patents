@@ -761,7 +761,7 @@ def log_grid_result(
     top_tech_threshold,
     baseline_begin_period,
     caliper,
-    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/grid_results_log.csv", 
+    log_path="/content/drive/MyDrive/PhD Data/11 Matches/optimization results/paper/grid_results_log_additional_calipers.csv", 
     K = 10
 ):
     # Add identifying info
@@ -923,8 +923,8 @@ def run_grid_point_K(args):
 
 
 def grid_runner_parallel_K(
-    placebo_periods=[4, 6, 8],
-    calipers=[0.05],
+    placebo_periods=[4],
+    calipers=[1.01, 0.5, 0.1],
     acq_types=["M&A", "Off deal"],
     top_tech_flags=[False, True],
     top_tech_thresholds=[80],
