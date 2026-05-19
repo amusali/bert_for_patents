@@ -38,7 +38,7 @@
 * ==============================================================================
 * B. Load all the IDs from matched records
 * ==============================================================================
-
+ 
     ** Load data for lambda 0 and 1
     use if inlist(lam, 0, 1) using "${raw_drive}/00 Matched IDs - no pair info.dta", clear
 
@@ -66,12 +66,13 @@
     compress
     tostring lam, replace
     replace lam = subinstr(lam, ".", "", .)
-
+awd
 * ==============================================================================
 * C. Loop over configs x treated flag x lambdas to calculate overlaps
 * ==============================================================================
 
     ** Locals
+    keep if regexm(config, "4q") & regexm(config, "caliper_0.05")
     levelsof file_id, local(files)
     levelsof lambda_val, local(lambdas)
     foreach file of local files{
@@ -92,10 +93,10 @@
                 ** Skip if the lambdas are the same
                 if "`lam'" == "`lam1'" continue
                 
-                preserve
+                *preserve
                     u `lam_`lam'_`file'', clear
                     merge 1:1 id using `lam_`lam1'_`file'', gen(overlap)
-
+                    awdawd
                     gcollapse (nunique) id, by(overlap file config treated)
                     gen lam = "`lam'"
                     gen lam1 = "`lam1'"
@@ -119,7 +120,7 @@
             }
         }
     }
-    save "${dta}\04 Overlaps - all.dta", replace
+    save "${dta}\04 Overlaps - all.dta", replace */
 * ==============================================================================
 * D. Reconcile and finalize overlap figures in %
 * ==============================================================================
@@ -130,7 +131,7 @@
     drop if lam > lam1
 
     ** Filter relevant overlaps for paper
-    keep if regexm(config, "4q") & regexm(config, "caliper_0.0500")
+    keep if regexm(config, "8q") & regexm(config, "caliper_0.1000")
     drop if lam == "6" & lam1 == "7"
     drop if lam1 == "6" & regexm(config, "Off deal")
     drop if lam1 == "7" & regexm(config, "M&A")
@@ -162,3 +163,4 @@
     restore
 
     merge m:1 config treated lam lam1 using `jaccard', assert(3) nogen
+    wad
