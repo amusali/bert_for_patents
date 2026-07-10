@@ -73,7 +73,7 @@
     drop if contains_pcs == 1 & lambda == 1
 
     ** Sample
-    gen sample = acq_type + ", " + bl_tt + ", " + string(pretreatment_periods) + "q, caliper" + string(caliper) + ", " +string(lambda) + ", nemogy with weights"
+    gen sample = acq_type + ", " + bl_tt + ", " + string(pretreatment_periods) + "q, caliper" + string(caliper) + ", " +string(lambda) + ", " + est_config
 
         
     ** Loop over the configurations and plot
@@ -82,7 +82,7 @@
     *assert _N == 4 * 3  // 4 configurations and 3 lambdas
     sort acq_type bl_tt lambda
     count
-    forvalue i = 1/12{
+    forvalue i = 1/`=_N'{
         preserve
             ** Filter
             keep if _n == `i'
@@ -153,7 +153,7 @@
         restore
     }   
 
-
+esfesf
     
 
 
@@ -169,30 +169,36 @@
 
     replace sample = subinstr(sample, "caliper.05", "caliper005", .)
     replace sample = subinstr(sample, "caliper.1", "caliper01", .)
-    replace sample = subinstr(sample, ", nemogy with weights", "", .)
+    replace sample = subinstr(sample, ", " + est_config, "", .)
 
     qui levelsof sample, local(samples)
+    qui levelsof est_config, local(est_configs)
 
     foreach sam of local samples{
-        if regexm("`sam'", "M&A"){
-            local optimal_lam  = "06"
+        foreach cfg of local est_configs{
+            if regexm("`sam'", "M&A"){
+                local optimal_lam  = "06"
+            }
+            else{
+                local optimal_lam  = "07"
+            }
+
+            capture confirm file "${out}\Paper - Event Study - `sam', 1, `cfg'.gph"
+            if _rc != 0 continue
+
+            #delimit ;
+                grc1leg2 
+                "${out}\Paper - Event Study - `sam', 0, `cfg'.gph"  
+                "${out}\Paper - Event Study - `sam', `optimal_lam', `cfg'.gph"     
+                "${out}\Paper - Event Study - `sam', 1, `cfg'.gph", 
+                ycommon col(3) ytol xtob xsize(9) ysize(4) 
+                graphregion(color(white)) 
+            ;
+            #delimit cr
+
+            
+            graph export "${out}\01 Paper - Event Study - `sam' - all lambdas - `cfg'.png", replace width(4500) height(2000)
+
         }
-        else{
-            local optimal_lam  = "07"
-        }
-
-        #delimit ;
-            grc1leg2 
-            "${out}\Paper - Event Study - `sam', 0, nemogy with weights.gph"  
-            "${out}\Paper - Event Study - `sam', `optimal_lam', nemogy with weights.gph"     
-            "${out}\Paper - Event Study - `sam', 1, nemogy with weights.gph", 
-            ycommon col(3) ytol xtob xsize(9)   ysize(4) 
-            graphregion(color(white)) 
-        ;
-        #delimit cr
-
-        
-        graph export "${out}\01 Paper - Event Study - `sam' - all lambdas - nemogy with weights.png", replace width(4500) height(2000)
-
     }
     adw

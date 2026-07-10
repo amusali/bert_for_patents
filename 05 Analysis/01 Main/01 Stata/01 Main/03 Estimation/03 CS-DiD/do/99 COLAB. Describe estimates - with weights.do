@@ -27,7 +27,7 @@
     cd "${out}\est"
 
     ** Start log
-    log using "${log}/99 COLAB. Describe estimates - with weights.log", replace
+    *log using "${log}/99 COLAB. Describe estimates - with weights.log", replace
     timer clear 1
     timer on 1
 
@@ -56,10 +56,54 @@
                 insobs 1 
                 gen config = "`f'"
 
+                gen est_config = ""
+                if regexm(config[1], "Poisson"){
+                    replace est_config = "nemogy_with_weigths_Poisson"
+                }
+                else{
+                    replace est_config = "nemogy_with_weigths" if mi(est_config)
+                }
+
+                if regexm(config[1], "cc"){
+                    replace est_config = "nemogy_with_weigths_cc"
+                }
+                else{
+                    replace est_config = "nemogy_with_weigths" if mi(est_config)
+                }
+
+                if regexm(config[1], "madsw"){
+                    replace est_config = "nemogy_with_weigths_madsw"
+                }
+                else{
+                    replace est_config = "nemogy_with_weigths" if mi(est_config)
+                }
+
+                if regexm(config[1], "odloo"){
+                    local dropped_deal_id = substr(config[1], strlen(config[1]) - 20, 3)
+                    replace est_config = "nemogy_with_weigths_odloo`dropped_deal_id'"
+                }
+                else{
+                    replace est_config = "nemogy_with_weigths" if mi(est_config)
+                }
+                if regexm(config[1], "macloo"){
+                    local dropped_deal_id = substr(config[1], strlen(config[1]) - 20, 3)
+                    replace est_config = "nemogy_with_weigths_macloo`dropped_deal_id'"
+                }
+                else{
+                    replace est_config = "nemogy_with_weigths" if mi(est_config)
+                }
+
+                replace config = subinstr(config, ", Poisson", "", .)
+                replace config = subinstr(config, ", ccc", "", .)
+                replace config = subinstr(config, ", madsw", "", .) //  M&A deals with the same weight
+                replace config = regexr(config, ", odloo*[0-9][0-9][0-9]", "")
+                replace config = subinstr(config, ", macloo99999", "", .)
+                replace config = regexr(config, ", macloo*[0-9][0-9][0-9]", "")
                 ** Parseawdw
                 split config, parse(",")
         
-                ** Extract parameters
+                ** Extract parameters               
+                *di in red config[1]                                 
                 if regexm(config[1], "baseline") {
                     drop config 
                     rename (config*) (acq_type bl_tt pretreatment_periods caliper  lambda posttreatment_periods)
@@ -68,8 +112,6 @@
                     drop config 
                     rename (config*) (acq_type bl_tt tt_threshold pretreatment_periods caliper lambda posttreatment_periods)
                 }
-                gen est_config = "nemogy_with_weigths"
-
 
                 ** Destring 
                 replace pretreatment_periods = strtrim(subinstr(pretreatment_periods, "q", "", .))       
@@ -152,7 +194,7 @@
 
      ** Loop over ster files
     forvalue i = 1/`n_files' {
-            append using  `filename`i''
+            append using  `filename`i'', force
         }
 
     gen contains_pcs = lambda != "1"

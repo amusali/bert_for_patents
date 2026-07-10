@@ -3,11 +3,16 @@
 * A. Set paths
 * ==============================================================================
     clear all
+    capture log close
+    set more off
+    set type double, perm
+    set excelxlsxlargefile on
 
-    ** set path
-    gl analysis "C:\Users\amusali\Desktop\uc3m PhD\05 Analysis\01 Main"
-    gl python "${analysis}/00 Python data"
-    gl stata "${analysis}/01 Stata"
+ 
+    gl google_drive "G:\My Drive\uc3m PhD"
+    gl analysis "${google_drive}\05 Analysis\01 Main"
+    gl python "${analysis}\00 Python data"
+    gl stata "${analysis}\01 Stata"
     
     gl dl "${stata}/01 Main/01 Data load"
     gl desc "${dl}/03 Descriptives"
@@ -19,18 +24,8 @@
         gl temp "${desc}/temp"
     gl dta "${stata}/01 Main/03 Estimation/03 CS-DiD/dta"
 
-    ** Colours - source: https://lospec.com/palette-list/new-tableau-10
-    global c_blue    "#557ca7"
-    global c_orange  "#e98a2e"
-    global c_red     "#d5525a"
-    global c_teal    "#80b9b2"
-    global c_green   "#66a14f"
 
-    global c_yellow  "#e9c74c"
-    global c_purple  "#aa7aa0"
-    global c_pink    "#f79ba8"
-    global c_brown   "#98745e"
-    global c_gray    "#b9b0ab"
+
 
 ********************************************************************************
 * B. Load grid results for citation
@@ -85,6 +80,9 @@
     *---------------------------------------------------------*
     ** Load data with all samples
     use "${dta}\02 All samples - acquired patents with citations.dta", clear
+
+    ** Filter patent with sufficent post-horizon (the last available quarter is 2024Q3 so the last acquisition should be in 2022Q1)
+    keep if qofd(acq_date) <= 248 
 
     ** Age variable 
     gen age_in_acquisition = cohort - qofd(grant_date)
