@@ -49,7 +49,7 @@ def get_embd_of_whole_abstract(abstracts, return_cls_embedding=True, has_context
     if isinstance(abstracts, str):
         abstracts = [abstracts]
     
-    #start_time = time.time()
+    start_time = time.time()
     
     ## Add context tokens if needed
     if has_context_token:
@@ -64,11 +64,11 @@ def get_embd_of_whole_abstract(abstracts, return_cls_embedding=True, has_context
     # Collect the CLS embeddings for each abstract in the batch
     cls_token_embeddings = response[0]['cls_token'].numpy()  # Shape will be (batch_size, 1024)
 
-    #end_time = time.time()
-    #average_time = (end_time - start_time)/len(abstracts)
+    end_time = time.time()
+    average_time = (end_time - start_time)/len(abstracts)
     #print(f'There are {len(abstracts)} patents being fed into BERT')
 
-    #print(f"It took {average_time:.5f} seconds to get the embeddings of the input.")
+    print(f"It took {average_time:.5f} seconds to get the embeddings of the input.")
     
     if return_cls_embedding:
         # Return CLS embeddings for all abstracts in the batch
